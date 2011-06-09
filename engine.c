@@ -40,25 +40,31 @@ void engine_set_nice_value(engine_t *engine, int value){
 // engine_send_queue()
 
 void engine_send_queue(engine_t * engine, const char *format, ...) {
+    va_list arg_list;
     if(write_index>=StringSize){
         my_fatal("engine_send_queue(): write_buffer overflow\n");
     }
+    va_start(arg_list,format);
     write_index += vsnprintf(write_buffer + write_index,
-                            StringSize-write_index,
+                             StringSize-write_index,
                              format,
-                            (va_list) (&format + 1));
+                             arg_list);
+    va_end(arg_list);
 }
 
 // engine_send()
 
 void engine_send(engine_t * engine, const char *format, ...) {
+    va_list arg_list;
     if(write_index>=StringSize){
         my_fatal("engine_send(): write_buffer overflow\n");
     }
+    va_start(arg_list,format);
     vsnprintf(write_buffer + write_index,
               StringSize-write_index,
               format,
-              (va_list) (&format + 1));
+              arg_list);
+    va_end(arg_list);
     pipex_writeln(engine->pipex,write_buffer);
     write_index = 0;
 }

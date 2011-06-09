@@ -1,3 +1,5 @@
+=========1.4.31b================
+- Bugfix: improper handling of vararg function.
 =========1.4.30b================
 - Some more meaningful error messages added.
 - Some buffer overflow checks added.
