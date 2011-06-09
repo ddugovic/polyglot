@@ -2,18 +2,17 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([polyglot], [1.4b27], [michel.vandenbergh@uhasselt.be])
+AC_INIT([polyglot], [1.4.30b], [michel.vandenbergh@uhasselt.be])
 AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([mainloop.cpp])
+AC_CONFIG_SRCDIR([mainloop.c])
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
-AC_PROG_CXX
 AC_PROG_CC
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lm':
-AC_CHECK_LIB([m], [sin])
+
+AC_CHECK_LIB([m], [main])
 
 # Checks for header files.
 AC_HEADER_STDC

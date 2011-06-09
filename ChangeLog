@@ -1,3 +1,15 @@
+=========1.4.30b================
+- Some more meaningful error messages added.
+- Some buffer overflow checks added.
+- Simplification of strange signal kludge in gui.c. 
+- Removal of obsolete code in engine.c and gui.c. Platform specific code has been abstracted and pushed into pipex_win32.c and pipex_posix.c
+- The format of the version number has changed once again. Debian was unhappy with the previous one.
+=========1.4b29================
+- Conversion from C++ to C (suggested by E.M.)
+- More refactoring. The win32 and posix I/O now have a uniform interface (see pipex.h). 
+=========1.4b28================
+- Some comments added to explain the exact behaviour of some of the public functions in pipe.cpp. 
+- LineInput now returns a bool which is FALSE in case of EOF. 
 =========1.4b27================
 - Option "ScoreWhite" : report score from white's point of view (suggested by E.M.).
 - Option "KibitzInterval" : try to wait this many seconds between kibitzes (suggested by E.M.)

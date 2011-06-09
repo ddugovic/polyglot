@@ -61,20 +61,15 @@ am_polyglot_OBJECTS = mainloop.$(OBJEXT) attack.$(OBJEXT) \
 	hash.$(OBJEXT) io.$(OBJEXT) line.$(OBJEXT) list.$(OBJEXT) \
 	main.$(OBJEXT) move.$(OBJEXT) move_do.$(OBJEXT) \
 	move_gen.$(OBJEXT) move_legal.$(OBJEXT) option.$(OBJEXT) \
-	parse.$(OBJEXT) pgn.$(OBJEXT) piece.$(OBJEXT) pipe.$(OBJEXT) \
-	posix.$(OBJEXT) random.$(OBJEXT) san.$(OBJEXT) \
-	search.$(OBJEXT) square.$(OBJEXT) uci.$(OBJEXT) \
+	parse.$(OBJEXT) pgn.$(OBJEXT) piece.$(OBJEXT) \
+	pipex_posix.$(OBJEXT) pipex_win32.$(OBJEXT) random.$(OBJEXT) \
+	san.$(OBJEXT) search.$(OBJEXT) square.$(OBJEXT) uci.$(OBJEXT) \
 	uci2uci.$(OBJEXT) util.$(OBJEXT) xboard2uci.$(OBJEXT)
 polyglot_OBJECTS = $(am_polyglot_OBJECTS)
 polyglot_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
-CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-CXXLD = $(CXX)
-CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
-	-o $@
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -116,9 +111,6 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CXX = @CXX@
-CXXDEPMODE = @CXXDEPMODE@
-CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -156,7 +148,6 @@ abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
-ac_ct_CXX = @ac_ct_CXX@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -193,7 +184,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-polyglot_SOURCES = mainloop.cpp attack.cpp board.cpp book.cpp book_make.cpp book_merge.cpp colour.cpp  engine.cpp epd.cpp fen.cpp gui.cpp game.cpp hash.cpp io.cpp line.cpp list.cpp main.cpp move.cpp move_do.cpp move_gen.cpp move_legal.cpp option.cpp parse.cpp pgn.cpp piece.cpp pipe.cpp posix.cpp random.cpp san.cpp search.cpp square.cpp uci.cpp uci2uci.cpp util.cpp xboard2uci.cpp mainloop.h colour.h hash.h move_gen.h piece.h uci2uci.h attack.h config.h gui.h io.h move.h pipe.h posix.h uci.h board.h engine.h line.h move_legal.h random.h util.h book.h epd.h list.h option.h san.h book_make.h fen.h main.h parse.h search.h book_merge.h game.h move_do.h pgn.h square.h xboard2uci.h
+polyglot_SOURCES = mainloop.c attack.c board.c book.c book_make.c book_merge.c colour.c  engine.c epd.c fen.c gui.c game.c hash.c io.c line.c list.c main.c move.c move_do.c move_gen.c move_legal.c option.c parse.c pgn.c piece.c pipex_posix.c pipex_win32.c random.c san.c search.c square.c uci.c uci2uci.c util.c xboard2uci.c mainloop.h colour.h hash.h move_gen.h piece.h uci2uci.h attack.h config.h gui.h io.h move.h pipex.h uci.h board.h engine.h line.h move_legal.h random.h util.h book.h epd.h list.h option.h san.h book_make.h fen.h main.h parse.h search.h book_merge.h game.h move_do.h pgn.h square.h xboard2uci.h
 dist_doc_DATA = README README1.3 README1.4 README1.4w README1.4w10UCI book_format.html
 man6_MANS = polyglot.man
 EXTRA_DIST = makefile.gcc makefile.ms polyglot.man polyglot.pod polyglot.spec debian/changelog debian/control debian/docs debian/README debian/compat debian/copyright debian/files debian/polyglot.substvars debian/rules
@@ -201,7 +192,7 @@ all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .cpp .o .obj
+.SUFFIXES: .c .o .obj
 am--refresh:
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -277,7 +268,7 @@ clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 polyglot$(EXEEXT): $(polyglot_OBJECTS) $(polyglot_DEPENDENCIES) 
 	@rm -f polyglot$(EXEEXT)
-	$(CXXLINK) $(polyglot_OBJECTS) $(polyglot_LDADD) $(LIBS)
+	$(LINK) $(polyglot_OBJECTS) $(polyglot_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -310,8 +301,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pgn.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/piece.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pipe.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/posix.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pipex_posix.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pipex_win32.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/san.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/search.Po@am__quote@
@@ -321,19 +312,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xboard2uci.Po@am__quote@
 
-.cpp.o:
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
+.c.o:
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c $<
 
-.cpp.obj:
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+.c.obj:
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 install-man6: $(man6_MANS) $(man_MANS)
 	@$(NORMAL_INSTALL)
 	test -z "$(man6dir)" || $(MKDIR_P) "$(DESTDIR)$(man6dir)"

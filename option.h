@@ -8,19 +8,16 @@
 
 #include "util.h"
 
-// constants
-
-const int VarNb = 16;
-
 // defines
 
-#define XBOARD 1
-#define UCI 2
-#define PG 4
+#define VarNb  16
+#define XBOARD (1<<0)
+#define UCI    (1<<1)
+#define PG     (1<<2)
 
 // types
 
-struct option_t {   // TODO: put back in more logical order
+typedef struct {   // TODO: put back in more logical order
     const char * name;
     const char * type;
     const char * min;
@@ -30,7 +27,7 @@ struct option_t {   // TODO: put back in more logical order
     int var_nb;
     const char * var[VarNb];
     int mode;
-};
+} option_t;
 
 // variables
 

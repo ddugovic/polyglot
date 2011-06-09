@@ -9,12 +9,16 @@
 #include "board.h"
 #include "util.h"
 
-// constants
+// defines
 
-const int RandomPiece     =   0; // 12 * 64
-const int RandomCastle    = 768; // 4
-const int RandomEnPassant = 772; // 8
-const int RandomTurn      = 780; // 1
+#define RandomPiece          0
+// 12 * 64
+#define RandomCastle       768
+// 4
+#define RandomEnPassant    772
+// 8
+#define  RandomTurn        780
+// 1
 
 // functions
 

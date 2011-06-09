@@ -6,17 +6,17 @@
 
 // includes
 
-#include <cstdio>
+#include <stdio.h>
 
 #include "util.h"
 
-// constants
+// defines
 
-const int PGN_STRING_SIZE = 256;
+#define PGN_STRING_SIZE 256
 
 // types
 
-struct pgn_t {
+typedef struct {
 
    FILE * file;
 
@@ -40,7 +40,7 @@ struct pgn_t {
    int move_line;
    int move_column;
    int game_nb;
-};
+} pgn_t;
 
 // functions
 

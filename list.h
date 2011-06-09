@@ -10,24 +10,26 @@
 #include "move.h"
 #include "util.h"
 
-// constants
+// defines
 
-const int ListSize = 256;
+#define ListSize 256
 
 // types
 
-struct list_t {
+typedef struct {
    sint16 size;
    move_t move[ListSize];
    sint16 value[ListSize];
-};
+} list_t;
 
 // functions
 
 extern bool list_is_ok    (const list_t * list);
 
 extern void list_clear    (list_t * list);
-extern void list_add      (list_t * list, int move, int value = 0);
+extern void list_add      (list_t * list, int move);
+extern void list_add_ex   (list_t * list, int move, int value);
+
 extern void list_remove   (list_t * list, int index);
 
 extern bool list_is_empty (const list_t * list);

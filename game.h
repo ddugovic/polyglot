@@ -10,11 +10,13 @@
 #include "move.h"
 #include "util.h"
 
-// constants
+// defines
 
-const int GameSize = 4096;
+#define GameSize 4096
 
-enum status_t {
+// types
+
+typedef enum {
    PLAYING,
    WHITE_MATES,
    BLACK_MATES,
@@ -22,11 +24,11 @@ enum status_t {
    DRAW_MATERIAL,
    DRAW_FIFTY,
    DRAW_REPETITION
-};
+} status_t;
 
 // types
 
-struct game_t {
+typedef struct {
    board_t start_board[1];
    board_t board[1];
    sint16 size;
@@ -34,7 +36,7 @@ struct game_t {
    sint8 status;
    move_t move[GameSize];
    uint64 key[GameSize];
-};
+} game_t;
 
 // variables
 
@@ -53,7 +55,8 @@ extern int  game_size      (const game_t * game);
 extern int  game_pos       (const game_t * game);
 extern int  game_move      (const game_t * game, int pos);
 
-extern void game_get_board (const game_t * game, board_t * board, int pos = -1);
+extern void game_get_board (const game_t * game, board_t * board);
+extern void game_get_board_ex (const game_t * game, board_t * board, int pos);
 extern int  game_turn      (const game_t * game);
 extern int  game_move_nb   (const game_t * game);
 

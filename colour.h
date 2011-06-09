@@ -8,15 +8,14 @@
 
 #include "util.h"
 
-// constants
+// defines
 
-const int BlackFlag = 1 << 0;
-const int WhiteFlag = 1 << 1;
-
-const int ColourNone = 0;
-const int Black      = BlackFlag;
-const int White      = WhiteFlag;
-const int ColourNb   = 3;
+#define BlackFlag (1 << 0)
+#define WhiteFlag (1 << 1)
+#define ColourNone 0
+#define Black BlackFlag
+#define White WhiteFlag
+#define ColourNb 3
 
 // functions
 

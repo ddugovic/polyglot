@@ -9,53 +9,53 @@
 #include "colour.h"
 #include "util.h"
 
-// constants
+// defines
 
-const int BlackPawnFlag = 1 << 2;
-const int WhitePawnFlag = 1 << 3;
-const int KnightFlag    = 1 << 4;
-const int BishopFlag    = 1 << 5;
-const int RookFlag      = 1 << 6;
-const int KingFlag      = 1 << 7;
+#define BlackPawnFlag     (1 << 2)
+#define WhitePawnFlag     (1 << 3)
+#define KnightFlag        (1 << 4)
+#define BishopFlag        (1 << 5)
+#define RookFlag          (1 << 6)
+#define KingFlag          (1 << 7)
 
-const int PawnFlags  = BlackPawnFlag | WhitePawnFlag;
-const int QueenFlags = BishopFlag | RookFlag;
+#define PawnFlags   (BlackPawnFlag | WhitePawnFlag)
+#define QueenFlags  (BishopFlag | RookFlag)
 
-const int PieceNone64 = 0;
-const int BlackPawn64 = BlackPawnFlag;
-const int WhitePawn64 = WhitePawnFlag;
-const int Knight64    = KnightFlag;
-const int Bishop64    = BishopFlag;
-const int Rook64      = RookFlag;
-const int Queen64     = QueenFlags;
-const int King64      = KingFlag;
+#define PieceNone64     (0)
+#define BlackPawn64     (BlackPawnFlag)
+#define WhitePawn64     (WhitePawnFlag)
+#define Knight64        (KnightFlag)
+#define Bishop64        (BishopFlag)
+#define Rook64          (RookFlag)
+#define Queen64         (QueenFlags)
+#define King64          (KingFlag)
 
-const int PieceNone256   = 0;
-const int BlackPawn256   = BlackPawn64 | Black;
-const int WhitePawn256   = WhitePawn64 | White;
-const int BlackKnight256 = Knight64    | Black;
-const int WhiteKnight256 = Knight64    | White;
-const int BlackBishop256 = Bishop64    | Black;
-const int WhiteBishop256 = Bishop64    | White;
-const int BlackRook256   = Rook64      | Black;
-const int WhiteRook256   = Rook64      | White;
-const int BlackQueen256  = Queen64     | Black;
-const int WhiteQueen256  = Queen64     | White;
-const int BlackKing256   = King64      | Black;
-const int WhiteKing256   = King64      | White;
+#define  PieceNone256      (0)
+#define  BlackPawn256      (BlackPawn64 | Black)
+#define  WhitePawn256      (WhitePawn64 | White)
+#define  BlackKnight256    (Knight64    | Black)
+#define  WhiteKnight256    (Knight64    | White)
+#define  BlackBishop256    (Bishop64    | Black)
+#define  WhiteBishop256    (Bishop64    | White)
+#define  BlackRook256      (Rook64      | Black)
+#define  WhiteRook256      (Rook64      | White)
+#define  BlackQueen256     (Queen64     | Black)
+#define  WhiteQueen256     (Queen64     | White)
+#define  BlackKing256      (King64      | Black)
+#define  WhiteKing256      (King64      | White)
 
-const int BlackPawn12   =  0;
-const int WhitePawn12   =  1;
-const int BlackKnight12 =  2;
-const int WhiteKnight12 =  3;
-const int BlackBishop12 =  4;
-const int WhiteBishop12 =  5;
-const int BlackRook12   =  6;
-const int WhiteRook12   =  7;
-const int BlackQueen12  =  8;
-const int WhiteQueen12  =  9;
-const int BlackKing12   = 10;
-const int WhiteKing12   = 11;
+#define BlackPawn12        (0)
+#define WhitePawn12        (1)
+#define BlackKnight12      (2)
+#define WhiteKnight12      (3)
+#define BlackBishop12      (4)
+#define WhiteBishop12      (5)
+#define BlackRook12        (6)
+#define WhiteRook12        (7)
+#define BlackQueen12       (8)
+#define WhiteQueen12       (9)
+#define BlackKing12       (10)
+#define WhiteKing12       (11)
 
 // functions
 

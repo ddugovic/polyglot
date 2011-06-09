@@ -13,11 +13,13 @@
 #include "option.h"
 #include "util.h"
 
-// constants
+// defines
 
-const int OptionNb = 256;
+#define OptionNb 256
 
-struct uci_t {
+// types
+
+typedef struct {
 
    engine_t * engine;
 
@@ -59,9 +61,9 @@ struct uci_t {
    int root_move_pos;
    int root_move_nb;
    bool multipv_mode;
-};
+} uci_t;
 
-enum dummy_event_t {
+typedef enum {
    EVENT_NONE  = 0,
    EVENT_UCI   = 1 << 0,
    EVENT_READY = 1 << 1,
@@ -71,7 +73,7 @@ enum dummy_event_t {
    EVENT_DEPTH = 1 << 5,
    EVENT_DRAW  = 1 << 6,
    EVENT_RESIGN= 1 << 7
-};
+} dummy_event_t;
 
 // variables
 

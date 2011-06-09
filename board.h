@@ -10,17 +10,16 @@
 #include "square.h"
 #include "util.h"
 
-// constants
+// defines
 
-const int Empty = 0;
-
-const int SideH = 0;
-const int SideA = 1;
-const int SideNb = 2;
+#define Empty  0
+#define SideH  0
+#define SideA  1
+#define SideNb 2
 
 // types
 
-struct board_t {
+typedef struct {
 
    uint8 square[SquareNb];
    sint8 pos[SquareNb];
@@ -38,7 +37,7 @@ struct board_t {
    sint16 move_nb;
 
    uint64 key;
-};
+} board_t;
 
 // functions
 

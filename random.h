@@ -8,9 +8,9 @@
 
 #include "util.h"
 
-// constants
+// defines
 
-const int RandomNb = 781;
+#define RandomNb  781
 
 // macros
 

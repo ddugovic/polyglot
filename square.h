@@ -8,41 +8,97 @@
 
 #include "util.h"
 
-// constants
+// defines
 
-const int SquareNb = 16 * 12;
+#define SquareNb (16 * 12)
 
-const int FileA = 0;
-const int FileB = 1;
-const int FileC = 2;
-const int FileD = 3;
-const int FileE = 4;
-const int FileF = 5;
-const int FileG = 6;
-const int FileH = 7;
+#define FileA 0
+#define FileB 1
+#define FileC 2
+#define FileD 3
+#define FileE 4
+#define FileF 5
+#define FileG 6
+#define FileH 7
 
-const int Rank1 = 0;
-const int Rank2 = 1;
-const int Rank3 = 2;
-const int Rank4 = 3;
-const int Rank5 = 4;
-const int Rank6 = 5;
-const int Rank7 = 6;
-const int Rank8 = 7;
+#define Rank1 0
+#define Rank2 1
+#define Rank3 2
+#define Rank4 3
+#define Rank5 4
+#define Rank6 5
+#define Rank7 6
+#define Rank8 7
 
-const int SquareNone = 0;
+#define SquareNone 0
 
-const int A1=0x24, B1=0x25, C1=0x26, D1=0x27, E1=0x28, F1=0x29, G1=0x2A, H1=0x2B;
-const int A2=0x34, B2=0x35, C2=0x36, D2=0x37, E2=0x38, F2=0x39, G2=0x3A, H2=0x3B;
-const int A3=0x44, B3=0x45, C3=0x46, D3=0x47, E3=0x48, F3=0x49, G3=0x4A, H3=0x4B;
-const int A4=0x54, B4=0x55, C4=0x56, D4=0x57, E4=0x58, F4=0x59, G4=0x5A, H4=0x5B;
-const int A5=0x64, B5=0x65, C5=0x66, D5=0x67, E5=0x68, F5=0x69, G5=0x6A, H5=0x6B;
-const int A6=0x74, B6=0x75, C6=0x76, D6=0x77, E6=0x78, F6=0x79, G6=0x7A, H6=0x7B;
-const int A7=0x84, B7=0x85, C7=0x86, D7=0x87, E7=0x88, F7=0x89, G7=0x8A, H7=0x8B;
-const int A8=0x94, B8=0x95, C8=0x96, D8=0x97, E8=0x98, F8=0x99, G8=0x9A, H8=0x9B;
+#define A1 0x24
+#define B1 0x25
+#define C1 0x26
+#define D1 0x27
+#define E1 0x28
+#define F1 0x29
+#define G1 0x2A
+#define H1 0x2B
+#define A2 0x34
+#define B2 0x35
+#define C2 0x36
+#define D2 0x37
+#define E2 0x38
+#define F2 0x39
+#define G2 0x3A
+#define H2 0x3B
+#define A3 0x44
+#define B3 0x45
+#define C3 0x46
+#define D3 0x47
+#define E3 0x48
+#define F3 0x49
+#define G3 0x4A
+#define H3 0x4B
+#define A4 0x54
+#define B4 0x55
+#define C4 0x56
+#define D4 0x57
+#define E4 0x58
+#define F4 0x59
+#define G4 0x5A
+#define H4 0x5B
+#define A5 0x64
+#define B5 0x65
+#define C5 0x66
+#define D5 0x67
+#define E5 0x68
+#define F5 0x69
+#define G5 0x6A
+#define H5 0x6B
+#define A6 0x74
+#define B6 0x75
+#define C6 0x76
+#define D6 0x77
+#define E6 0x78
+#define F6 0x79
+#define G6 0x7A
+#define H6 0x7B
+#define A7 0x84
+#define B7 0x85
+#define C7 0x86
+#define D7 0x87
+#define E7 0x88
+#define F7 0x89
+#define G7 0x8A
+#define H7 0x8B
+#define A8 0x94
+#define B8 0x95
+#define C8 0x96
+#define D8 0x97
+#define E8 0x98
+#define F8 0x99
+#define G8 0x9A
+#define H8 0x9B
 
-const int Dark  = 0;
-const int Light = 1;
+#define Dark  0
+#define Light 1
 
 // functions
 

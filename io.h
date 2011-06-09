@@ -8,13 +8,13 @@
 
 #include "util.h"
 
-// constants
+// defined
 
-const int BufferSize = 16384;
+#define BufferSize 16384
 
 // types
 
-struct io_t {
+typedef struct {
 
    int in_fd;
    int out_fd;
@@ -28,7 +28,7 @@ struct io_t {
 
    char in_buffer[BufferSize];
    char out_buffer[BufferSize];
-};
+} io_t;
 
 // functions
 

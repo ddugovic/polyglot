@@ -9,15 +9,16 @@
 #include "board.h"
 #include "util.h"
 
-// constants
+// defined
 
-const int MoveNone = 0; // HACK: a1a1 cannot be a legal move
+// HACK: a1a1 cannot be a legal move
+#define MoveNone (0) 
 
-const int MovePromoteKnight = 1 << 12;
-const int MovePromoteBishop = 2 << 12;
-const int MovePromoteRook   = 3 << 12;
-const int MovePromoteQueen  = 4 << 12;
-const int MoveFlags         = 7 << 12;
+#define MovePromoteKnight  (1 << 12)
+#define MovePromoteBishop  (2 << 12)
+#define MovePromoteRook    (3 << 12)
+#define MovePromoteQueen   (4 << 12)
+#define MoveFlags          (7 << 12)
 
 // types
 

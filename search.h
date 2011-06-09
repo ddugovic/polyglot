@@ -8,9 +8,9 @@
 #include "board.h"
 #include "util.h"
 
-// constants
+// defines
 
-const int DepthMax = 63;
+#define DepthMax 63
 
 // functions
 

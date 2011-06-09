@@ -12,7 +12,7 @@
 
 // constants
 
-const int LineSize = 256;
+#define LineSize 256
 
 // functions
 

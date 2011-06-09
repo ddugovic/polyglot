@@ -6,9 +6,22 @@
 
 // includes
 
-#include <cstdio>
+#include <stdio.h>
 
-// constants
+// defines
+
+#ifndef EXIT_SUCCES
+#define EXIT_SUCCES 0
+#endif
+
+#ifndef STDIN_FILENO
+#define STDIN_FILENO 0
+#endif
+
+#ifndef STDOUT_FILENO
+#define STDOUT_FILENO 1
+#endif
+
 
 #undef FALSE
 #define FALSE 0
@@ -63,6 +76,8 @@ typedef unsigned short uint16;
 typedef signed int sint32;
 typedef unsigned int uint32;
 
+typedef int bool;
+
 #ifdef _MSC_VER
   typedef signed __int64 sint64;
   typedef unsigned __int64 uint64;
@@ -71,28 +86,14 @@ typedef unsigned int uint32;
   typedef unsigned long long int uint64;
 #endif
 
-struct my_timer_t {
+typedef struct {
    double start_real;
    double elapsed_real;
    bool running;
-};
+} my_timer_t;
 
 // functions
 
-#ifdef _WIN32
-  #include <windows.h>
-  inline void Idle(void) {
-    Sleep(1);
-  }
-  inline void Idle500msecs(void){
-	  Sleep(500);
-  }
-#else
-  #include <unistd.h>
-  inline void Idle(void) {
-    usleep(1000);
-  }
-#endif
 extern void   util_init             ();
 
 extern void   my_random_init        ();
@@ -124,6 +125,8 @@ extern char * my_strdup             (const char string[]);
 extern void   my_string_clear       (const char * * variable);
 extern void   my_string_set         (const char * * variable, const char string[]);
 
+extern double now_real              ();
+
 extern void   my_timer_reset        (my_timer_t * timer);
 extern void   my_timer_start        (my_timer_t * timer);
 extern void   my_timer_stop         (my_timer_t * timer);
@@ -131,6 +134,9 @@ extern void   my_timer_stop         (my_timer_t * timer);
 extern double my_timer_elapsed_real (const my_timer_t * timer);
 
 extern char * my_error();
+
+extern char * my_getcwd             (char *buf, size_t size);
+extern int    my_chdir              (const char *path);
 
 #endif // !defined UTIL_H
 

@@ -8,19 +8,19 @@
 
 #include "util.h"
 
-// constants
+// defined
 
-const int STAR_NUMBER = 16;
-const int KEYWORD_NUMBER = 256;
+#define STAR_NUMBER         16
+#define KEYWORD_NUMBER     256
 
 // types
 
-struct parse_t {
+typedef struct {
    const char * string;
    int pos;
    int keyword_nb;
    const char * keyword[KEYWORD_NUMBER];
-};
+} parse_t;
 
 // variables
 

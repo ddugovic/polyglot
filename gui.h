@@ -5,16 +5,14 @@
 
 // includes
 
-#include "pipe.h"
+#include "pipex.h"
 #include "io.h"
 
-struct gui_t {
-#ifndef _WIN32
-    io_t io[1];
-#else
-    PipeStruct io;
-#endif
-};
+// types
+
+typedef struct {
+    pipex_t pipex[1];
+} gui_t;
 
 // variables
 
@@ -23,9 +21,9 @@ extern gui_t GUI[1];
 // functions
 
 extern void gui_init(gui_t * gui);
-extern void gui_send(gui_t * gui, const char format[], ...);
-extern void gui_get        (gui_t * gui, char string[], int size); 
-extern bool gui_get_non_blocking (gui_t * gui, char string[], int size); 
+extern void gui_send(gui_t * gui, const char *format, ...);
+extern void gui_get        (gui_t * gui, char *string); 
+extern bool gui_get_non_blocking (gui_t * gui, char *string); 
 
 
 #endif

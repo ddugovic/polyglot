@@ -9,9 +9,9 @@
 #include "board.h"
 #include "util.h"
 
-// constants
+// defines 
 
-const int IncNone = 0;
+#define IncNone 0
 
 // "constants"
 
