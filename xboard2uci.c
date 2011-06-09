@@ -858,6 +858,13 @@ static void send_xboard_options(){
     option_start_iter(Uci->option);
     while((opt=option_next(Uci->option))){
         if(my_string_case_equal(opt->name,"UCI_AnalyseMode")) continue;
+        if(my_string_case_equal(opt->name,"UCI_Opponent")) continue;
+        if(my_string_case_equal(opt->name,"UCI_Chess960")) continue;
+        if(my_string_case_equal(opt->name,"UCI_ShowCurrLine")) continue;
+        if(my_string_case_equal(opt->name,"UCI_ShowRefutations")) continue;
+        if(my_string_case_equal(opt->name,"UCI_ShredderbasesPath")) continue;
+        if(my_string_case_equal(opt->name,"UCI_SetPositionValue")) continue;
+        if(my_string_case_equal(opt->name,"UCI_DrawOffers")) continue;
         if(my_string_case_equal(opt->name,"Ponder")) continue;
         if(my_string_case_equal(opt->name,"Hash")) continue;
         if(my_string_case_equal(opt->name,"NalimovPath")) continue;

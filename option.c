@@ -25,6 +25,9 @@ option_t DefaultOptions[] = {
 
    // options
 
+    { "SaveSettingsOnExit","check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "SaveFile",         "string","0","0",     "<empty>"   , NULL,0,NNB,  PG|XBOARD},
+    
     { "EngineName",       "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
     { "EngineDir",        "string","0","0",     "."         , NULL,0,NNB,  PG}, 
     { "EngineCommand",    "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
@@ -37,7 +40,7 @@ option_t DefaultOptions[] = {
     { "UseNice",          "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI}, 
     { "NiceValue",        "spin", "0","20",     "5"         , NULL,0,NNB,  PG|XBOARD|UCI}, 
 
-    { "Chess960",         "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "Chess960",         "check","0","0",      "false"     , NULL,0,NNB,  PG}, 
 
     { "Resign",           "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
     { "ResignMoves",      "spin","0","10000",    "3"        , NULL,0,NNB,  PG|XBOARD}, 
@@ -183,7 +186,7 @@ bool option_set_default(option_list_t *option,
    opt = option_find(option,name);
    if (opt == NULL) return FALSE;
 
-   opt->default_=my_strdup(value);
+   my_string_set(&opt->default_,value);
 
    if (UseDebug) my_log("POLYGLOT OPTION DEFAULT SET \"%s\" -> \"%s\"\n",opt->name,opt->default_);
 
@@ -293,9 +296,13 @@ option_t * option_find(option_list_t *option, const char name[]) {
    return NULL;
 }
 
+// option_start_iter()
+
 void option_start_iter(option_list_t *option){
     option->iter=0;
 }
+
+// option_next()
 
 option_t * option_next(option_list_t *option){
     ASSERT(option->iter<=option->option_nb);
@@ -321,12 +328,27 @@ void option_free(option_t *option){
       option->mode=0;
 }
 
+// option_clear()
+
 void option_clear(option_list_t *option){
     int i;
     for (i = 0; i < option->option_nb; i++) {
         option_free(option->options+i);
    }
    option->option_nb=0;
+}
+
+// option_from_ini()
+
+void option_from_ini(option_list_t *option,
+                     ini_t *ini,
+                     const char *section){
+    ini_entry_t *entry;
+    ini_start_iter(ini);
+    while((entry=ini_next(ini))){
+        option_set(option,entry->name,entry->value);
+        option_set_default(option,entry->name,entry->value);
+    }
 }
 
 // end of option.cpp

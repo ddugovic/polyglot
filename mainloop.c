@@ -15,6 +15,7 @@
 #include "engine.h"
 #include "gui.h"
 #include "option.h"
+//#include "ini.h"
 #include "xboard2uci.h"
 #include "uci2uci.h"
 

@@ -190,7 +190,7 @@ void my_fatal(const char format[], ...) {
     CONSTRUCT_ARG_STRING(format,string);
     
     fprintf(stderr,"%s",string);
-    if (LogFile != NULL) fprintf(LogFile,"%s",string);
+    my_log("POLYGLOT %s",string);
 
     if (Error) { // recursive error
         my_log("POLYGLOT *** RECURSIVE ERROR ***\n");
@@ -339,7 +339,10 @@ double now_real() {
 
    return tv->tv_sec + tv->tv_usec * 1E-6;
 #else
-   return (double) GetTickCount() / 1000.0;  // we can do better here:-)
+   struct _timeb timeptr;
+   _ftime(&timeptr);
+   return(timeptr.time+((double)timeptr.millitm)/1000.0);
+//   return (double) GetTickCount() / 1000.0;  // we can do better here:-)
 #endif
 }
 

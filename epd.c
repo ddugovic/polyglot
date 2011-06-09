@@ -212,7 +212,7 @@ static void epd_test_file(const char file_name[]) {
       if (!board_from_fen(board,epd)) ASSERT(FALSE);
       if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
 
-      engine_send(Engine,"position fen %s");
+      engine_send(Engine,"position fen %s",string);
 
       // search
 

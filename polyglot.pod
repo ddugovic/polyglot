@@ -8,9 +8,7 @@ PolyGlot -  Winboard protocol to UCI protocol adapter
 
 =head1 SYNOPSIS
 
-polyglot [configfile]
-
-polyglot -ec engine
+polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log] [-lf logfile] [-hash value] [-bk book] [-pg <name>=<value>]* [-uci <name>=<value>]*
 
 polyglot make-book [-pgn inputfile] [-bin outputfile] [-max-ply ply] [-min-game games] [-min-score score] [-only-white] [-only-black] [-uniform]
 
@@ -20,7 +18,7 @@ polyglot info-book [-bin inputfile] [-exact]
 
 polyglot dump-book [-bin inputfile] -color color [-out outputfile]
 
-polyglot [configfile] epd-test [-epd inputfile] [-min-depth depth] [-max-depth depth] [-max-time time] [-depth-delta delta] 
+polyglot [configfile] epd-test [engineoptions] [-epd inputfile] [-min-depth depth] [-max-depth depth] [-max-time time] [-depth-delta delta] 
 
 polyglot perft [-fen fen] [-max-depth depth]
 
@@ -118,17 +116,59 @@ is however much slower than other more dedicated programs.
 
 =head1 OPTIONS
 
-When invoked without options or with a config file as argument PolyGlot
-acts as an adapter. The config file format is documented below.  The
-default config file is "polyglot.ini".
+When PolyGlot is invoked as an adapter of in epd-test mode it gets its
+options from a config file and then from the command line.  The
+default config file is "polyglot.ini" but an alternative one may be
+optionally included as first argument. The config file format is
+described below.
 
-When invoked as
+The following engine options may be specified on the command line.
 
-=head2 polyglot -ec engine
+=over 4
+    
+=item B<-noini> 
 
-PolyGlot simply starts "engine" and acts as an adapter. No config file
-is used and thus it is expected that all properties will be set by the
-GUI. 
+Do not use a config file, even if one was specified on the command line.
+
+=item B<-pg>
+
+The argument is a string of the form <name>=<value>. This option will
+set the Polyglot option <name> to <value>. 
+
+=item B<-uci>
+
+The argument is a string of the form <name>=<value>. This option will
+set the engine option <name> to <value>. 
+
+=item B<-ec> 
+
+This is an alias for -pg "EngineCommand=<value>".
+
+=item B<-ed>
+
+This is an alias for -pg "EngineDir=<value>".
+
+=item B<-en>
+
+This is an alias for -pg "EngineName=<value>"
+
+=item B<-hash>
+
+This is an alias for -uci "Hash=<value>".
+
+=item B<-log>
+
+This is an alias for -pg "Log=true".
+
+=item B<-lf> (default: "polyglot.log")
+
+This is an alias for -pg "LogFile=<value>".
+
+=item B<-bk> 
+
+This is an alias for -pg "Book=true" -pg "BookFile=<value>".
+
+=back
 
 When invoked as
 
@@ -249,8 +289,9 @@ When invoked as
 
 =head2 polyglot epd-test
 
-(possibly with a config file as first argument) PolyGlot supports the following
-options
+(possibly with a config file as first argument) PolyGlot supports
+besides the generic options described above the following additional
+options.
 
 =over 4
 
@@ -314,8 +355,10 @@ The config file is in the traditional INI format.
 
 The characters "#" and ";" serve as comment characters. 
 
-NOTE: There can be spaces in option names or values.  Do not use
-quotes. Boolean values are written as "true" or "false". 
+By default initial and final white space is stripped from option
+values. If you want to avoid this, or if you want use one of
+the comment characters # or ; in option values (such as for NalimovPath), 
+enclose the value in quotes.
 
 =head2 [PolyGlot] section
 
@@ -412,13 +455,9 @@ many seconds before doing the next kibitz.
 
 If true PolyGlot will not understand xboard commands. 
 
-=item B<Chess960> (default: false)
-
-Play Chess960 (also called Fischer Random Chess or FRC),
-
 =item B<MateScore> (default: 10000)
 
-Mate score reported to GUI when in xboard mode. 
+Mate score reported to GUI when in xboard mode.
 
 =item B<Book> (default: false)
 
@@ -474,6 +513,16 @@ Win32 priority levels are mapped in a sensible way to Unix nice levels.
 This a bit vector in which each bit represents the processors that a
 process is allowed to run on. This option works only on Windows. 
 
+=item B<SaveSettingsOnExit> (default: true)
+
+If true then PolyGlot will implement persistence by loading its
+options from an additional INI file which is specified by the option
+"SaveFile". At exit PolyGlot will also save its options to this INI
+file.
+
+=item B<SaveFile> (default: <EngineName>.ini)
+
+The name of the file from which to take the additional options.
 
 =back
 
@@ -589,17 +638,17 @@ Test epd file "test.epd" with a (maximum) search time of 7 minutes per position
 
     polyglot epd-test -epd test.epd -max-time 420
 
-The command line for using the UCI engine "fruit" in a GUI which uses the
-xboard protocol.
+The command line for using the UCI engine "fruit" with 128M hash in xboard with logging enabled.
 
-    polyglot -ec fruit
+    xboard -fcp "polyglot -noini -log -ec fruit -hash 128"
 
-The equivalent config file:
+The equivalent config file would be:
 
     [PolyGlot]
     EngineCommand = fruit
+    Log = true
     [Engine]
-
+    Hash=128
 
 =head1 EXIT STATUS
 

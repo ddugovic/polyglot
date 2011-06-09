@@ -7,6 +7,7 @@
 // includes
 
 #include "util.h"
+#include "ini.h"
 
 // defines
 
@@ -64,6 +65,10 @@ extern bool         option_get_bool     (option_list_t *option, const char var[]
 extern double       option_get_double   (option_list_t *option, const char var[]);
 extern int          option_get_int      (option_list_t *option, const char var[]);
 extern const char * option_get_string   (option_list_t *option, const char var[]);
+
+extern void         option_from_ini     (option_list_t *option,
+                                         ini_t *ini,
+                                         const char *section);
 
 extern bool         option_is_ok        (const option_list_t *option);
 extern option_t *   option_find         (option_list_t *option, const char var[]);

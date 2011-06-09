@@ -1,3 +1,183 @@
+polyglot (1.4.39b) unstable; urgency=low
+	
+  * Refactoring of config file parsing
+
+  * Fix crash bug in epd-test
+	
+  * Do not export Chess960. This is handled completely internally. 
+	
+  * Do not export UCI_Opponent and UCI_Chess960. These are handled internally.
+	
+  * PG can now also be comfortably configured through command line options (i.e. without using a config file). 
+	
+  * Allow quotes in configfile (as in Fonzy Bleumer's PG). 
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sun, 23 Aug 2009 21:00:00 +0100
+
+polyglot (1.4.37b) unstable; urgency=low
+
+  * Two new options: BookDepth and BookTreshold. BookDepth limits the number of moves the book is used and BookTreshold sets the minimum weight a book move should have.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 12 Aug 2009 21:00:00 +0100
+
+polyglot (1.4.36b) unstable; urgency=low
+
+  * Bugfix: option = 0/1 was translated incorrectly.
+
+  * EOF received from the engine should now be logged correctly (i.e. after the buffer is empty)
+
+  * Bugfix: Nasty buffer overflow in the macro CONSTRUCT_ARG_STRING.
+
+  * Bugfix: pipex_writeln (win32) was logging at the wrong spot. 
+
+  * Log board when an illegal move is received.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Tue, 11 Aug 2009 21:00:00 +0100
+
+polyglot (1.4.35b) unstable; urgency=low
+
+  * New WbWorkAround for silly bug in WB. Depth <=1 clears the engine output window. Why shouldn't an engine be allowed to send info at depth one?	
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Thu, 7 Aug 2009 20:00:00 +0100
+
+polyglot (1.4.34b) unstable; urgency=low
+
+  * Allow spaces around "=" in "option =" commands.
+	
+  * WbWorkArounds is now true by default.
+	
+  * Trying to set a non existent UCI option gives an error. 
+	
+  * PG will now resign in case of an illegal engine move. 
+	
+  * More code has been moved into the I/O abstraction layer pipex. This has reduced to win32 dependence of utils.c
+	
+  * info strings and unrecognized info lines are relayed to the GUI.
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Thu, 6 Aug 2009 20:00:00 +0100
+
+polyglot (1.4.33b) unstable; urgency=low
+
+  * New option: "WbWorkArounds". Currently it blocks options which contain "Draw" in their name from being sent to the GUI. Engines that have such options are Rybka and HIARCS. 
+	
+  * Bugfix for ASSERT failure in bright. Now another ASSERT failure has appeared which seems to be bright's fault however. 
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Thu, 6 Aug 2009 20:00:00 +0100
+
+polyglot (1.4.32b) unstable; urgency=low
+
+  * Bugfix: the default setting for RepeatPV had become false again...
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Tue, 4 Aug 2009 14:00:00 +0100
+
+polyglot (1.4.31b) unstable; urgency=low
+
+  * Bugfix: improper handling of vararg function.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sun, 2 Aug 2009 11:00:00 +0100
+
+polyglot (1.4.30b) unstable; urgency=low
+
+  * Some more meaningful error messages added.
+  * Some buffer overflow checks added.	
+  * Simplification of strange signal kludge in gui.c. 
+  * Removal of obsolete code in engine.c and gui.c. Platform specific code has been abstracted and pushed into pipex_win32.c and pipex_posix.c
+  * The format of the version number has changed once again. Debian was unhappy with the previous one.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sun, 2 Aug 2009 16:00:00 +0100
+
+polyglot (1.4b29) unstable; urgency=low
+
+  * Conversion from C++ to C (suggested by E.M.).
+	
+  * More refactoring. The win32 and posix I/O have now a uniform interface (see pipex.h). 
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 31 Jul 2009 10:00:00 +0100
+
+polyglot (1.4b28) unstable; urgency=low
+
+  * Some comments added to explain the exact behaviour of some of the public functions in pipe.cpp. 
+  * LineInput now returns a bool which is FALSE in case of EOF. 
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 31 Jul 2009 10:00:00 +0100
+	
+polyglot (1.4b27) unstable; urgency=low
+
+  * Option "ScoreWhite" : report score from white's point of view (suggested by E.M.).
+	
+  * Option "KibitzInterval" : try to wait this many seconds between kibitzes (suggested by E.M.).
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sun, 26 Jul 2009 10:00:00 +0100
+
+polyglot (1.4b26) unstable; urgency=low
+
+  * Contraction of version number.
+	
+  * Log if SetProcessAffinityMask is not available (suggested by E.M.).
+	
+  * pipe.cpp : Make PipeStruct a proper class with private/public members.
+	
+  * Check for EOF in GUI input.
+	
+  * pipe.cpp : delay reporting EOF until buffer is empty.
+	
+  * Messages from the Engine to PG were not logged in the windows version.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 25 Jul 2009 10:00:00 +0100
+
+polyglot (1.4w10UCIb24) unstable; urgency=low
+
+  * Portability fixes for WIN9X (Eric Mullins).
+	
+  * Portability fixes for MSVC++ (Eric Mullins).
+	
+  * Default setting of RepeatPV is now true.
+	
+  * Do not read data if input buffer is full (windows).
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Mon, 20 Jul 2009 21:00:00 +0100
+
+polyglot (1.4w10UCIb22) unstable; urgency=low
+
+  * Polyglot is now completely poll free...	
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 18 Jan 2009 21:00:00 +0100
+
+polyglot (1.4w10UCIb21) unstable; urgency=low
+
+  * Crash bug in memory command fixed
+	
+  * Small optimizations
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 18 Jan 2009 21:00:00 +0100
+
+polyglot (1.4w10UCIb20) unstable; urgency=low
+
+  * More refactoring.
+
+  * No more polling for GUI input
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Wed, 28 Jan 2009 21:00:00 +0100
+
+	
+polyglot (1.4w10UCIb18) unstable; urgency=low
+
+  * Two new utilities: info-book and dump-book.
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 15 Jan 2009 21:00:00 +0100
+
+polyglot (1.4w10UCIb17) unstable; urgency=low
+
+  * More refactoring. main.cpp is now #ifdef _WIN32 free.
+	
+  * The main loop (previously in adapter.cpp) is now in its own file mainloop.cpp.
+	
+  * adapter.cpp has been renamed into xboard2uci.cpp. It is #ifdef _WIN32 free.
+	
+  * EOF from the engine no longer kills PG. It should now be possible to close an engine and reopen another one (if that ever were useful)
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 14 Jan 2009 21:00:00 +0100
+
 polyglot (1.4w10UCIb16) unstable; urgency=low
 
   * xboard option commands
@@ -8,7 +188,7 @@ polyglot (1.4w10UCIb16) unstable; urgency=low
 
   * The polyglot options are not exported, so they are now settable by the GUI
 
- -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 10 Jan 2009 21:00:00 +0100
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 12 Jan 2009 21:00:00 +0100
 
 polyglot (1.4w10UCIb15) unstable; urgency=low
 

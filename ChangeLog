@@ -1,5 +1,10 @@
-=========1.4.38b================
-- MSVC++ portability fixes (E.M.)
+=========1.4.39b================
+- Refactoring of config file parsing
+- Fix crash bug in epd-test
+- Do not export Chess960. This is handled completely internally. 
+- Do not export UCI_Opponent and UCI_Chess960. These are handled internally.
+- PG can now also be comfortably configured through command line options (i.e. without using a config file). 
+- Allow quotes in configfile (as in Fonzy Bleumer's PG). 
 =========1.4.37b================
 - Two new options: BookDepth and BookTreshold. BookDepth limits the number of moves the book is used and BookTreshold sets the minimum weight a book move should have.
 =========1.4.36b================

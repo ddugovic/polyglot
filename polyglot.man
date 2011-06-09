@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2009-08-13" "" ""
+.TH POLYGLOT 6 "2009-08-31" "" ""
 .SH "NAME"
 PolyGlot \-  Winboard protocol to UCI protocol adapter
          \-  book engine for Polyglot books 
@@ -138,9 +138,7 @@ PolyGlot \-  Winboard protocol to UCI protocol adapter
          \-  a perft counter
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
-polyglot [configfile]
-.PP
-polyglot \-ec engine
+polyglot [configfile] [\-noini] [\-ec engine] [\-ed enginedirectory] [\-en enginename] [\-log] [\-lf logfile] [\-hash value] [\-bk book] [\-pg <name>=<value>]* [\-uci <name>=<value>]*
 .PP
 polyglot make-book [\-pgn inputfile] [\-bin outputfile] [\-max\-ply ply] [\-min\-game games] [\-min\-score score] [\-only\-white] [\-only\-black] [\-uniform]
 .PP
@@ -150,7 +148,7 @@ polyglot info-book [\-bin inputfile] [\-exact]
 .PP
 polyglot dump-book [\-bin inputfile] \-color color [\-out outputfile]
 .PP
-polyglot [configfile] epd-test [\-epd inputfile] [\-min\-depth depth] [\-max\-depth depth] [\-max\-time time] [\-depth\-delta delta] 
+polyglot [configfile] epd-test [engineoptions] [\-epd inputfile] [\-min\-depth depth] [\-max\-depth depth] [\-max\-time time] [\-depth\-delta delta] 
 .PP
 polyglot perft [\-fen fen] [\-max\-depth depth]
 .SH "DESCRIPTION"
@@ -243,16 +241,46 @@ up to a given depth. PolyGlot can perform such perft counts. It
 is however much slower than other more dedicated programs.
 .SH "OPTIONS"
 .IX Header "OPTIONS"
-When invoked without options or with a config file as argument PolyGlot
-acts as an adapter. The config file format is documented below.  The
-default config file is \*(L"polyglot.ini\*(R".
+When PolyGlot is invoked as an adapter of in epd-test mode it gets its
+options from a config file and then from the command line.  The
+default config file is \*(L"polyglot.ini\*(R" but an alternative one may be
+optionally included as first argument. The config file format is
+described below.
 .PP
-When invoked as
-.Sh "polyglot \-ec engine"
-.IX Subsection "polyglot -ec engine"
-PolyGlot simply starts \*(L"engine\*(R" and acts as an adapter. No config file
-is used and thus it is expected that all properties will be set by the
-\&\s-1GUI\s0. 
+The following engine options may be specified on the command line.
+.IP "\fB\-noini\fR" 4
+.IX Item "-noini"
+Do not use a config file, even if one was specified on the command line.
+.IP "\fB\-pg\fR" 4
+.IX Item "-pg"
+The argument is a string of the form <name>=<value>. This option will
+set the Polyglot option <name> to <value>. 
+.IP "\fB\-uci\fR" 4
+.IX Item "-uci"
+The argument is a string of the form <name>=<value>. This option will
+set the engine option <name> to <value>. 
+.IP "\fB\-ec\fR" 4
+.IX Item "-ec"
+This is an alias for \-pg \*(L"EngineCommand=<value>\*(R".
+.IP "\fB\-ed\fR" 4
+.IX Item "-ed"
+This is an alias for \-pg \*(L"EngineDir=<value>\*(R".
+.IP "\fB\-en\fR" 4
+.IX Item "-en"
+This is an alias for \-pg \*(L"EngineName=<value>\*(R"
+.IP "\fB\-hash\fR" 4
+.IX Item "-hash"
+This is an alias for \-uci \*(L"Hash=<value>\*(R".
+.IP "\fB\-log\fR" 4
+.IX Item "-log"
+This is an alias for \-pg \*(L"Log=true\*(R".
+.ie n .IP "\fB\-lf\fR (default: ""polyglot.log"")" 4
+.el .IP "\fB\-lf\fR (default: ``polyglot.log'')" 4
+.IX Item "-lf (default: polyglot.log)"
+This is an alias for \-pg \*(L"LogFile=<value>\*(R".
+.IP "\fB\-bk\fR" 4
+.IX Item "-bk"
+This is an alias for \-pg \*(L"Book=true\*(R" \-pg \*(L"BookFile=<value>\*(R".
 .PP
 When invoked as
 .Sh "polyglot make-book"
@@ -338,8 +366,9 @@ Note that this takes a very long time.
 When invoked as
 .Sh "polyglot epd-test"
 .IX Subsection "polyglot epd-test"
-(possibly with a config file as first argument) PolyGlot supports the following
-options
+(possibly with a config file as first argument) PolyGlot supports
+besides the generic options described above the following additional
+options.
 .IP "\fB\-max\-depth\fR (default: 63)" 4
 .IX Item "-max-depth (default: 63)"
 Unconditionally stop the search when this depth has
@@ -387,8 +416,10 @@ The config file is in the traditional \s-1INI\s0 format.
 .PP
 The characters \*(L"#\*(R" and \*(L";\*(R" serve as comment characters. 
 .PP
-\&\s-1NOTE:\s0 There can be spaces in option names or values.  Do not use
-quotes. Boolean values are written as \*(L"true\*(R" or \*(L"false\*(R". 
+By default initial and final white space is stripped from option
+values. If you want to avoid this, or if you want use one of
+the comment characters # or ; in option values (such as for NalimovPath), 
+enclose the value in quotes.
 .Sh "[PolyGlot] section"
 .IX Subsection "[PolyGlot] section"
 This section is used by PolyGlot only.  The engine is unaware of these
@@ -467,12 +498,9 @@ many seconds before doing the next kibitz.
 .IP "\fB\s-1UCI\s0\fR (default: false)" 4
 .IX Item "UCI (default: false)"
 If true PolyGlot will not understand xboard commands. 
-.IP "\fBChess960\fR (default: false)" 4
-.IX Item "Chess960 (default: false)"
-Play Chess960 (also called Fischer Random Chess or \s-1FRC\s0),
 .IP "\fBMateScore\fR (default: 10000)" 4
 .IX Item "MateScore (default: 10000)"
-Mate score reported to \s-1GUI\s0 when in xboard mode. 
+Mate score reported to \s-1GUI\s0 when in xboard mode.
 .IP "\fBBook\fR (default: false)" 4
 .IX Item "Book (default: false)"
 Indicates whether a PolyGlot book should be used.  This has no effect
@@ -517,6 +545,15 @@ Win32 priority levels are mapped in a sensible way to Unix nice levels.
 .IX Item "Affinity (default: -1)"
 This a bit vector in which each bit represents the processors that a
 process is allowed to run on. This option works only on Windows. 
+.IP "\fBSaveSettingsOnExit\fR (default: true)" 4
+.IX Item "SaveSettingsOnExit (default: true)"
+If true then PolyGlot will implement persistence by loading its
+options from an additional \s-1INI\s0 file which is specified by the option
+\&\*(L"SaveFile\*(R". At exit PolyGlot will also save its options to this \s-1INI\s0
+file.
+.IP "\fBSaveFile\fR (default: <EngineName>.ini)" 4
+.IX Item "SaveFile (default: <EngineName>.ini)"
+The name of the file from which to take the additional options.
 .Sh "Work arounds"
 .IX Subsection "Work arounds"
 Work arounds are identical to options except that they should be used
@@ -625,19 +662,20 @@ Test epd file \*(L"test.epd\*(R" with a (maximum) search time of 7 minutes per p
 \&    polyglot epd\-test \-epd test.epd \-max\-time 420
 .Ve
 .PP
-The command line for using the \s-1UCI\s0 engine \*(L"fruit\*(R" in a \s-1GUI\s0 which uses the
-xboard protocol.
+The command line for using the \s-1UCI\s0 engine \*(L"fruit\*(R" with 128M hash in xboard with logging enabled.
 .PP
 .Vb 1
-\&    polyglot \-ec fruit
+\&    xboard \-fcp "polyglot \-noini \-log \-ec fruit \-hash 128"
 .Ve
 .PP
-The equivalent config file:
+The equivalent config file would be:
 .PP
-.Vb 3
+.Vb 5
 \&    [PolyGlot]
 \&    EngineCommand = fruit
+\&    Log = true
 \&    [Engine]
+\&    Hash=128
 .Ve
 .SH "EXIT STATUS"
 .IX Header "EXIT STATUS"

@@ -144,7 +144,7 @@ int book_move(const board_t * board, bool random) {
 
       if (move != MoveNone &&
           move_is_legal(move,board) &&
-          score/10>option_get_int(Option,"BookTreshold")) {
+          score>10*option_get_int(Option,"BookTreshold")) {
 
          // pick this move?
 
@@ -212,10 +212,10 @@ void book_moves(list_t * list, const board_t * board) {
       if (entry->key != board->key) break;
 
       move = entry->move;
-      score = (entry->count*10000)/sum;  // 32 bit safe!
+      score = (((uint32)entry->count)*((uint32)10000))/sum;  // 32 bit safe!
 
-      if (score > 0 && move != MoveNone && move_is_legal(move,board)) {
-          list_add_ex(list,move,score);
+      if (move != MoveNone && move_is_legal(move,board)) {
+              list_add_ex(list,move,score);
       }
    }
 
@@ -229,6 +229,7 @@ void book_disp(const board_t * board) {
    char move_string[256];
    list_t list[1];
    int i;
+   int treshold=option_get_int(Option,"BookTreshold");
 
    ASSERT(board!=NULL);
 
@@ -238,8 +239,15 @@ void book_disp(const board_t * board) {
    
    for(i=0; i<list_size(list); i++){
        move_to_san(list->move[i],board,move_string,256);
-       printf(" %6s %5.2f%%\n",move_string,list->value[i]/100.0);
+       if(list->value[i]>10*treshold){
+           printf(" %6s %5.2f%%\n",move_string,list->value[i]/100.0);
+       }else{
+           printf(" %6s %5.2f%% (below treshold %4.2f%%)\n",
+                  move_string,list->value[i]/100.0,treshold/10.0);
+       }
    }
+   // this is necessary by the xboard protocol
+   printf("\n");
 }
 
 // book_learn_move()
