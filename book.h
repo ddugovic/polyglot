@@ -8,6 +8,7 @@
 
 #include "board.h"
 #include "util.h"
+#include "list.h"
 
 // functions
 
@@ -19,6 +20,7 @@ extern void book_close      ();
 
 extern bool is_in_book      (const board_t * board);
 extern int  book_move       (const board_t * board, bool random);
+extern void book_moves      (list_t * list, const board_t * board);
 extern void book_disp       (const board_t * board);
 
 extern void book_learn_move (const board_t * board, int move, int result);

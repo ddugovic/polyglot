@@ -442,10 +442,18 @@ does not matter.
 Select moves according to their weights in the book. If false the move
 with the highest weight is selected. 
 
-=item B<BookLearn> (default: false)
+=item B<BookRandom> (default: true)
 
-Record learning information in the opening book. Naturally this requires
-the opening book to be writable. 
+Select moves according to their weights in the book. If false the move
+with the highest weight is selected. 
+
+=item B<BookDepth> (default: 256)
+
+Stop using the book after this number of moves. 
+
+=item B<BookTreshold> (default: 5)
+
+Do not play moves with a weight (probability) lower than this (in per mil). 
 
 =item B<UseNice> (default: false)
 

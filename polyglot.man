@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2009-08-11" "" ""
+.TH POLYGLOT 6 "2009-08-13" "" ""
 .SH "NAME"
 PolyGlot \-  Winboard protocol to UCI protocol adapter
          \-  book engine for Polyglot books 
@@ -492,10 +492,16 @@ does not matter.
 .IX Item "BookRandom (default: true)"
 Select moves according to their weights in the book. If false the move
 with the highest weight is selected. 
-.IP "\fBBookLearn\fR (default: false)" 4
-.IX Item "BookLearn (default: false)"
-Record learning information in the opening book. Naturally this requires
-the opening book to be writable. 
+.IP "\fBBookRandom\fR (default: true)" 4
+.IX Item "BookRandom (default: true)"
+Select moves according to their weights in the book. If false the move
+with the highest weight is selected. 
+.IP "\fBBookDepth\fR (default: 256)" 4
+.IX Item "BookDepth (default: 256)"
+Stop using the book after this number of moves. 
+.IP "\fBBookTreshold\fR (default: 5)" 4
+.IX Item "BookTreshold (default: 5)"
+Do not play moves with a weight (probability) lower than this (in per mil). 
 .IP "\fBUseNice\fR (default: false)" 4
 .IX Item "UseNice (default: false)"
 Run the engine at nice level 5, or \*(L"NiceValue\*(R" if it set.  On some

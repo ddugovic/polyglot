@@ -71,7 +71,7 @@ void io_close(io_t * io) {
 
    ASSERT(io->out_fd>=0);
 
-   my_log("Adapter>%s: EOF\n",io->name);
+   my_log("Adapter->%s: EOF\n",io->name);
 
    if (close(io->out_fd) == -1) {
       my_fatal("io_close(): close(): %s\n",strerror(errno));

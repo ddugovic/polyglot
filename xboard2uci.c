@@ -1197,11 +1197,17 @@ static void search_update() {
 
    if (State->state == THINK || State->state == PONDER || State->state == ANALYSE) {
 
+      // [VdB] moved up as we need the move number
+
+       game_get_board(Game,Uci->board);
+
       // opening book
 
-       if (State->state == THINK && option_get_bool(Option,"Book")) {
+       if (State->state == THINK &&
+           option_get_bool(Option,"Book") &&
+           Uci->board->move_nb<option_get_int(Option,"BookDepth")
+           ) {
 
-         game_get_board(Game,Uci->board);
 
          move = book_move(Uci->board,option_get_bool(Option,"BookRandom"));
 

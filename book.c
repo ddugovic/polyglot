@@ -121,24 +121,30 @@ int book_move(const board_t * board, bool random) {
    entry_t entry[1];
    int move;
    int score;
+   list_t list[1];
+   int i;
 
    if(BookFile==NULL) return MoveNone;
 
    ASSERT(board!=NULL);
    ASSERT(random==TRUE||random==FALSE);
 
+   // init
+   
+   list_clear(list);
+
+   book_moves(list,board);
 
    best_move = MoveNone;
    best_score = 0;
-   for (pos = find_pos(board->key); pos < BookSize; pos++) {
+   for(i=0; i<list_size(list); i++){
 
-      read_entry(entry,pos);
-      if (entry->key != board->key) break;
+      move = list->move[i];
+      score = list->value[i];
 
-      move = entry->move;
-      score = entry->count;
-
-      if (move != MoveNone && move_is_legal(move,board)) {
+      if (move != MoveNone &&
+          move_is_legal(move,board) &&
+          score/10>option_get_int(Option,"BookTreshold")) {
 
          // pick this move?
 
@@ -163,9 +169,9 @@ int book_move(const board_t * board, bool random) {
    return best_move;
 }
 
-// book_disp()
+// book_moves()
 
-void book_disp(const board_t * board) {
+void book_moves(list_t * list, const board_t * board) {
 
    int first_pos;
    int sum;
@@ -176,8 +182,13 @@ void book_disp(const board_t * board) {
    char move_string[256];
 
    ASSERT(board!=NULL);
+   ASSERT(list!=NULL);
 
-   if(BookFile==NULL) return; 
+   if(BookFile==NULL) return;
+
+   // init
+
+   list_clear(list);
 
    first_pos = find_pos(board->key);
 
@@ -201,15 +212,34 @@ void book_disp(const board_t * board) {
       if (entry->key != board->key) break;
 
       move = entry->move;
-      score = entry->count;
+      score = (entry->count*10000)/sum;  // 32 bit safe!
 
       if (score > 0 && move != MoveNone && move_is_legal(move,board)) {
-         move_to_san(move,board,move_string,256);
-         printf(" %s (%.0f%%)\n",move_string,((double)score)/((double)sum)*100.0);
+          list_add_ex(list,move,score);
       }
    }
 
-   printf("\n");
+}
+
+
+// book_disp()
+
+void book_disp(const board_t * board) {
+
+   char move_string[256];
+   list_t list[1];
+   int i;
+
+   ASSERT(board!=NULL);
+
+   if(BookFile==NULL) return;
+
+   book_moves(list,board);
+   
+   for(i=0; i<list_size(list); i++){
+       move_to_san(list->move[i],board,move_string,256);
+       printf(" %6s %5.2f%%\n",move_string,list->value[i]/100.0);
+   }
 }
 
 // book_learn_move()

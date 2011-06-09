@@ -375,9 +375,16 @@ CONFIG FILE FORMAT
            Select moves according to their weights in the book. If false the
            move with the highest weight is selected.
 
-       BookLearn (default: false)
-           Record learning information in the opening book. Naturally this
-           requires the opening book to be writable.
+       BookRandom (default: true)
+           Select moves according to their weights in the book. If false the
+           move with the highest weight is selected.
+
+       BookDepth (default: 256)
+           Stop using the book after this number of moves.
+
+       BookTreshold (default: 5)
+           Do not play moves with a weight (probability) lower than this (in
+           per mil).
 
        UseNice (default: false)
            Run the engine at nice level 5, or "NiceValue" if it set.  On some
@@ -401,9 +408,9 @@ CONFIG FILE FORMAT
        only when necessary.  Their purpose is to try to hide problems with
        various software (not just engines).
 
-       IMPORTANT: Any of these work arounds might be removed in future
-       versions of PolyGlot.  You are strongly recommended to contact the
-       author of faulty software and truly fix the problem.
+       IMPORTANT: Any of these work arounds might be removed in future ver-
+       sions of PolyGlot.  You are strongly recommended to contact the author
+       of faulty software and truly fix the problem.
 
        PolyGlot supports the following work arounds:
 
@@ -526,4 +533,4 @@ SEE ALSO
 
 
 
-                                  2009-08-11                       POLYGLOT(6)
+                                  2009-08-13                       POLYGLOT(6)

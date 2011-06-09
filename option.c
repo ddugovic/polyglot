@@ -29,7 +29,7 @@ option_t DefaultOptions[] = {
     { "EngineDir",        "string","0","0",     "."         , NULL,0,NNB,  PG}, 
     { "EngineCommand",    "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
 
-    { "Log",              "check","0","0",     "false"      , NULL,0,NNB,  PG|XBOARD|UCI}, 
+    { "Log",              "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI}, 
     { "LogFile",          "string","0","0",     "polyglot.log", NULL,0,NNB,  PG|XBOARD|UCI}, 
 
     { "UCI",              "check","0","0",      "false"     , NULL,0,NNB,  PG}, 
@@ -43,20 +43,22 @@ option_t DefaultOptions[] = {
     { "ResignMoves",      "spin","0","10000",    "3"        , NULL,0,NNB,  PG|XBOARD}, 
     { "ResignScore",      "spin","0","10000",   "600"       , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "MateScore",        "spin","0","1000000", "10000"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "MateScore",        "spin","0","100000",  "10000"     , NULL,0,NNB,  PG|XBOARD}, 
 
     { "Book",             "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI}, 
     { "BookFile",         "string","0","0",     "book.bin"  , NULL,0,NNB,  PG|XBOARD|UCI}, 
 
     { "BookRandom",       "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD|UCI}, 
+    { "BookDepth",        "spin","0","256",     "256"       , NULL,0,NNB,  PG|XBOARD}, 
+    { "BookTreshold",     "spin","0","1000",    "5"         , NULL,0,NNB,  PG|XBOARD|UCI}, 
     { "BookLearn",        "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
     { "KibitzMove",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
     { "KibitzPV",         "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
     { "KibitzCommand",    "string","0","0",     "tellall"   , NULL,0,NNB,  PG|XBOARD}, 
-    { "KibitzDelay",      "spin","0","10000",  "5"         , NULL,0,NNB,  PG|XBOARD}, 
-    { "KibitzInterval",   "spin","0","10000",  "0"         , NULL,0,NNB,  PG|XBOARD}, 
+    { "KibitzDelay",      "spin","0","1000",    "5"         , NULL,0,NNB,  PG|XBOARD}, 
+    { "KibitzInterval",   "spin","0","1000",    "0"         , NULL,0,NNB,  PG|XBOARD}, 
 
     { "ShowPonder",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
     { "ScoreWhite",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
@@ -66,11 +68,11 @@ option_t DefaultOptions[] = {
     { "UCIVersion",       "spin","1","2",       "2"         , NULL,0,NNB,  PG|XBOARD}, 
     { "CanPonder",        "check","1","2",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
     { "SyncStop",         "check","1","2",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
-    { "Affinity",	  "spin","-1","32",     "-1"        , NULL,0,NNB,  PG}, 
-    { "RepeatPV",	  "check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD},
+    { "Affinity",         "spin","-1","32",     "-1"        , NULL,0,NNB,  PG}, 
+    { "RepeatPV",         "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD},
     { "PromoteWorkAround","check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "WbWorkArounds",    "check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "WbWorkArounds",    "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD}, 
     { "WbWorkArounds2",   "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
     { NULL,               NULL,"0","0",         NULL        , NULL,0,NNB,  0},
 
