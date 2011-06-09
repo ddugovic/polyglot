@@ -493,8 +493,7 @@ with the highest weight is selected.
 
 =item B<BookLearn> (default: false)
 
-Store learning information in the book (which must be writable). Currently
-no engine actually uses this information. 
+This is a noop.
 
 =item B<BookDepth> (default: 256)
 

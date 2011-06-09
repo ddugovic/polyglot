@@ -32,7 +32,8 @@ SYNOPSIS
        polyglot perft [-fen fen] [-max-depth depth]
 
 DESCRIPTION
-   PolyGlot as adapter and book engine
+       PolyGlot as adapter and book engine
+
        PolyGlot is a "UCI adapter".  It connects a GUI interface (such as
        XBoard, Winboard, Arena or Chessbase) to a UCI chess engine.
 
@@ -63,7 +64,8 @@ DESCRIPTION
        NOTE: Not all options are exported, only those that make sense in the
        given mode.
 
-   Book making utilities
+       Book making utilities
+
        PolyGlot supports the "PolyGlot opening book format". This is the
        defacto standard non-proprietary opening book format. It is fully
        documented here
@@ -109,12 +111,14 @@ DESCRIPTION
        Due to the possibility of transpositions this is not a fool proof
        method.
 
-   Epd test mode
+       Epd test mode
+
        In epd test mode, PolyGlot will search positions in an epd file and
        record the number of times the right best move was found.  The
        arguments specify when to stop the search in any given position.
 
-   Perft counts
+       Perft counts
+
        A perft count is the number of legal move sequence in a given position
        up to a given depth. PolyGlot can perform such perft counts. It is
        however much slower than other more dedicated programs.
@@ -155,7 +159,8 @@ OPTIONS
 
        When invoked as
 
-   polyglot make-book
+       polyglot make-book
+
        PolyGlot supports the following options
 
        -pgn (default: "book.pgn")
@@ -188,7 +193,8 @@ OPTIONS
 
        When invoked as
 
-   polyglot merge-book
+       polyglot merge-book
+
        PolyGlot supports the following options
 
        -in1
@@ -206,7 +212,8 @@ OPTIONS
 
        When invoked as
 
-   polyglot dump-book
+       polyglot dump-book
+
        PolyGlot supports the following options
 
        -bin (default: book.bin)
@@ -220,7 +227,8 @@ OPTIONS
 
        When invoked as
 
-   polyglot info-book
+       polyglot info-book
+
        PolyGlot supports the following options
 
        -bin (default: book.bin)
@@ -232,7 +240,8 @@ OPTIONS
 
        When invoked as
 
-   polyglot epd-test
+       polyglot epd-test
+
        (possibly with a config file as first argument) PolyGlot supports
        besides the generic options described above the following additional
        options.
@@ -258,7 +267,8 @@ OPTIONS
 
        When invoked as
 
-   polyglot perft
+       polyglot perft
+
        PolyGlot supports the following options
 
        -fen (default: starting position)
@@ -287,7 +297,8 @@ CONFIG FILE FORMAT
        "Quoting" other characters in this way has no effect. In particular the
        use of '\' as a path separator in windows should normally not affected.
 
-   [PolyGlot] section
+       [PolyGlot] section
+
        This section is used by PolyGlot only.  The engine is unaware of these
        options.  The list of available options is detailed below.
 
@@ -399,8 +410,7 @@ CONFIG FILE FORMAT
            move with the highest weight is selected.
 
        BookLearn (default: false)
-           Store learning information in the book (which must be writable).
-           Currently no engine actually uses this information.
+           This is a noop.
 
        BookDepth (default: 256)
            Stop using the book after this number of moves.
@@ -435,7 +445,8 @@ CONFIG FILE FORMAT
            If true then PolyGlot restricts the options it sends to those that
            are potentially useful for WinBoard.
 
-   Work arounds
+       Work arounds
+
        Work arounds are identical to options except that they should be used
        only when necessary.  Their purpose is to try to hide problems with
        various software (not just engines).
@@ -478,7 +489,8 @@ CONFIG FILE FORMAT
            to the way kibitzing is implemented, KibitzMove is disabled in that
            case.
 
-   [Engine] section
+       [Engine] section
+
        This section contains engine UCI options.  PolyGlot does not understand
        them, but sends the information to the engine at startup (converted to
        UCI form).  You can add any UCI option that makes sense to the engine
@@ -556,4 +568,4 @@ SEE ALSO
 
 
 
-                                  2010-12-31                       POLYGLOT(6)
+                                  2011-06-01                       POLYGLOT(6)

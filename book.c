@@ -60,7 +60,7 @@ bool book_is_open(){
 void book_open(const char file_name[]) {
 
    ASSERT(file_name!=NULL);
-   if(option_get_bool(Option,"BookLearn")){
+   if(FALSE && option_get_bool(Option,"BookLearn")){
        BookFile = fopen(file_name,"rb+");
    }else{
        BookFile = fopen(file_name,"rb");

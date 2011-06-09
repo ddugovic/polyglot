@@ -1,3 +1,72 @@
+polyglot (1.4.67b) unstable; urgency=low
+	
+  *   Disable "book learning". Polyglot saves learning information but does not use it itself, probably for a reason. I believe the booklearning concept of Polyglot is fundamentally broken. Learning information is engine specific so it should not be saved in the opening book (it might be saved elsewhere). There are other issues as well, such as copyright and the possibility of the proliferation of polluted books. Opening books can be improved with information from games by using the merge command. This is a form of off line learning which is probably much more effective since one has strict control over what kind of information is added to the book.
+	
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 8 Apr 2011 21:00:00 +0100	
+
+polyglot (1.4.66b) unstable; urgency=low
+	
+  *   Fix a printf 32 vs 64 bit format (crash) bug which manifested itself on windows.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 8 Apr 2011 21:00:00 +0100	
+
+polyglot (1.4.65b) unstable; urgency=low
+	
+  *   Bugfix: dump-book with -color black generated the file book_white.txt.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 1 Apr 2011 21:00:00 +0100	
+
+polyglot (1.4.64b) unstable; urgency=low
+	
+  *   Reduce movetime in the implementation of the fixed time per move command (st), to account for differences in the wording of the protocols. 
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 31 Dec 2010 21:00:00 +0100	
+
+polyglot (1.4.63b) unstable; urgency=low
+	
+  *  Give ponder move as hint.
+  *  Support for egtpath "gaviota" (this is a bit hacky now).
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 4 Dec 2010 21:00:00 +0100	
+
+polyglot (1.4.62b) unstable; urgency=low
+	
+  *  StringSize was not everywhere the same in Polyglot. This could lead to a buffer overflow in case of very long PV's. 
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 20 Nov 2010 21:00:00 +0100	
+
+polyglot (1.4.61b) unstable; urgency=low
+	
+  * uci_isready replaced by uci_isready_sync. Polyglot should not send commands to the engine while it is syncing.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 2 Oct 2010 21:00:00 +0100	
+
+polyglot (1.4.60b) unstable; urgency=low
+
+  * The result string after an illegal move now shows the actual attempted move.
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 1 Oct 2010 21:00:00 +0100	
+
+polyglot (1.4.59b) unstable; urgency=low
+
+  * Bugfix: the changes in 1.4.57b created a regression where the input buffer of polyglot could overflow with engines producing lots of output very fast. 
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Wed, 29 Sep 2010 21:00:00 +0100
+	
+polyglot (1.4.58b) unstable; urgency=low
+
+  * Implementation of BookDepth in UCI mode.
+  * Small corrections to the manpage. 
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Wed, 25 Apr 2010 21:00:00 +0100
+
+polyglot (1.4.57b) unstable; urgency=low
+
+  * First attempt at killing engines that do not react to "quit". 
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Wed, 25 Apr 2010 21:00:00 +0100
+
 polyglot (1.4.56b) unstable; urgency=low
 
   * Better handling of non-existing engine command.

@@ -443,7 +443,7 @@ void xboard2uci_gui_step(char string[]) {
 
 				// book learning
 
-				if (option_get_bool(Option,"Book") &&
+				if (FALSE && option_get_bool(Option,"Book") &&
                     option_get_bool(Option,"BookLearn")) {
 
 					if (FALSE) {
