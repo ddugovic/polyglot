@@ -51,6 +51,7 @@ typedef struct {
   int best_depth;
   int best_sel_depth;
   move_t best_pv[LineSize];
+  char bestmove[UciStringSize];
   
   sint64 node_nb;
   double time;

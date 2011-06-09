@@ -1,3 +1,5 @@
+========1.4.60b=================
+- The result string after an illegal move now shows the actual attempted move.
 ========1.4.59b=================
 - Bugfix: the changes in 1.4.57b created a regression where the input buffer of polyglot could overflow with engines producing lots of output very fast. 
 ========1.4.58b=================

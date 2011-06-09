@@ -153,7 +153,7 @@ void uci_open(uci_t * uci, engine_t * engine) {
       // Handle the case that the engine is really a WB engine somewhat gracefully.
       if((strstr(string,"Illegal") || strstr(string,"Error"))
          &&strstr(string,"uci")){
-          my_fatal("uci_open(): Not an UCI engine.\n");
+          my_fatal("uci_open(): Not a UCI engine.\n");
       }
       event = uci_parse(uci,string);
    } while (!engine_eof(Engine) && (event & EVENT_UCI) == 0);
@@ -435,10 +435,14 @@ static int parse_bestmove(uci_t * uci, const char string[]) {
 
    // bestmove
 
+   uci->bestmove[0]='\0';
    if (!parse_get_string(parse,argument,StringSize)) {
+       strcpy(uci->bestmove,"nomove");
        return EVENT_ILLEGAL_MOVE;
 //      my_fatal("parse_bestmove(): missing argument\n");
    }
+   strncpy(uci->bestmove,argument,UciStringSize);
+   uci->bestmove[UciStringSize-1]='\0';
 
    uci->best_move = move_from_can(argument,uci->board);
    if (uci->best_move == MoveNone) {

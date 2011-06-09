@@ -752,18 +752,18 @@ void xboard2uci_engine_step(char string[]) {
 			}
 		}
 		if(((event & EVENT_ILLEGAL_MOVE)!=0) && (State->state == THINK)){
-            game_get_board(Game,board);
-            if(board->turn==White){
-                gui_send(GUI,"0-1 {polyglot: resign"
-                            " (illegal engine move white)}");
-            }else{
-                gui_send(GUI,"1-0 {polyglot: resign"
-                         " (illegal engine move black)}");
-            }
-            board_disp(board);
-            XB->result = TRUE;
-            mess();
-        }
+		    game_get_board(Game,board);
+		    if(board->turn==White){
+			gui_send(GUI,"0-1 {polyglot: resign"
+				 " (illegal engine move by white: %s)}",Uci->bestmove);
+		    }else{
+			gui_send(GUI,"1-0 {polyglot: resign"
+				 " (illegal engine move by black: %s)}",Uci->bestmove);
+		    }
+		    board_disp(board);
+		    XB->result = TRUE;
+		    mess();
+		}
 }
 
 // format_xboard_option_line
