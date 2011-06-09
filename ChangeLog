@@ -1,3 +1,5 @@
+========1.4.59b=================
+- Bugfix: the changes in 1.4.57b created a regression where the input buffer of polyglot could overflow with engines producing lots of output very fast. 
 ========1.4.58b=================
 - Implementation of BookDepth in UCI mode.
 - Small corrections to the manpage.

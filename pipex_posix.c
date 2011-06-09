@@ -198,7 +198,9 @@ void pipex_wait_event(pipex_t *pipex[]){
    q=pipex;
    if (val > 0) {
        while((p=*(q++))!=NULL){
-           if (FD_ISSET(p->io->in_fd,set)) io_get_update(p->io); 
+           if (FD_ISSET(p->io->in_fd,set) /*&& !io_line_ready(p->io)*/){
+	       io_get_update(p->io); 
+	   }
        }
    }    
 }
@@ -302,7 +304,7 @@ char * pipex_get_buffer(pipex_t *pipex){
 
 bool pipex_readln(pipex_t *pipex, char *string){
     while (!io_line_ready(pipex->io)) {
-      io_get_update(pipex->io);
+	io_get_update(pipex->io);
    }
    if (!io_get_line(pipex->io,string,StringSize)) { // EOF
        string[0]='\0';
@@ -320,8 +322,8 @@ bool pipex_readln(pipex_t *pipex, char *string){
 
 bool pipex_readln_nb(pipex_t *pipex, char *string){
 
-  while(!pipex->io->in_eof && io_peek(pipex->io)){
-    io_get_update(pipex->io);
+    while(!pipex->io->in_eof && !io_line_ready(pipex->io) && io_peek(pipex->io)){
+      io_get_update(pipex->io);
   }
   
   if(io_line_ready(pipex->io)){

@@ -119,7 +119,14 @@ void io_get_update(io_t * io) {
    pos = io->in_size;
 
    size = BufferSize - pos;
-   if (size <= 0) my_fatal("io_get_update(): buffer overflow\n");
+
+
+   if (size <= 0){
+       //  io->in_buffer[FormatBufferSize-20]='\0';
+       //  my_log("%s","io_get_update(): buffer too small; content starts with:\n");
+       //  my_log("[%s...]\n",io->in_buffer);
+       my_fatal("io_get_update(): buffer overflow\n");
+   }
 
    // read as many data as possible
    n = my_read(io->in_fd,&io->in_buffer[pos],size);
@@ -140,6 +147,7 @@ void io_get_update(io_t * io) {
 
       io->in_eof = TRUE;
    }
+
 }
 
 // io_line_ready()
