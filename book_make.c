@@ -925,7 +925,7 @@ void book_dump(int argc, char * argv[]) {
         my_fatal("book_dump(): you must specify a color\n");
     }
     if(txt_file==NULL){
-        snprintf(string,StringSize,"book_%s.txt",color?"white":"black");
+        snprintf(string,StringSize,"book_%s.txt",(color==White)?"white":"black");
         my_string_set(&txt_file,string);
     }
 

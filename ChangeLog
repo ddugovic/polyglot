@@ -1,5 +1,9 @@
+========1.4.66b=================
+- Fix a printf 32 vs 64 bit format (crash) bug which manifested itself on windows.
+========1.4.65b=================
+- Bugfix: dump-book with -color black generated the file book_white.txt.
 ========1.4.64b=================
-- Reduce movetime in the implementation of the fixed time per move command, to taccount for differences in the wording of the protocols. 
+- Reduce movetime in the implementation of the fixed time per move command, to to account for differences in the wording of the protocols. 
 ========1.4.63b=================
 - Give ponder move as hint.
 - Support for egtpath gaviota (this is a bit hacky right now).

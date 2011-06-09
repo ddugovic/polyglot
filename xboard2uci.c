@@ -1591,9 +1591,8 @@ static void send_info() {
     }else{
         min_depth=1;
     }
-	 
     gui_send(GUI,"%d %+d %.0f "S64_FORMAT" %s",Uci->best_depth>min_depth?Uci->best_depth:min_depth,
-	     0,0.0,0,Uci->info);  
+	     0,0.0,U64(0),Uci->info);  
 }
 
 // send_pv()
