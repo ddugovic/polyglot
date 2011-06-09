@@ -123,16 +123,16 @@ void option_init(option_list_t *option){
 // option_insert()
 
 void option_insert(option_list_t *option, option_t *new_option){
+    int i;
+    option_t *opt;
     ASSERT(option!=NULL);
     ASSERT(new_option!=NULL);
     ASSERT(new_option->name!=NULL);
-    option_t *opt;
     opt=option_find(option,new_option->name);
     if(!opt){
         opt=&option->options[option->option_nb];
         option->option_nb++;
     }
-    int i;
     if(option->option_nb>=OptionNb){
         my_fatal("option_insert(): option list overflow\n");
     }

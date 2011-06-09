@@ -18,7 +18,7 @@
 static const bool Strict = FALSE; // FALSE
 static const bool UseDebug = FALSE; // FALSE
 
-static const int StringSize = 1024;
+#define StringSize ((int)1024)
 
 // functions
 

@@ -92,7 +92,7 @@ void pipex_open(pipex_t *pipex,
         si.hStdInput = hStdinRead;
         si.hStdOutput = hStdoutWrite;
         si.hStdError = hStdoutWrite;
-        if((szCurrentDir = _getcwd( NULL, 0 )) == NULL )
+        if((szCurrentDir = (char*)_getcwd( NULL, 0 )) == NULL )
             my_fatal("pipex_open(): no current directory: %s\n",
                      strerror(errno));
         if(_chdir(szWorkingDir)){
@@ -191,9 +191,9 @@ void pipex_send_eof(pipex_t *pipex)  {
 // pipex_exit()
 
 void pipex_exit(pipex_t *pipex) {
+    DWORD lpexit;
     CloseHandle(pipex->hInput);
     CloseHandle(pipex->hOutput);
-    DWORD lpexit;
     
     if(GetExitCodeProcess(pipex->hProcess,&lpexit)){
         if(lpexit==STILL_ACTIVE)
@@ -429,12 +429,13 @@ void pipex_set_priority(pipex_t *pipex, int value){
 
 // pipex_set_affinit()
 
+typedef void (WINAPI *SPAM)(HANDLE, int);
 void pipex_set_affinity(pipex_t *pipex, int value){
+    SPAM pSPAM;
+
     if(pipex->hProcess) return;
     if(value==-1) return;
 
-    typedef void (WINAPI *SPAM)(HANDLE, int);
-    SPAM pSPAM;
     pSPAM = (SPAM) GetProcAddress(
         GetModuleHandle(TEXT("kernel32.dll")), 
         "SetProcessAffinityMask");

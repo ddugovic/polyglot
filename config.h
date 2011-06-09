@@ -115,13 +115,13 @@
 #define PACKAGE_NAME "polyglot"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "polyglot 1.4.37b"
+#define PACKAGE_STRING "polyglot 1.4.38b"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "polyglot"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.4.37b"
+#define PACKAGE_VERSION "1.4.38b"
 
 /* Define to 1 if the C compiler supports function prototypes. */
 #define PROTOTYPES 1
@@ -150,7 +150,7 @@
 #define TIME_WITH_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "1.4.37b"
+#define VERSION "1.4.38b"
 
 /* Define like PROTOTYPES; this can be used by system headers. */
 #define __PROTOTYPES 1

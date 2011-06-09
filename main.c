@@ -35,7 +35,7 @@
 // constants
 
 
-static const char * const Version = "1.4.37b";
+static const char * const Version = "1.4.38b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile]\n\

@@ -26,7 +26,7 @@
 
 // constants
 
-static const int StringSize = 4096;
+#define StringSize ((int)4096)
 
 // variables
 

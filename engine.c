@@ -15,7 +15,7 @@
 // variables
 
 engine_t Engine[1];
-static const int StringSize=4096;
+#define StringSize ((int)4096)
 
 // functions
 

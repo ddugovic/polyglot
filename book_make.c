@@ -20,8 +20,8 @@
 
 // constants
 
-static const int COUNT_MAX = 16384;
-static const int StringSize = 4096;
+#define COUNT_MAX ((int)16384)
+#define StringSize ((int)4096)
 
 static const int NIL = -1;
 
@@ -695,8 +695,8 @@ static void book_load(const char filename[]){
 static int gen_book_moves(list_t * list, const board_t * board){
     int first_pos, pos, index;
     entry_t entry[1];
-    list_clear(list);
     bool found;
+    list_clear(list);
     found=FALSE;
     for (index = board->key & (uint64) Book->mask; (first_pos=Book->hash[index]) != NIL; index = (index+1) & Book->mask) {
         ASSERT(first_pos>=0&&first_pos<Book->size);

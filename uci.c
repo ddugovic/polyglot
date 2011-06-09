@@ -22,7 +22,7 @@
 
 static const bool UseDebug = FALSE;
 
-static const int StringSize = 4096;
+#define StringSize ((int)4096)
 
 // variables
 
@@ -61,8 +61,8 @@ static int  mate_score     (int dist);
 // uci_set_threads()
 
 void uci_set_threads(uci_t * uci, int n) {
-    ASSERT(n>=1);
     const char *thread_option=uci_thread_option(uci);
+    ASSERT(n>=1);
     if(thread_option){
         uci_send_option(uci,thread_option,"%d",n);
     }

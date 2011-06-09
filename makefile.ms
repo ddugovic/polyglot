@@ -4,8 +4,9 @@ EXE = $(PROJ).exe
 OBJS = attack.obj board.obj book.obj book_make.obj book_merge.obj colour.obj\
  engine.obj epd.obj fen.obj game.obj gui.obj hash.obj io.obj line.obj list.obj\
  main.obj mainloop.obj move.obj move_do.obj move_gen.obj move_legal.obj\
- option.obj parse.obj pgn.obj piece.obj pipe.obj posix.obj random.obj san.obj\
- search.obj square.obj uci.obj uci2uci.obj util.obj xboard2uci.obj
+ option.obj parse.obj pgn.obj piece.obj pipex_win32.obj pipex_posix.obj\
+ random.obj san.obj search.obj square.obj uci.obj uci2uci.obj util.obj\
+ xboard2uci.obj
 
 LIBS = oldnames.lib
 
@@ -53,5 +54,5 @@ clean:
 $(EXE): $(OBJS)
 	$(LINK) $(LFLAGS) $(OBJS) $(LIBS) -out:$(EXE)
 
-.cpp.obj:
+.c.obj:
 	$(CC) $(CFLAGS) -c $<

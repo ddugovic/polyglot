@@ -10,7 +10,7 @@
 
 // constants
 
-static const int StringSize = 256;
+#define StringSize ((int)256)
 
 // variables
 

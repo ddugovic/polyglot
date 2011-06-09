@@ -67,6 +67,10 @@
 
 #define FormatBufferSize 4096
 
+#ifdef _MSC_VER
+#define vsnprintf _vsnprintf
+#endif
+
 #define CONSTRUCT_ARG_STRING(format,buf)                                 \
     {                                                                    \
         va_list arg_list;                                                \

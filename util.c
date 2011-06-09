@@ -18,7 +18,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
 
 #include "main.h"
 #include "util.h"
