@@ -3,6 +3,7 @@
 // includes
 
 #include <string.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <wordexp.h>
 #include <sys/wait.h>
@@ -90,7 +91,7 @@ void pipex_open(pipex_t *pipex,
             my_fatal("pipex_open(): pipe(): %s\n",strerror(errno));
         }
         
-            // create the child process
+            // create the child process 
         
         pipex->pid = fork();
         
@@ -120,11 +121,14 @@ void pipex_open(pipex_t *pipex,
                 // attach standard error to standard output
                 // commenting this out gives error messages on the console
             
-           /* my_dup2(STDOUT_FILENO,STDERR_FILENO); */
+            my_dup2(STDOUT_FILENO,STDERR_FILENO); 
             
             if(chdir(working_dir)){
-                my_fatal("pipex_open(): cannot change directory: %s\n",
-                         strerror(errno));
+                printf("%s pipex_open(): %s: %s\n",
+		       PIPEX_MAGIC,
+		       working_dir,
+		       strerror(errno));
+		goto wait_for_eof;
             }
             
             // launch the new executable file
@@ -132,8 +136,14 @@ void pipex_open(pipex_t *pipex,
             execvp(argv[0],&argv[0]);
             
                 // execvp() only returns when an error has occured
-            
-            my_fatal("engine_open(): execvp(): %s: %s\n",argv[0],strerror(errno));
+
+	    printf("%s pipex_open(): execvp(): %s: %s\n",
+		   PIPEX_MAGIC,
+		   argv[0],
+		   strerror(errno));
+	wait_for_eof:
+	    while(fgets(string,StringSize,stdin));
+	    exit(EXIT_SUCCESS);
             
         } else { // pid > 0
             
@@ -263,7 +273,9 @@ bool pipex_readln(pipex_t *pipex, char *string){
        pipex->state|=PIPEX_EOF;
        return FALSE;
    }
-   
+   if(strncmp(PIPEX_MAGIC,string,strlen(PIPEX_MAGIC))==0){
+     my_fatal("%s\n",string+strlen(PIPEX_MAGIC)+1);
+   }
 
    return TRUE;
 }

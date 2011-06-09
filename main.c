@@ -39,7 +39,7 @@
 // constants
 
 
-static const char * const Version = "1.4.55b";
+static const char * const Version = "1.4.56b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log] [-lf logfile] [-hash value] [-bk book] [-pg <name>=<value>]* [-uci <name>=<value>]*\n\
@@ -364,7 +364,7 @@ int main(int argc, char * argv[]) {
     
     if(!my_string_equal(option_get_string(Option,"SettingsFile"),"<empty>")){
         if(ini_parse(ini,option_get_string(Option,"SettingsFile"))){
-            my_fatal("main(): Can't open file \"%s\": %s\n",
+            my_fatal("main(): Can't open config file \"%s\": %s\n",
                    option_get_string(Option,"SettingsFile"),
                    strerror(errno));
         }
@@ -437,12 +437,17 @@ int main(int argc, char * argv[]) {
         option_set(Option,entry->name,entry->value);
     }
 
+    // Make sure that EngineCommand has been set
+    if(my_string_case_equal(option_get(Option,"EngineCommand"),"<empty>")){
+      my_fatal("main(): EngineCommand not set\n");
+    }
+
         // start engine
     
     engine_open(Engine);
 
     if(!engine_active(Engine)){
-        my_fatal("Could not start \"%s\"\n",option_get(Option,"EngineCommand"));
+        my_fatal("main(): Could not start \"%s\"\n",option_get(Option,"EngineCommand"));
     }
 
         // switch to UCI mode if necessary
@@ -561,7 +566,7 @@ int main(int argc, char * argv[]) {
     argc=1;
     while((arg=argv[argc++])){
         if(!my_string_equal(arg,"")){
-            my_fatal("main(): Option: \"%s\" not found\n",argv[argc-1]);
+            my_fatal("main(): Incorrect use of option: \"%s\"\n",argv[argc-1]);
         }
     }
 
@@ -629,11 +634,8 @@ void polyglot_set_option(const char *name, const char *value){ // this must be c
 // quit()
 
 void quit() {
-
     my_log("POLYGLOT *** QUIT ***\n");
-    
     if (Init && !Engine->pipex->quit_pending) {
-        
         stop_search();
 	Engine->pipex->quit_pending=TRUE;
         engine_send(Engine,"quit");

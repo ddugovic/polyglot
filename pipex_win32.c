@@ -98,7 +98,8 @@ void pipex_open(pipex_t *pipex,
             my_fatal("pipex_open(): no current directory: %s\n",
                      strerror(errno));
         if(_chdir(szWorkingDir)){
-            my_fatal("pipex_open(): cannot change directory: %s\n",
+            my_fatal("pipex_open(): %s: %s\n",
+		     szWorkingDir,
                      strerror(errno));
         }
        if(CreateProcess(NULL,

@@ -1,3 +1,5 @@
+========1.4.56b=================
+- Better handling of non-existing engine command on Linux. No changes on Windows.
 =========1.4.55b================
 - Suppression of some error dialogs.
 - Small delay in between final error message and actually quitting.

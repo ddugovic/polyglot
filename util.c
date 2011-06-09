@@ -202,7 +202,7 @@ void my_fatal(const char format[], ...) {
     // This should be gui_send but this does not work.
     // Why?
 
-    fprintf(stderr,"tellusererror POLYGLOT: %s",string);
+    printf("tellusererror POLYGLOT: %s",string);
 
     if (Error) { // recursive error
         my_log("POLYGLOT *** RECURSIVE ERROR ***\n");

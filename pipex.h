@@ -78,6 +78,10 @@ typedef struct {
 
 // part common to WIN32 and POSIX
 
+// macros
+
+#define PIPEX_MAGIC "!@#$%"
+
 // functions 
 
 extern void pipex_open         (pipex_t *pipex, 
