@@ -40,7 +40,7 @@ void gui_init(gui_t *gui){
 #endif
     
 #ifdef _WIN32
-   (gui->pipeStdin).Open();
+   (gui->io).Open();
 #else
    
    gui->io->in_fd = STDIN_FILENO;
@@ -54,28 +54,27 @@ void gui_init(gui_t *gui){
 
 // gui_get_non_blocking()
 
-// this is only non_blocking on windows!
-
 bool gui_get_non_blocking(gui_t * gui, char string[], int size) {
 
    ASSERT(gui!=NULL);
    ASSERT(string!=NULL);
    ASSERT(size>=256);
 #ifndef _WIN32
-   if (!io_get_line(gui->io,string,size)) { // EOF
-      my_log("POLYGLOT *** EOF from GUI ***\n");
-      quit();
+   if(io_line_ready(gui->io)){
+       gui_get(GUI,string,StringSize);
+       return true;
+   }else{
+       string[0]='\0';
+       return false;
    }
-   return true;
 #else
-   if ((gui->pipeStdin).LineInput(string)) {
+   if ((gui->io).GetBuffer(string)) {
        my_log("GUI->Adapter: %s\n", string);
        return true;
    } else {
         string[0]='\0';
         return false;
    }
-   
 #endif
 }
 
@@ -83,14 +82,15 @@ bool gui_get_non_blocking(gui_t * gui, char string[], int size) {
 
 void gui_get(gui_t * gui, char string[], int size) {
     bool data_available;
-    while(true){
-        data_available=gui_get_non_blocking(gui, string, size);
-        if(!data_available){
-            Idle();
-        }else{
-            break;
-        }
+#ifdef _WIN32
+    (gui->io).LineInput(string);
+    my_log("GUI->Adapter: %s\n", string);
+#else
+    if (!io_get_line(gui->io,string,size)) { // EOF
+        my_log("POLYGLOT *** EOF from GUI ***\n");
+        quit();
     }
+#endif
 }
 
 
@@ -115,8 +115,7 @@ void gui_send(gui_t * gui, const char format[], ...) {
 #ifndef _WIN32
    io_send(gui->io,"%s",string);
 #else
-   printf("%s\n",string);
-   fflush(stdout);
+   gui->io.LineOutput(string);
    my_log("Adapter->GUI: %s\n",string);
 #endif
 }

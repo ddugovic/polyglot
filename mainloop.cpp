@@ -26,16 +26,18 @@ static const int StringSize = 4096;
 
 // prototypes
 
-static void mainloop_step      ();
-static void mainloop_init();
+static void mainloop_init            ();
+static void mainloop_wait_for_event  ();
 static void mainloop_engine_step(char * string);
 static void mainloop_gui_step(char * string);
+
+// functions
 
 // mainloop_init()
     
 static void mainloop_init(){
     if(!option_get_bool("UCI")){
-        xboard_init();
+        xboard2uci_init();  // the default
     }
 }
 
@@ -43,9 +45,9 @@ static void mainloop_init(){
 
 static void mainloop_engine_step(char * string){
     if(option_get_bool("UCI")){
-       uci_engine_step(string); 
+        uci2uci_engine_step(string); 
     }else{
-        engine_step(string);
+        xboard2uci_engine_step(string);
     }
 }
 
@@ -53,59 +55,65 @@ static void mainloop_engine_step(char * string){
 
 static void mainloop_gui_step(char * string){
     if(option_get_bool("UCI")){
-        uci_gui_step(string); 
+        uci2uci_gui_step(string); 
+    }else if(my_string_equal(string,"uci")){ // mode auto detection
+        my_log("POLYGLOT *** Switching to UCI mode ***\n");
+        option_set("UCI","true");
+        uci2uci_gui_step(string);
     }else{
-        xboard_step(string);
-    }  
+        xboard2uci_gui_step(string);
+    }
 }
-
-
 
 // mainloop()
 
 void mainloop() {
-    mainloop_init();
-    while (!engine_eof(Engine)) mainloop_step();
-    my_log("POLYGLOT *** EOF file received from engine ***");
-}
-
-// adapter_step()
-
-#ifdef _WIN32
-static void mainloop_step(){  // polling!
-    bool xin,ein;
     char string[StringSize];
-    xin=gui_get_non_blocking(GUI,string,StringSize);
-    if(xin) mainloop_gui_step(string);
-    ein=engine_get_non_blocking(Engine,string,StringSize);
-    if(ein) mainloop_engine_step(string);
-    if(xin==false && ein==false) Idle();//nobody wants me,lets have a beauty nap
+    mainloop_init();
+    while (!engine_eof(Engine)) {
+            // process buffered lines
+        while(TRUE){
+            if(gui_get_non_blocking(GUI,string,StringSize)){
+                mainloop_gui_step(string);
+            }else if(!engine_eof(Engine) &&
+                     engine_get_non_blocking(Engine,string,StringSize) ){
+                mainloop_engine_step(string);
+            }else{
+                break;
+            }
+        }
+        mainloop_wait_for_event();
+    }
+    my_log("POLYGLOT *** EOF file received from engine ***\n");
 }
-#else
-static void mainloop_step() {
 
+
+
+
+// mainloop_wait_for_event()
+
+static void mainloop_wait_for_event(){
+#ifdef _WIN32
+    HANDLE hHandles[2];
+    char string[StringSize];
+    hHandles[0]=(GUI->io).hEvent;
+    hHandles[1]=(Engine->io).hEvent;
+    WaitForMultipleObjects(2,               // count
+                           hHandles,        //
+                           FALSE,           // return if one object is signaled
+                           INFINITE         // no timeout
+                           );
+#else
    fd_set set[1];
    int fd_max;
    int val;
    char string[StringSize];
-
-       // process buffered lines
-
-   while (io_line_ready(GUI->io)){
-       gui_get(GUI,string,StringSize);
-       mainloop_gui_step(string);
-   }
-   while (!engine_eof(Engine) && io_line_ready(Engine->io)){
-       engine_get(Engine,string,StringSize);
-       mainloop_engine_step(string);
-   }
-
    // init
 
    FD_ZERO(set);
    fd_max = -1; // HACK
 
-   // add xboard input
+   // add gui input
 
    ASSERT(GUI->io->in_fd>=0);
 
@@ -128,7 +136,9 @@ static void mainloop_step() {
    if (val > 0) {
       if (FD_ISSET(GUI->io->in_fd,set)) io_get_update(GUI->io); // read some xboard input
       if (FD_ISSET(Engine->io->in_fd,set)) io_get_update(Engine->io); // read some engine input
-   }
-}
+   }    
 #endif
+}
+
+
 

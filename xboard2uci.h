@@ -7,20 +7,14 @@
 // includes
 
 #include "util.h"
-#include "uci2uci.h"
 
 // types
 
-
-
-
-
 // functions
 
-extern void adapter_loop ();
-extern void xboard_init           ();
-extern void xboard_step           (char string[]);
-extern void engine_step           (char string[]);
+extern void xboard2uci_init           ();
+extern void xboard2uci_gui_step       (char string[]);
+extern void xboard2uci_engine_step    (char string[]);
 
 #endif // !defined XBOARD2UCI_H
 

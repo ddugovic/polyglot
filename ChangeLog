@@ -1,3 +1,6 @@
+=========1.4w10UCIb20===========
+- More refactoring.
+- No more polling for GUI input
 =========1.4w10UCIb18===========
 - Two new utilities: info-book and dump-book.
 =========1.4w10UCIb17===========
@@ -5,7 +8,7 @@
 - The main loop (previously in adapter.cpp) is now in its own file mainloop.cpp.
 - adapter.cpp has been renamed into xboard2uci.cpp. It is #ifdef _WIN32 free.
 - EOF from the engine no longer kills PG. It should now
-be possible to close an engine and reopen another one (if that ever were useful) 
+be possible to close an engine and reopen another one (if that ever became useful) 
 =========1.4w10UCIb16===========
 - xboard options commands
 - correction of handling of combo boxes in UCI protocol

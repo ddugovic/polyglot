@@ -55,6 +55,8 @@ static double LastTime;
 static uint64 LastNodeNb;
 static move_t LastPV[LineSize];
 
+static my_timer_t Timer[1];
+
 // prototypes
 
 static void epd_test_file  (const char file_name[]);
@@ -211,6 +213,8 @@ static void epd_test_file(const char file_name[]) {
 
       // search
 
+      my_timer_start(Timer); // also resets
+      
       // which ones of the next two alternatives is best?
       engine_send(Engine,"go movetime %.0f depth %d",MaxTime*1000.0,MaxDepth);
       //engine_send(Engine,"go infinite");
@@ -243,25 +247,21 @@ static void epd_test_file(const char file_name[]) {
 
       while (!engine_eof(Engine) && engine_step()) {
           bool stop=false;
-         // stop search?
 
+         // stop search?
+//          printf("Uci->time=%.2f time=%.2f\n",Uci->time,my_timer_elapsed_real(Timer));
           if (Uci->depth > MaxDepth){
               my_log("POLYGLOT Maximum depth %d reached\n",MaxDepth);
               stop=true;
-          }else if(Uci->time >= MaxTime){
+          }else if(my_timer_elapsed_real(Timer) >= MaxTime){
               my_log("POLYGLOT Maximum search time %.2fs reached\n",MaxTime);
               stop=true;
           }else if(Uci->depth - FirstDepth >= DepthDelta){
-              my_log("POLYGLOT DepthDelta (=%d) reached\n",DepthDelta);
               if(Uci->depth > MinDepth){
-                  my_log("POLYGLOT Minimum depth %d reached\n",MinDepth);
                   if(Uci->time >= MinTime){
-                      my_log("POLYGLOT Minimum search time %.2fs reached\n",MinTime);
                       if(is_solution(FirstMove,board,bm,am)){
-                          my_log("POLYGLOT Solution is correct\n");
+                          my_log("POLYGLOT Solution found\n",MaxTime);
                           stop=true;
-                      }else{
-                          my_log("POLYGLOT Solution is not correct\n");
                       }
                   }
               }
@@ -288,7 +288,7 @@ static void epd_test_file(const char file_name[]) {
       printf("%2d: %-15s %s %4d",tot,id,correct?"OK":"--",hit);
 
       if (!line_to_san(LastPV,Uci->board,pv_string,StringSize)) ASSERT(false);
-      printf(" [at: depth=%2d time=%6.2f nodes="S64_FORMAT"] score=%+6.2f pv=%s\n",FirstDepth,FirstTime,FirstNodeNb,double(LastScore)/100.0,pv_string);
+      printf(" score=%+6.2f    pv [D=%2d, T=%7.2fs, N=%6dk] =%s\n",double(LastScore)/100.0,FirstDepth,FirstTime,(int)FirstNodeNb/1000,pv_string);
    }
 
    printf("\nscore=%d/%d",hit,tot);

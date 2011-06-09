@@ -18,10 +18,10 @@
 
 struct engine_t {
 #ifndef _WIN32
-   io_t io[1];
+    io_t io[1];
     pid_t pid;
 #else
-    PipeStruct pipeEngine;
+    PipeStruct io;
 #endif
     uint32 state;
 };

@@ -6,9 +6,8 @@
 
 // functions
 
-extern void uci_gui_step(char string[]);
-extern void uci_engine_step(char string[]);
-extern void send_uci_options();
+extern void uci2uci_gui_step(char string[]);
+extern void uci2uci_engine_step(char string[]);
 
 #endif // !defined UCI2UCI_H
 

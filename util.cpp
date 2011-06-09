@@ -16,9 +16,14 @@
 #include "posix.h"
 #include "util.h"
 
+//
+
+const  int  ErrorBufferSize=4096;
+
 // variables
 
 static bool Error;
+static char ErrorBuffer[ErrorBufferSize];
 
 FILE * LogFile=NULL;
 
@@ -366,3 +371,22 @@ double my_timer_elapsed_real(const my_timer_t * timer) {
 
    return elapsed;
 }
+
+// my_timer()
+
+char * my_error(){
+#ifdef _WIN32
+    FormatMessage(
+        FORMAT_MESSAGE_FROM_SYSTEM,
+        NULL,
+        GetLastError(),
+        LANG_USER_DEFAULT,
+        ErrorBuffer,
+        ErrorBufferSize,
+        NULL);
+    return ErrorBuffer;
+#else
+    return strerror(errno);
+#endif
+}
+

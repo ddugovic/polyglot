@@ -35,7 +35,7 @@
 // constants
 
 
-static const char * const Version = "1.4W10UCIb18";
+static const char * const Version = "1.4W10UCIb20";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile]\n\
@@ -44,7 +44,7 @@ SYNTAX\n\
 * polyglot merge-book -in1 inputfile1 -in2 inputfile2 [-out outputfile]\n\
 * polyglot info-book [-bin inputfile] [-exact]\n\
 * polyglot dumb-book [-bin inputfile] -color color [-out outputfile]\n\
-* polyglot [configfile] epd-test [-epd inputfile] [-min-depth depth] [-max-depth depth] [-max-time time] [-depth-delta delta]\n\
+* polyglot [configfile] epd-test [-epd inputfile] [-min-depth depth] [-max-depth depth] [-min-time time] [-max-time time] [-depth-delta delta]\n\
 * polyglot perft [-fen fen] [-max-depth depth]\
 ";
 
@@ -253,7 +253,7 @@ static void parse_option() {
    my_log("POLYGLOT INI file \"%s\"\n",file_name);
    engine_open(Engine);
    if(!engine_active(Engine)){
-       my_fatal("Could not start \"%s\"",option_get("EngineCommand"));
+       my_fatal("Could not start \"%s\"\n",option_get("EngineCommand"));
    }
 
    if (option_get_bool("UCI")) {
@@ -343,9 +343,11 @@ void quit() {
         
         stop_search();
         engine_send(Engine,"quit");
+        my_log("POLYGLOT Closing engine\n");
         engine_close(Engine);
         
     }
+    my_log("POLYGLOT Calling exit\n");
     exit(EXIT_SUCCESS);
 }
 

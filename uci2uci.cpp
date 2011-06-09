@@ -29,6 +29,10 @@ static board_t UCIboard[1];
 static bool Init=true;
 static int SavedMove=MoveNone;
 
+// prototypes
+
+static void send_uci_options();
+
 // parse_position()
 
 static void parse_position(const char string[]) {
@@ -145,7 +149,7 @@ static void format_uci_option_line(char * option_line,option_t *opt){
 
 // send_uci_options()
 
-void send_uci_options() {
+static void send_uci_options() {
     int i;
     option_t *p=Option;
     char option_line[StringSize]="";
@@ -191,9 +195,9 @@ static void parse_setoption(const char string[]) {
 }
 
 
-// uci_gui_step()
+// uci2uci_gui_step()
 
-void uci_gui_step(char string[]) {
+void uci2uci_gui_step(char string[]) {
     int move;
      if(false){
      }else if(match(string,"uci")){
@@ -236,7 +240,7 @@ void uci_gui_step(char string[]) {
      engine_send(Engine,"%s",string);
 }
 
-void uci_engine_step(char string[]) {
+void uci2uci_engine_step(char string[]) {
     gui_send(GUI,string);
 }
 

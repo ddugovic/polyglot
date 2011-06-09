@@ -130,6 +130,7 @@ extern void   my_timer_stop         (my_timer_t * timer);
 
 extern double my_timer_elapsed_real (const my_timer_t * timer);
 
+extern char * my_error();
 
 #endif // !defined UTIL_H
 

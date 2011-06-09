@@ -35,16 +35,22 @@ struct entry_t {
     uint64 key;
     uint16 move;
     uint16 count;
-    union{   // unfortunately minggw32 seems to have a bug with anon unions.
-        struct { 
+// Unfortunately the minggw32 cross compiler [4.2.1-sjlj (mingw32-2)] 
+// seems to have a bug with anon structs contained in unions when using -O2.
+// See the ASSERT below in "read_entry_file"...
+// To be fair this seems to be illegal in C++
+// although it is hard to understand why, and the compiler does not complain
+// even with -Wall.
+//    union {   
+//        struct { 
             uint16 n;
             uint16 sum;
-        };
-        struct{
+//        };
+//        struct {
             uint8 height;
             int line;
-        };
-    };
+//        };
+        //   };
     uint8 colour;
 };
 

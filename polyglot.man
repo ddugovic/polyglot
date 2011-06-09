@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2009-01-15" "" ""
+.TH POLYGLOT 6 "2009-01-16" "" ""
 .SH "NAME"
 PolyGlot \-  Winboard protocol to UCI protocol adapter
          \-  book engine for Polyglot books 
@@ -349,8 +349,9 @@ been reached.
 Unconditionally stop the seach after this amount of time.
 .IP "\fB\-depth\-delta\fR (default: 3)" 4
 .IX Item "-depth-delta (default: 3)"
-Stop the search if the best move has been constant for this many depths,
-on condition that the mininal depth and minimal time have been reached.
+Stop the search if the solution as been found and the best move has
+been constant for this many depths, on condition that the mininal
+depth and minimal time have been reached.
 .IP "\fB\-min\-depth\fR (default: 8)" 4
 .IX Item "-min-depth (default: 8)"
 Minimal search depth when the search is stopped using \*(L"\-depth\-delta\*(R".
@@ -384,7 +385,7 @@ The config file is in the traditional \s-1INI\s0 format.
 \&    ...
 .Ve
 .PP
-Lines starting with \*(L"#\*(R" are ignored.
+The characters \*(L"#\*(R" and \*(L";\*(R" serve as comment characters. 
 .PP
 \&\s-1NOTE:\s0 There can be spaces in option names or values.  Do not use
 quotes. Boolean values are written as \*(L"true\*(R" or \*(L"false\*(R". 
@@ -579,10 +580,22 @@ most 30 plies.
 \&    polyglot make\-book \-pgn games.pgn \-bin book.bin \-max\-ply 30
 .Ve
 .PP
-Merge books \*(L"in1.bin\*(R" and \*(L"in2.bin\*(R" into a book \*(L"out.bin\*(R".
+Merge books \*(L"w1.bin\*(R" and \*(L"w2.bin\*(R" into a book \*(L"w.bin\*(R".
 .PP
 .Vb 1
 \&    polyglot merge\-book \-in1 w1.bin \-in2 w2.bin \-out w.bin
+.Ve
+.PP
+Inspect lines for white in \*(L"w.bin\*(R"
+.PP
+.Vb 1
+\&    polyglot dump\-book \-bin w.bin \-color white \-out w_white.txt
+.Ve
+.PP
+Test epd file \*(L"test.epd\*(R" with a (maximum) search time of 7 minutes per position
+.PP
+.Vb 1
+\&    polyglot epd\-test \-epd test.epd \-max\-time 420
 .Ve
 .PP
 The command line for using the \s-1UCI\s0 engine \*(L"fruit\*(R" in a \s-1GUI\s0 which uses the

@@ -112,9 +112,9 @@ static void learn          (int result);
 
 // functions
 
-// xboard_init()
+// xboard2uci_init()
 
-void xboard_init() {
+void xboard2uci_init() {
    // init
 
    game_clear(Game);
@@ -161,26 +161,14 @@ void xboard_init() {
    XB->opp_time = 300.0;
 }
 
-void xboard_step(char string[]) {
+// xboard2uci_gui_step()
+
+void xboard2uci_gui_step(char string[]) {
 
 	int move;
 	char move_string[256];
 	board_t board[1];
-    static bool firsttime=true;
 
-    if(firsttime){
-            if((match(string,"uci"))){
-                    my_log("POLYGLOT *** Switching to UCI mode ***\n");
-                    send_uci_options();
-                    option_set("UCI","true");
-                    return;
-            }else{
-                 //uci_send_isready(Uci); // In UCI mode this done by the GUI
-                 //Grrr...Toga can fixes the number of threads after "isready"
-                 //So we delay "isready" 
-            }
-            firsttime=false;
-        }
 		if (false) {
          
 		} else if (match(string,"accepted *")) {
@@ -661,9 +649,9 @@ void xboard_step(char string[]) {
 	return;
 }
 
-// engine_step()
+// xboard2uci_engine_step()
 
-void engine_step(char string[]) {
+void xboard2uci_engine_step(char string[]) {
 
 	int event;
 		event = uci_parse(Uci,string);

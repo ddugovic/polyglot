@@ -7,7 +7,7 @@
 
 // constants
 
-const int LINE_INPUT_MAX_CHAR = 4096;
+const int LINE_INPUT_MAX_CHAR = 10*4096;
 
 // defines
 
@@ -20,23 +20,35 @@ struct PipeStruct {
 
     HANDLE hInput, hOutput;
     HANDLE hProcess;
-    DWORD state;
+    HANDLE hThread;
+    HANDLE hEvent;
     BOOL bConsole;
-    int nBytesLeft;
-    int nReadEnd;
-    char szBuffer[LINE_INPUT_MAX_CHAR];
+    BOOL bPipe;
+
+    CRITICAL_SECTION CriticalSection;
+
+    volatile DWORD state;
+    volatile int nReadEnd;
+    char lpBuffer[LINE_INPUT_MAX_CHAR];
+    char lpReadBuffer[LINE_INPUT_MAX_CHAR];
 
     void Open(const char *szExecFile = NULL);
     void Close(void) const;
     void Kill(void) const;
     bool EOF_(void);
+    void set_EOF_(void);
     bool Active(void);
+    void set_Active(void);
     void ReadInput(void);
+    int ReadLine(void);
     bool CheckInput(void);
     bool GetBuffer(char *szLineStr);
-    bool LineInput(char *szLineStr);
+    void LineInput(char *szLineStr);
     void LineOutput(const char *szLineStr) const;
-}; // pipe
+
+};
+
+// pipe
 
 #endif
 #endif

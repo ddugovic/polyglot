@@ -10,9 +10,9 @@
 
 struct gui_t {
 #ifndef _WIN32
-   io_t io[1];
+    io_t io[1];
 #else
-    PipeStruct pipeStdin;
+    PipeStruct io;
 #endif
 };
 

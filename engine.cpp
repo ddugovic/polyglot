@@ -200,6 +200,18 @@ void engine_close(engine_t * engine) {
 
 }
 
+// engine_get_non_blocking()
+
+bool engine_get_non_blocking(engine_t * engine, char string[], int size){
+    if(io_line_ready(engine->io)){
+        engine_get(engine,string,StringSize);
+        return true;
+    }else{
+        string[0]='\0';
+        return false;
+    }
+}
+
 // engine_get()
 
 void engine_get(engine_t * engine, char string[], int size) {
@@ -330,48 +342,49 @@ IDLE_PRIORITY_CLASS         0x00000040
 
 void set_affinity(engine_t *engine, int affin){
 	if(affin==-1) return;
-    SetProcessAffinityMask((engine->pipeEngine).hProcess,affin);
+    SetProcessAffinityMask((engine->io).hProcess,affin);
 }
 
 // Eric Mullins!
 
 void engine_set_nice_value(engine_t *engine, int value){
-    SetPriorityClass((engine->pipeEngine).hProcess,
+    SetPriorityClass((engine->io).hProcess,
                      GetWin32Priority(value));
 }
 
 
 void engine_send_queue(engine_t * engine,const char *szFormat, ...) {
-  nQueuePtr += vsprintf(szQueueString + nQueuePtr, szFormat, (va_list) (&szFormat + 1));
+    nQueuePtr += vsprintf(szQueueString + nQueuePtr, szFormat, (va_list) (&szFormat + 1));
 }
 
 void engine_send(engine_t * engine, const char *szFormat, ...) {
     vsprintf(szQueueString + nQueuePtr, szFormat, (va_list) (&szFormat + 1));
-    (engine->pipeEngine).LineOutput(szQueueString);
+    (engine->io).LineOutput(szQueueString);
     my_log("Adapter->Engine: %s\n",szQueueString);
     nQueuePtr = 0;
 }
 
 void engine_close(engine_t * engine){
     char string[StringSize];
-    (engine->pipeEngine).Close();
+    (engine->io).Close();
         // TODO: Timeout
-    while (!engine_eof(Engine)) {
-            engine_get(Engine,string,StringSize); 
-        }
-    (engine->pipeEngine).Kill();
+    while (!engine_eof(Engine)) { 
+        engine_get_non_blocking(Engine,string,StringSize);
+        Idle();
+    }
+    (engine->io).Kill();
 }
 
 
 void engine_open(engine_t * engine){
-   int affinity;
+    int affinity;
     char *my_dir;
     engine->state=0;
     if( (my_dir = _getcwd( NULL, 0 )) == NULL )
         my_fatal("Can't build path: %s\n",strerror(errno));
     SetCurrentDirectory(option_get_string("EngineDir"));
-    (engine->pipeEngine).Open(option_get_string("EngineCommand"));
-    if((engine->pipeEngine).Active()){
+    (engine->io).Open(option_get_string("EngineCommand"));
+    if((engine->io).Active()){
         engine->state|=ENGINE_ACTIVE;
             //play with affinity (bad idea)
         affinity=option_get_int("Affinity");
@@ -397,13 +410,12 @@ bool engine_eof(engine_t *engine){
 
 bool engine_get_non_blocking(engine_t * engine, char *szLineStr, int size){
     if(engine_eof(engine)){ return false;}
-	if ((engine->pipeEngine).LineInput(szLineStr)) {
+	if ((engine->io).GetBuffer(szLineStr)) {
         my_log("Engine->Adapter: %s\n",szLineStr);
         return true;
     } else {
         szLineStr[0]='\0';
-        if(engine->pipeEngine.EOF_()){
-            my_log("POLYGLOT EOF received from engine\n");
+        if(engine->io.EOF_()){
             engine->state|=ENGINE_EOF;
         }
         return false;
@@ -411,15 +423,9 @@ bool engine_get_non_blocking(engine_t * engine, char *szLineStr, int size){
 }
 
 void engine_get(engine_t * engine, char *szLineStr, int size){
-    bool data_available;
-    if(engine_eof(engine))return;
-    while(true){
-        data_available=engine_get_non_blocking(engine,szLineStr,size);
-        if(!data_available && !engine_eof(engine)){
-            Idle();
-        }else{
-            break;
-        }
+    (engine->io).LineInput(szLineStr);
+    if(engine->io.EOF_()){
+        engine->state|=ENGINE_EOF;
     }
 }
 

@@ -230,9 +230,9 @@ OPTIONS
            Unconditionally stop the seach after this amount of time.
 
        -depth-delta (default: 3)
-           Stop the search if the best move has been constant for this many
-           depths, on condition that the mininal depth and minimal time have
-           been reached.
+           Stop the search if the solution as been found and the best move has
+           been constant for this many depths, on condition that the mininal
+           depth and minimal time have been reached.
 
        -min-depth (default: 8)
            Minimal search depth when the search is stopped using
@@ -266,7 +266,7 @@ CONFIG FILE FORMAT
            option = value
            ...
 
-       Lines starting with "#" are ignored.
+       The characters "#" and ";" serve as comment characters.
 
        NOTE: There can be spaces in option names or values.  Do not use
        quotes. Boolean values are written as "true" or "false".
@@ -461,9 +461,18 @@ EXAMPLES
 
            polyglot make-book -pgn games.pgn -bin book.bin -max-ply 30
 
-       Merge books "in1.bin" and "in2.bin" into a book "out.bin".
+       Merge books "w1.bin" and "w2.bin" into a book "w.bin".
 
            polyglot merge-book -in1 w1.bin -in2 w2.bin -out w.bin
+
+       Inspect lines for white in "w.bin"
+
+           polyglot dump-book -bin w.bin -color white -out w_white.txt
+
+       Test epd file "test.epd" with a (maximum) search time of 7 minutes per
+       position
+
+           polyglot epd-test -epd test.epd -max-time 420
 
        The command line for using the UCI engine "fruit" in a GUI which uses
        the xboard protocol.
@@ -494,4 +503,4 @@ SEE ALSO
 
 
 
-                                  2009-01-15                       POLYGLOT(6)
+                                  2009-01-16                       POLYGLOT(6)

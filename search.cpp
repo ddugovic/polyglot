@@ -133,7 +133,7 @@ void search(const board_t * board, int depth_max, double time_max) {
 // do_perft()
 
 void do_perft(int argc,char * argv[]){
-    const char * fen=StartFen;
+    const char * fen=NULL;
     int depth=1;
     board_t board[1];
     int i;
@@ -144,7 +144,7 @@ void do_perft(int argc,char * argv[]){
         } else if (my_string_equal(argv[i],"-fen")) {
             i++;
             if (argv[i] == NULL) my_fatal("do_perft(): missing argument\n");
-            fen=strdup(argv[i]);
+            my_string_set(&fen,argv[i]);
         } else if (my_string_equal(argv[i],"-max-depth")){
             i++;
             if (argv[i] == NULL) my_fatal("do_perft(): missing argument\n");
@@ -153,6 +153,9 @@ void do_perft(int argc,char * argv[]){
         } else {
             my_fatal("do_perft(): unknown option \"%s\"\n",argv[i]);
         }
+    }
+    if(fen==NULL){
+        my_string_set(&fen,StartFen);
     }
     board_from_fen(board,fen);
     search_perft(board,depth);
