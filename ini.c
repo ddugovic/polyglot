@@ -25,6 +25,10 @@ typedef enum {
     FINISHED            =8,
 } parse_state_t;
 
+// variables
+
+const char *ini_specials=";\\#[]=";
+
 // functions
 
 // ini_line_parse()
@@ -42,30 +46,39 @@ line_type_t ini_line_parse(const char *line,
     char c;
     int type=SYNTAX_ERROR;
     int spaces=0;
-    bool outer_quote=FALSE;
+    bool quoted;
     while(state!=FINISHED){
         c=line[index++];
-//        printf("STATE=%d c=[%c]\n",state,c);
+	quoted=FALSE;
+	if(c=='\\'){
+	  if(strchr(ini_specials,line[index])){
+	    quoted=TRUE;
+	    c=line[index++];
+	  }
+	}
+	//	       printf("STATE=%d quoted=%d c=[%c]\n",state,quoted,c);
         switch(state){
             case START:
-                if((c==';')||(c=='#')||(c=='\r')||(c=='\n')||(c=='\0')){
+	      if(!quoted && ((c==';')||(c=='#')||(c=='\r')||
+			     (c=='\n')||(c=='\0'))){
                     type=EMPTY_LINE;
                     state=FINISHED;
-                }else if(c=='['){
+                }else if(!quoted && c=='['){
                     state=SECTION_NAME;
-                }else if(c!=' '){
+                }else if(quoted || c!=' '){
                     name[name_index++]=c;
                     state=NAME;
                 }
                 goto next;
                 break;
             case NAME:
-                if(c=='='){
+                if(!quoted && c=='='){
                     state=START_VALUE;
-                }else if(c==' '){
+                }else if(!quoted && c==' '){
                     state=NAME_SPACE;
                     spaces=1;
-                }else if((c==';')||(c=='#')||(c=='\r')||(c=='\n')||(c=='\0')){
+                }else if(!quoted && ((c==';')||(c=='#')||(c=='\r')
+				     ||(c=='\n')||(c=='\0'))){
                     type=SYNTAX_ERROR;
                     state=FINISHED;
                 }else{
@@ -74,11 +87,12 @@ line_type_t ini_line_parse(const char *line,
                 goto next;
                 break;    // we don't get here
             case NAME_SPACE:
-                if(c==' '){
+                if(!quoted && c==' '){
                     spaces++;
-                }else if(c=='='){
+                }else if(!quoted && c=='='){
                     state=START_VALUE;
-                }else if((c==';')||(c=='#')||(c=='\r')||(c=='\n')||(c=='\0')){
+                }else if(!quoted && ((c==';')||(c=='#')||(c=='\r')||
+				     (c=='\n')||(c=='\0'))){
                     type=SYNTAX_ERROR;
                     state=FINISHED;
                 }else{
@@ -92,28 +106,22 @@ line_type_t ini_line_parse(const char *line,
                 goto next;
                 break;    // we don't get here
             case START_VALUE:
-                if(c=='"'){
-                    outer_quote=TRUE;
-                    spaces=0;
-                    state=VALUE_SPACE;
-                }else if((c==';')||(c=='#')||(c=='\r')||(c=='\n')||(c=='\0')){
+	        if(!quoted && ((c==';')||(c=='#')||(c=='\r')||
+			     (c=='\n')||(c=='\0'))){
                     type=EMPTY_VALUE;
                     state=FINISHED;
-                }else if(c!=' '){
+                }else if(quoted || c!=' '){
                     value[value_index++]=c;
                     state=VALUE;
                 }
                 goto next;
                 break;    // we don't get here
             case VALUE:
-                if(c=='"'){
-                    state=QUOTE_SPACE;
-                    spaces=0;
-                }else if(c==' '){
+                if(!quoted && c==' '){
                     state=VALUE_SPACE;
                     spaces=1;
-                }else if((c=='\r' || c=='\n' || c==';' || c=='#'||(c=='\0'))&&
-                         !outer_quote){
+                }else if(!quoted && ((c=='\r' || c=='\n' || c==';' || 
+				      c=='#'||(c=='\0')))){
                     type=NAME_VALUE;
                     state=FINISHED;
                 }else{
@@ -122,10 +130,10 @@ line_type_t ini_line_parse(const char *line,
                 goto next;
                 break;    // we don't get here
             case VALUE_SPACE:
-                if(c==' '){
+                if(!quoted && c==' '){
                     spaces++;
-                }else if((c=='\r' || c=='\n' || c==';' || c=='#'||(c=='\0'))&&
-                         !outer_quote){
+                }else if(!quoted && ((c=='\r' || c=='\n' || c==';' || 
+				      c=='#'||(c=='\0')))){
                     type=NAME_VALUE;
                     state=FINISHED;
                 }else{
@@ -133,38 +141,13 @@ line_type_t ini_line_parse(const char *line,
                         value[value_index++]=' ';
                     }
                     spaces=0;
-                    if(c!='"'){
-                        value[value_index++]=c;
-                        state=VALUE;
-                    }else{
-                        state=QUOTE_SPACE;
-                    }
-                }
-                goto next;
-                break;    // we don't get here
-            case QUOTE_SPACE:
-                if(c==' '){
-                    spaces++;
-                }else if(c=='\r' || c=='\n' || c==';' || c=='#'||(c=='\0')){
-                    type=NAME_VALUE;
-                    state=FINISHED;
-                }else{
-                    value[value_index++]='"';
-                    for(i=0;i<spaces;i++){
-                        value[value_index++]=' ';
-                    }
-                    spaces=0;
-                    if(c!='"'){
-                        value[value_index++]=c;
-                        state=VALUE;
-                    }else{
-                        state=QUOTE_SPACE;
-                    }
+		    value[value_index++]=c;
+		    state=VALUE;
                 }
                 goto next;
                 break;    // we don't get here
             case SECTION_NAME:
-                if(c==']'){
+                if(!quoted && c==']'){
                     type=SECTION;
                     state=FINISHED;
                 }else{
@@ -305,9 +288,7 @@ int ini_parse(ini_t *ini, const char *filename){
         }else if(result==NAME_VALUE){
             ini_insert_ex(ini,current_section,name,value);
         }else if(result==SYNTAX_ERROR){
-	  // Dirty hack.
-          // The "not found" triggers xboard to show the error.
-            my_fatal("ini_parse(): Syntax error in \"%s\": line %d (not found)\n",
+            my_fatal("ini_parse(): Syntax error in \"%s\": line %d\n",
                      filename,
                      line_nr);
             

@@ -72,6 +72,8 @@ void pipex_open(pipex_t *pipex,
     char *szCurrentDir;
     pipex->state=0;
     pipex->name=szName;
+    pipex->command=szProcFile;
+    pipex->quit_pending=FALSE;
     pipex->hProcess=NULL;
     if (szProcFile == NULL) {
         pipex->hInput = GetStdHandle(STD_INPUT_HANDLE);
@@ -99,7 +101,7 @@ void pipex_open(pipex_t *pipex,
             my_fatal("pipex_open(): cannot change directory: %s\n",
                      strerror(errno));
         }
-        if(CreateProcess(NULL,
+       if(CreateProcess(NULL,
                          (LPSTR) szProcFile,
                          NULL,
                          NULL,
@@ -194,7 +196,11 @@ void pipex_exit(pipex_t *pipex) {
     DWORD lpexit;
     CloseHandle(pipex->hInput);
     CloseHandle(pipex->hOutput);
-    
+    if(!pipex->quit_pending){
+      // suppress further errors
+      pipex->quit_pending=TRUE;
+      my_fatal("pipex_exit(): %s: child exited unexpectedly.\n",pipex->command);
+    }
     if(GetExitCodeProcess(pipex->hProcess,&lpexit)){
         if(lpexit==STILL_ACTIVE)
                 //must be java,hammer it down!

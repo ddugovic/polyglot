@@ -153,7 +153,7 @@ void uci_open(uci_t * uci, engine_t * engine) {
       // Handle the case that the engine is really a WB engine somewhat gracefully.
       if((strstr(string,"Illegal") || strstr(string,"Error"))
          &&strstr(string,"uci")){
-          my_fatal("uci_open(): Not an UCI engine (not found).\n");
+          my_fatal("uci_open(): Not an UCI engine.\n");
       }
       event = uci_parse(uci,string);
    } while (!engine_eof(Engine) && (event & EVENT_UCI) == 0);

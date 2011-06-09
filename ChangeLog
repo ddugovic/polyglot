@@ -1,3 +1,6 @@
+=========1.4.54b================
+- More graceful handling of engine crashes.
+- New EngineCommand is now passed through wordexp on Linux.
 =========1.4.53b================
 - Multipv code by HGM. 
 =========1.4.52b================

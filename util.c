@@ -24,6 +24,7 @@
 
 #include "main.h"
 #include "util.h"
+#include "gui.h"
 
 // macros
 
@@ -197,16 +198,19 @@ void my_fatal(const char format[], ...) {
 
     CONSTRUCT_ARG_STRING(format,string);
     
-    fprintf(stderr,"%s",string);
     my_log("POLYGLOT %s",string);
+    // This should be gui_send but this does not work.
+    // Why?
+
+    fprintf(stderr,"tellusererror POLYGLOT: %s",string);
 
     if (Error) { // recursive error
         my_log("POLYGLOT *** RECURSIVE ERROR ***\n");
         exit(EXIT_FAILURE);
             // abort();
     } else {
-        Error = TRUE;
-        quit();
+      Error = TRUE;
+      quit();
     }
 }
 
@@ -473,5 +477,40 @@ double my_timer_elapsed_real(const my_timer_t * timer) {
    return elapsed;
 }
 
+
+void my_dequote(char *out, const char *in, const char *special){
+  const char *p; 
+  char *q;
+  char c;
+  p=in;
+  q=out;
+  while((c=*(p++))){
+    if(c=='\\' && strchr(special,*p)){
+      *(q++)=*(p++);
+    }else{
+      *(q++)=c;
+    }
+  }
+  *q='\0';
+}
+
+void my_quote(char *out, const char *in, const char *special){
+  const char *p;
+  char *q;
+  char c;
+  p=in;
+  q=out;
+  while(q-out< StringSize-2 && (c=*(p++))){
+    if(c=='\\'){
+      if(*p!=0 && strchr(special,*p)){
+	*(q++)='\\';
+      }
+    }else if(strchr(special,c)){
+      *(q++)='\\';
+    }
+    *(q++)=c;
+  }
+  *q='\0';
+}
 
 

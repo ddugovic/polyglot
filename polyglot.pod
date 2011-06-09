@@ -351,10 +351,12 @@ The config file is in the traditional INI format.
 
 The characters "#" and ";" serve as comment characters. 
 
-By default initial and final white space is stripped from option
-values. If you want to avoid this, or if you want use one of
-the comment characters # or ; in option values (such as for NalimovPath), 
-enclose the value in quotes.
+Initial and final white space is stripped from option names and
+values. If you need to use characters which have a special meaning to
+PolyGlot (these are ';#[]=\') you should quote them by preceding them
+with '\'. "Quoting" other characters in this way has no effect. In
+particular the use of '\' as a path separator in windows should
+normally not affected.
 
 =head2 [PolyGlot] section
 
@@ -380,7 +382,10 @@ any data file.
 
 Put here the name of the engine executable file.  You can also add
 command-line arguments.  Path searching is used and the current
-directory will be "EngineDir".
+directory will be "EngineDir". On Linux the EngineCommand is passed
+to wordexp so that shell quoting rules and expansions are applied.
+On Windows the EngineCommand is simply passed to CreateProcess which
+does its own shell like processing.
 
 =item B<SettingsDir> (default: $HOME/.polyglot on Linux; ".\_PG" on Windows)
 

@@ -39,6 +39,8 @@ typedef struct {
     char szWriteBuffer[LINE_INPUT_MAX_CHAR];
     DWORD dwWriteIndex;
     const char *name;
+    const char *command;
+    BOOL quit_pending;
 
 } pipex_t;
 
@@ -68,6 +70,8 @@ typedef struct {
     io_t io[1];
     pid_t pid;
     int state;
+    bool quit_pending;
+    const char *command;
 } pipex_t;
 
 #endif

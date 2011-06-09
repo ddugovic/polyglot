@@ -178,6 +178,13 @@ extern double my_timer_elapsed_real (const my_timer_t * timer);
 
 extern char * my_error();
 
+extern void my_dequote              (char *out, 
+				     const char *in, 
+				     const char *special);
+extern void my_quote                (char *out, 
+				     const char *in, 
+				     const char *special);
+
 #endif // !defined UTIL_H
 
 // end of util.h

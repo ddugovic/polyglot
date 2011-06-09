@@ -56,6 +56,8 @@ extern line_type_t ini_line_parse         (const char *line,
                                            char *name,
                                            char *value);
 
+extern const char * ini_specials;
+
 #endif // !defined INI_H
 
 // end of ini.h

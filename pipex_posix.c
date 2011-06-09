@@ -4,6 +4,8 @@
 
 #include <string.h>
 #include <errno.h>
+#include <wordexp.h>
+#include <sys/wait.h>
 #include "pipex.h"
 
 // constants
@@ -28,9 +30,13 @@ void pipex_open(pipex_t *pipex,
     char * ptr;
     char * argv[256];
     int from_child[2], to_child[2];
+    wordexp_t p;
+    int i,ret;
 
     pipex->pid=-1;
     pipex->io->name=name;
+    pipex->quit_pending=FALSE;
+    pipex->command=command;
     
     if(command==NULL){
         pipex->io->in_fd = STDIN_FILENO;
@@ -43,7 +49,7 @@ void pipex_open(pipex_t *pipex,
     }else{
     
         // parse the command line and create the argument list
-    
+#if 0    
         if (strlen(command) >= StringSize) my_fatal("pipex_open(): buffer overflow\n");
         strcpy(string,command);
         argc = 0;
@@ -53,7 +59,27 @@ void pipex_open(pipex_t *pipex,
         }
 
         argv[argc] = NULL;
-        
+#else
+	//printf("command=[%s]\n",command);
+	//Buffer overflow alert
+	ret=wordexp(command, &p, 0);
+	if(ret!=0){
+	  my_fatal("pipex_open(): %s: Unable to parse command.\n",command);
+	}
+	argc = p.we_wordc;
+	if(argc>=256-2){
+	  my_fatal("pipex_open(): %s: Too many arguments.\n",command);
+	}
+	for(i=0;i<argc;i++){
+	  argv[i] = p.we_wordv[i];
+	}
+	//	int i;
+	//for(i=0;i<argc;i++){
+	//  printf("[%s]",argv[i]);
+	//}
+	//printf("\n");
+	argv[argc] = NULL;
+#endif        
       // create the pipes
         
         if (pipe(from_child) == -1) {
@@ -107,7 +133,7 @@ void pipex_open(pipex_t *pipex,
             
                 // execvp() only returns when an error has occured
             
-            my_fatal("engine_open(): execvp(): %s: %s\n",command,strerror(errno));
+            my_fatal("engine_open(): execvp(): %s: %s\n",argv[0],strerror(errno));
             
         } else { // pid > 0
             
@@ -203,7 +229,26 @@ void pipex_send_eof(pipex_t *pipex){
 // pipex_exit()
 
 void pipex_exit(pipex_t *pipex){
-        // NOOP for now
+    int status;
+    my_log("POLYGLOT Waiting for child process to exit.\n");
+    waitpid(pipex->pid,&status,0);
+    if(WIFEXITED(status)){
+      if(pipex->quit_pending){
+	my_log("POLYGLOT Child exited with status %d.\n",WEXITSTATUS(status));
+      }else{
+	// Suppress further messages.
+	pipex->quit_pending=TRUE;
+	my_fatal("pipex_exit(): %s: child exited with status %d.\n",pipex->command,WEXITSTATUS(status));
+      }
+    }else if(WIFSIGNALED(status)){
+      if(pipex->quit_pending){
+	my_log("POLYGLOT pipex_exit(): %s: child terminated with signal %d.\n",pipex->command,WTERMSIG(status));
+      }else{
+	// Suppress further messages.
+	pipex->quit_pending=TRUE;
+	  my_fatal("pipex_exit(): %s: child terminated with signal %d.\n",pipex->command,WTERMSIG(status));
+      }
+    }
     return;
 }
 

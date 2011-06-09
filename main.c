@@ -39,7 +39,7 @@
 // constants
 
 
-static const char * const Version = "1.4.53b";
+static const char * const Version = "1.4.54b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log] [-lf logfile] [-hash value] [-bk book] [-pg <name>=<value>]* [-uci <name>=<value>]*\n\
@@ -185,9 +185,12 @@ static void make_ini(ini_t *ini){
 
 static void write_ini(const char *filename,
 			 ini_t *ini){
+  // TODO Quote, dequote
     const char *quote;
     ini_entry_t *entry;
     char tmp[StringSize];
+    char tmp1[StringSize];
+    char tmp2[StringSize];
     FILE *f;
     time_t t=time(NULL);
     f=fopen(filename,"w");
@@ -201,16 +204,11 @@ static void write_ini(const char *filename,
     ini_start_iter(ini);
     while((entry=ini_next(ini))){
       if(my_string_case_equal(entry->section,"polyglot")){
-          if(strchr(entry->value,';')|| strchr(entry->value,'#')|| strchr(entry->value,'"')){
-              quote="\"";
-          }else{
-              quote="";
-          }
-          snprintf(tmp,sizeof(tmp),"%s=%s%s%s\n",
-                   entry->name,
-                   quote,
-                   entry->value,
-                   quote);
+	  my_quote(tmp1,entry->name,ini_specials);
+	  my_quote(tmp2,entry->value,ini_specials);
+          snprintf(tmp,sizeof(tmp),"%s=%s\n",
+                   tmp1,
+                   tmp2);
 	tmp[sizeof(tmp)-1]='\0';
 	fprintf(f,"%s",tmp);
       }
@@ -218,17 +216,12 @@ static void write_ini(const char *filename,
     fprintf(f,"[Engine]\n");
     ini_start_iter(ini);
     while((entry=ini_next(ini))){
-        if(my_string_case_equal(entry->section,"engine")){
-            if(strchr(entry->value,';')|| strchr(entry->value,'#')|| strchr(entry->value,'"')){
-                quote="\"";
-            }else{
-                quote="";
-            }
-            snprintf(tmp,sizeof(tmp),"%s=%s%s%s\n",
-                     entry->name,
-                     quote,
-                     entry->value,
-                     quote);
+      if(my_string_case_equal(entry->section,"engine")){
+        my_quote(tmp1,entry->name,ini_specials);
+	my_quote(tmp2,entry->value,ini_specials);
+	snprintf(tmp,sizeof(tmp),"%s=%s\n",
+                     tmp1,
+                     tmp2);
 	tmp[sizeof(tmp)-1]='\0';
 	fprintf(f,"%s",tmp);
       }
@@ -286,6 +279,8 @@ int main(int argc, char * argv[]) {
    // init
 
     Init = FALSE;
+
+    gui_init(GUI);
 
     util_init();
     option_init_pg();
@@ -445,6 +440,7 @@ int main(int argc, char * argv[]) {
         // start engine
     
     engine_open(Engine);
+
     if(!engine_active(Engine)){
         my_fatal("Could not start \"%s\"\n",option_get(Option,"EngineCommand"));
     }
@@ -458,6 +454,7 @@ int main(int argc, char * argv[]) {
         // initialize uci parsing and send uci command. 
         // Parse options and wait for uciok
     
+    // XXX
     uci_open(Uci,Engine);
 
     option_set_default(Option,"EngineName",Uci->name);
@@ -568,7 +565,7 @@ int main(int argc, char * argv[]) {
         }
     }
 
-    gui_init(GUI);
+    //    gui_init(GUI);
     mainloop();
     return EXIT_SUCCESS; 
 }
@@ -579,7 +576,7 @@ void polyglot_set_option(const char *name, const char *value){ // this must be c
     ini_t ini[1];
     int ret;
     ini_init(ini);
-    my_log("POLYGLOT Setting PolyGlot option %s=\"%s\"\n",name,value);
+    my_log("POLYGLOT Setting PolyGlot option \"%s=%s\"\n",name,value);
     if(my_string_case_equal(name,"Save")){
         ret=my_mkdir(option_get(Option,"SettingsDir"));
         if(ret){
@@ -635,9 +632,10 @@ void quit() {
 
     my_log("POLYGLOT *** QUIT ***\n");
     
-    if (Init) {
+    if (Init && !Engine->pipex->quit_pending) {
         
         stop_search();
+	Engine->pipex->quit_pending=TRUE;
         engine_send(Engine,"quit");
         my_log("POLYGLOT Closing engine\n");
         engine_close(Engine);

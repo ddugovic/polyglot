@@ -64,6 +64,7 @@ static void mainloop_gui_step(char * string){
 
 void mainloop() {
     char string[StringSize];
+    my_log("POLYGLOT *** Mainloop started ***\n");
     mainloop_init();
     while (!engine_eof(Engine)) {
             // process buffered lines
