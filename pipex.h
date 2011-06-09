@@ -81,24 +81,27 @@ typedef struct {
 // macros
 
 #define PIPEX_MAGIC "!@#$%"
+#define WAIT_GRANULARITY 100
 
 // functions 
 
-extern void pipex_open         (pipex_t *pipex, 
-                                const char *name,
-                                const char *working_dir,
-                                const char *command);
-extern bool pipex_active       (pipex_t *pipex);
-extern bool pipex_readln       (pipex_t *pipex, char *string);
-extern bool pipex_readln_nb    (pipex_t *pipex, char *string);
-extern void pipex_writeln      (pipex_t *pipex, const char *string);
-extern void pipex_write        (pipex_t *pipex, const char *string);
-extern bool pipex_eof          (pipex_t *pipex);
-extern void pipex_send_eof     (pipex_t *pipex);
-extern void pipex_exit         (pipex_t *pipex);
-extern void pipex_set_priority (pipex_t *pipex, int value);
-extern void pipex_set_affinity (pipex_t *pipex, int value);
-extern void pipex_wait_event   (pipex_t *pipex[]);
+extern void  pipex_open         (pipex_t *pipex, 
+                                 const char *name,
+                                 const char *working_dir,
+                                 const char *command);
+extern bool  pipex_active       (pipex_t *pipex);
+extern bool  pipex_readln       (pipex_t *pipex, char *string);
+extern bool  pipex_readln_nb    (pipex_t *pipex, char *string);
+extern void  pipex_writeln      (pipex_t *pipex, const char *string);
+extern void  pipex_write        (pipex_t *pipex, const char *string);
+extern char* pipex_get_buffer   (pipex_t *pipex);
+extern bool  pipex_eof          (pipex_t *pipex);
+extern void  pipex_send_eof     (pipex_t *pipex);
+extern void  pipex_exit         (pipex_t *pipex, int kill_timeout);
+extern void  pipex_set_priority (pipex_t *pipex, int value);
+extern void  pipex_set_affinity (pipex_t *pipex, int value);
+extern void  pipex_wait_event   (pipex_t *pipex[]);
+
 
 // pipex
 

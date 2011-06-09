@@ -51,12 +51,26 @@ void engine_send(engine_t * engine, const char *format, ...) {
 
 void engine_close(engine_t * engine){
     char string[StringSize];
+    int elapsed_time;
+    int ret;
+    int close_timeout=500;
+    my_log("POLYGLOT Closing engine.\n");
     pipex_send_eof(engine->pipex);
         // TODO: Timeout
-    while (!engine_eof(engine)) { 
-      engine_get(engine,string);
+
+    elapsed_time=0;
+    while (!engine_eof(engine) && (elapsed_time<close_timeout)) { 
+      ret=engine_get_non_blocking(engine,string);
+      if(!ret  && !engine_eof(engine)){
+	my_log("POLYGLOT Engine does not reply. Sleeping %dms.\n", WAIT_GRANULARITY);
+	my_sleep(WAIT_GRANULARITY);
+	elapsed_time+=WAIT_GRANULARITY;
+      }
     }
-    pipex_exit(engine->pipex);
+    if(elapsed_time>=close_timeout){
+      my_log("POLYGLOT Waited more than %dms. Moving on.\n",close_timeout); 
+    }
+    pipex_exit(engine->pipex,200);
 }
 
 // engine_open()

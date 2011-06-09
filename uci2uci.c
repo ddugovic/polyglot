@@ -239,7 +239,8 @@ void uci2uci_gui_step(char string[]) {
              Init=FALSE;
          }
          SavedMove=MoveNone;
-         if(!strstr(string,"infinite")){
+         if(!strstr(string,"infinite") 
+	    && UCIboard->move_nb<option_get_int(Option,"BookDepth")){
              move=book_move(UCIboard,option_get_bool(Option,"BookRandom"));
              if (move != MoveNone && move_is_legal(move,UCIboard)) {
                  if(strstr(string,"ponder")){

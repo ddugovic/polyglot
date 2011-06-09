@@ -55,7 +55,7 @@ option_t DefaultOptions[] = {
     { "BookFile",         "file","0","0",       "book.bin"  , NULL,0,NNB,  PG|XBOARD|XBSEL|UCI}, 
 
     { "BookRandom",       "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD|XBSEL|UCI}, 
-    { "BookDepth",        "spin","0","256",     "256"       , NULL,0,NNB,  PG|XBOARD|XBSEL}, 
+    { "BookDepth",        "spin","0","256",     "256"       , NULL,0,NNB,  PG|XBOARD|XBSEL|UCI}, 
     { "BookTreshold",     "spin","0","1000",    "5"         , NULL,0,NNB,  PG|XBOARD|UCI}, 
     { "BookLearn",        "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 

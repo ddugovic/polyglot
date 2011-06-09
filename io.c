@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include <sys/types.h>
+#include <sys/select.h>
 #include <unistd.h>
 
 #include "io.h"
@@ -61,6 +62,27 @@ void io_init(io_t * io) {
    io->out_size = 0;
 
    ASSERT(io_is_ok(io));
+}
+
+// io_peek()
+
+bool io_peek(io_t * io){
+    fd_set set[1];
+    int fd_max;
+    int ret;
+    struct timeval tv;
+    tv.tv_sec=0;
+    tv.tv_usec=0;
+  
+    FD_ZERO(set);
+    FD_SET(io->in_fd,set);
+    fd_max=io->in_fd;
+    ret=select(fd_max+1,set,NULL,NULL,&tv);
+    if(ret>0){
+	return TRUE;
+    }else{
+	return FALSE;
+    }
 }
 
 // io_close()

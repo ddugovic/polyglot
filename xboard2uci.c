@@ -838,6 +838,7 @@ static void send_xboard_options(){
     gui_send(GUI,"feature pause=0");
     gui_send(GUI,"feature ping=1");
     gui_send(GUI,"feature playother=1");
+    gui_send(GUI,"feature sigint=1");
     gui_send(GUI,"feature reuse=1");
     gui_send(GUI,"feature san=0");
     gui_send(GUI,"feature setboard=1");

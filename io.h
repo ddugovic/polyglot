@@ -39,6 +39,8 @@ extern void io_close      (io_t * io);
 
 extern void io_get_update (io_t * io);
 
+extern bool io_peek       (io_t * io);
+
 extern bool io_line_ready (const io_t * io);
 extern bool io_get_line   (io_t * io, char string[], int size);
 

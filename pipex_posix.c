@@ -238,10 +238,40 @@ void pipex_send_eof(pipex_t *pipex){
 
 // pipex_exit()
 
-void pipex_exit(pipex_t *pipex){
+/* This routine waits for kill_timeout milliseconds for 
+ * the process to exit by itself. If that doesn't
+ * happen it will kill the process.
+ */
+
+
+
+void pipex_exit(pipex_t *pipex, int kill_timeout){
     int status;
+    int elapsed_time;
+    bool exited;
+    int ret;
+
     my_log("POLYGLOT Waiting for child process to exit.\n");
-    waitpid(pipex->pid,&status,0);
+
+    elapsed_time=0;
+    exited=FALSE;
+    ret=0;
+    while(elapsed_time<kill_timeout){
+      ret=waitpid(pipex->pid,&status,WNOHANG);
+      if(ret==0){
+	my_log("POLYGLOT Child has not exited yet. Sleeping %dms.\n", WAIT_GRANULARITY);
+	my_sleep(WAIT_GRANULARITY);
+	elapsed_time+=WAIT_GRANULARITY;
+      }else{
+	exited=TRUE;
+	break;
+      }
+    }
+    if(!exited){
+      my_log("POLYGLOT Child wouldn't exit by itself. Terminating it.\n");
+      kill(pipex->pid,SIGKILL);
+      waitpid(pipex->pid,&status,0);    
+    }
     if(WIFEXITED(status)){
       if(pipex->quit_pending){
 	my_log("POLYGLOT Child exited with status %d.\n",WEXITSTATUS(status));
@@ -260,6 +290,12 @@ void pipex_exit(pipex_t *pipex){
       }
     }
     return;
+}
+
+// pipex_get_buffer()
+
+char * pipex_get_buffer(pipex_t *pipex){
+  return pipex->io->in_buffer;
 }
 
 // pipex_readln()
@@ -283,12 +319,21 @@ bool pipex_readln(pipex_t *pipex, char *string){
 // pipex_readln_nb()
 
 bool pipex_readln_nb(pipex_t *pipex, char *string){
-    if(io_line_ready(pipex->io)){
-        return pipex_readln(pipex,string);
-    }else{  
-        string[0]='\0';
-        return FALSE;
-    }
+
+  while(!pipex->io->in_eof && io_peek(pipex->io)){
+    io_get_update(pipex->io);
+  }
+  
+  if(io_line_ready(pipex->io)){
+    return pipex_readln(pipex,string);
+  }else if(pipex->io->in_eof){
+    string[0]='\0';
+    pipex->state|=PIPEX_EOF;
+    return FALSE;
+  }else {  
+    string[0]='\0';
+    return FALSE;
+  }
 }
 
 // pipex_write()

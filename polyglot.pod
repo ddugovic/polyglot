@@ -8,7 +8,7 @@ PolyGlot -  Winboard protocol to UCI protocol adapter
 
 =head1 SYNOPSIS
 
-polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log] [-lf logfile] [-hash value] [-bk book] [-pg <name>=<value>]* [-uci <name>=<value>]*
+polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log true/false] [-lf logfile] [-pg <name>=<value>]* [-uci <name>=<value>]*
 
 polyglot make-book [-pgn inputfile] [-bin outputfile] [-max-ply ply] [-min-game games] [-min-score score] [-only-white] [-only-black] [-uniform]
 
@@ -613,9 +613,9 @@ Running the UCI engine "fruit" under xboard 4.3.15 and later (this invokes PolyG
 
     xboard -fcp fruit -fUCI
 
-An explicit command line for using the UCI engine "fruit" with 128M hash in xboard with logging enabled (this also works on xboard 4.2.7).
+An explicit command line for using the UCI engine "fruit" with logging enabled (this works also with older versions of xboard).
 
-    xboard -fcp "polyglot -noini -log -ec fruit -hash 128"
+    xboard -fcp "polyglot -noini -log true -ec fruit"
 
 The equivalent config file would be:
 
@@ -623,7 +623,6 @@ The equivalent config file would be:
     EngineCommand = fruit
     Log = true
     [Engine]
-    Hash=128
 
 Compile "games.pgn" into a book "book.bin" retaining all lines of at
 most 30 plies.

@@ -193,21 +193,47 @@ void pipex_send_eof(pipex_t *pipex)  {
 
 // pipex_exit()
 
-void pipex_exit(pipex_t *pipex) {
+/* This routine waits for kill_timeout milliseconds for 
+ * the process to exit by itself. If that doesn't
+ * happen it will kill the process.
+ */
+
+void pipex_exit(pipex_t *pipex, int kill_timeout) {
     DWORD lpexit;
+    int elapsed_time;
+    bool exited;
     CloseHandle(pipex->hInput);
     CloseHandle(pipex->hOutput);
+    //	ExitProcess(pipex->hProcess,0);
+
+    my_log("POLYGLOT Waiting for child process to exit.\n");
+    elapsed_time=0;
+    exited=FALSE;
+
+    while(elapsed_time<kill_timeout){
+	GetExitCodeProcess(pipex->hProcess,&lpexit);
+	if(lpexit==STILL_ACTIVE){
+	    my_log("POLYGLOT Child has not exited yet. Sleeping %dms.\n", WAIT_GRANULARITY);
+	    my_sleep(WAIT_GRANULARITY);
+	    elapsed_time+=WAIT_GRANULARITY;
+	}else{
+	    exited=TRUE;
+	    break;
+	}
+    }
+ 
+    if(!exited){
+      my_log("POLYGLOT Child wouldn't exit by itself. Terminating it.\n");
+      TerminateProcess(pipex->hProcess,lpexit);
+    }
+    CloseHandle(pipex->hProcess);    
+
     if(!pipex->quit_pending){
       // suppress further errors
       pipex->quit_pending=TRUE;
       my_fatal("pipex_exit(): %s: child exited unexpectedly.\n",pipex->command);
     }
-    if(GetExitCodeProcess(pipex->hProcess,&lpexit)){
-        if(lpexit==STILL_ACTIVE)
-                //must be java,hammer it down!
-            TerminateProcess(pipex->hProcess,lpexit);
-    }
-	CloseHandle(pipex->hProcess);
+
 }
 
 // pipex_eof_input()

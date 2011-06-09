@@ -1,3 +1,8 @@
+========1.4.58b=================
+- Implementation of BookDepth in UCI mode.
+- Small corrections to the manpage.
+========1.4.57b=================
+- First attempt at killing engines that do not react to "quit". 
 ========1.4.56b=================
 - Better handling of non-existing engine command on Linux. No changes on Windows.
 =========1.4.55b================
