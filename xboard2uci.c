@@ -1334,9 +1334,17 @@ static void search_update() {
                                    " nodes %.0f",
                                    XB->time_max*((double)XB->node_rate));
              }else{
+		 double computed_time;
+		 double st_fudge;
+		 st_fudge=(double) option_get_int(Option,"STFudge");
+		 my_log("POLYGLOT Giving engine %.0fmsec extra time.\n",st_fudge);
+		 computed_time=XB->time_max*1000.0-st_fudge;
+		 if(computed_time< 1.0){
+		     computed_time=1.0;
+		 }
                  engine_send_queue(Engine,
                                    " movetime %.0f",
-                                   XB->time_max*1000.0);
+                                   computed_time);
              }
 
          } else {
@@ -1583,8 +1591,9 @@ static void send_info() {
     }else{
         min_depth=1;
     }
+	 
     gui_send(GUI,"%d %+d %.0f "S64_FORMAT" %s",Uci->best_depth>min_depth?Uci->best_depth:min_depth,
-                 0,0,0.0,0,Uci->info);  
+	     0,0.0,0,Uci->info);  
 }
 
 // send_pv()

@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2010-04-25" "" ""
+.TH POLYGLOT 6 "2010-12-31" "" ""
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -556,6 +556,12 @@ Win32 priority levels are mapped in a sensible way to Unix nice levels.
 .IX Item "Affinity (default: -1)"
 This a bit vector in which each bit represents the processors that a
 process is allowed to run on. This option works only on Windows.
+.IP "\fBSTFudge\fR (default: 20)" 4
+.IX Item "STFudge (default: 20)"
+PolyGlot will translate \*(L"st x\*(R" as \*(L"go movetime 1000*x\-STFudge\*(R". 
+The rationale is that in the \s-1UCI\s0 specification the argument of movetime
+is defined as the exact search time whereas the argument of the
+st command is only an upperbound.
 .IP "\fBOnlyWbOptions\fR (default: true)" 4
 .IX Item "OnlyWbOptions (default: true)"
 If true then PolyGlot restricts the options it sends to those that

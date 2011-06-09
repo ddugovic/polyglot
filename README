@@ -425,6 +425,12 @@ CONFIG FILE FORMAT
            This a bit vector in which each bit represents the processors that
            a process is allowed to run on. This option works only on Windows.
 
+       STFudge (default: 20)
+           PolyGlot will translate "st x" as "go movetime 1000*x-STFudge".
+           The rationale is that in the UCI specification the argument of
+           movetime is defined as the exact search time whereas the argument
+           of the st command is only an upperbound.
+
        OnlyWbOptions (default: true)
            If true then PolyGlot restricts the options it sends to those that
            are potentially useful for WinBoard.
@@ -550,4 +556,4 @@ SEE ALSO
 
 
 
-                                  2010-04-25                       POLYGLOT(6)
+                                  2010-12-31                       POLYGLOT(6)

@@ -523,6 +523,13 @@ Win32 priority levels are mapped in a sensible way to Unix nice levels.
 This a bit vector in which each bit represents the processors that a
 process is allowed to run on. This option works only on Windows. 
 
+=item B<STFudge> (default: 20)
+
+PolyGlot will translate "st x" as "go movetime 1000*x-STFudge". 
+The rationale is that in the UCI specification the argument of movetime
+is defined as the exact search time whereas the argument of the
+st command is only an upperbound. 
+
 =item B<OnlyWbOptions> (default: true)
 
 If true then PolyGlot restricts the options it sends to those that

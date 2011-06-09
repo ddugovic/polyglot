@@ -65,8 +65,10 @@ option_t DefaultOptions[] = {
     { "KibitzDelay",      "spin","0","1000",    "5"         , NULL,0,NNB,  PG|XBOARD}, 
     { "KibitzInterval",   "spin","0","1000",    "0"         , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "ShowPonder",       "check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "ShowPonder",       "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD}, 
     { "ScoreWhite",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+
+    { "STFudge",          "spin","0","1000",      "20"      , NULL,0,NNB,  PG|XBOARD|XBSEL}, 
 
    // work-arounds
 

@@ -1,3 +1,5 @@
+========1.4.64b=================
+- Reduce movetime in the implementation of the fixed time per move command, to taccount for differences in the wording of the protocols. 
 ========1.4.63b=================
 - Give ponder move as hint.
 - Support for egtpath gaviota (this is a bit hacky right now).
