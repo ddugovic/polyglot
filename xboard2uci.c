@@ -305,7 +305,7 @@ void xboard2uci_gui_step(char string[]) {
 
 		} else if (match(string,"new")) {
 
-            uci_send_isready(Uci);
+		    uci_send_isready_sync(Uci);
 			my_log("POLYGLOT NEW GAME\n");
 
 			option_set(Option,"Chess960","false");
@@ -356,7 +356,7 @@ void xboard2uci_gui_step(char string[]) {
 			if (DelayPong) {
 				if (XB->ping >= 0) gui_send(GUI,"pong %d",XB->ping); // HACK: get rid of old ping
 				XB->ping = atoi(Star[0]);
-				uci_send_isready(Uci);
+				uci_send_isready_sync(Uci);
 			} else {
 				ASSERT(XB->ping==-1);
 				gui_send(GUI,"pong %s",Star[0]);
