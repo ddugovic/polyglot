@@ -459,16 +459,16 @@ void board_disp(const board_t * board) {
    int file, rank, sq;
    int piece, c;
    char fen[256];
+   char row[9];
+   char line[256];
 
    ASSERT(board!=NULL);
 
    if (!board_to_fen(board,fen,256)) ASSERT(FALSE);
-   my_log("POLYGLOT %s\n",fen);
-   my_log("POLYGLOT\n");
+   my_log("POLYGLOT FEN %s\n",fen);
+   my_log("POLYGLOT *** CURRENT BOARD ***\n");
 
    for (rank = 7; rank >= 0; rank--) {
-
-      my_log("POLYGLOT ");
 
       for (file = 0; file < 8; file++) {
 
@@ -476,13 +476,13 @@ void board_disp(const board_t * board) {
          piece = board->square[sq];
 
          c = (piece != Empty) ? piece_to_char(piece) : '-';
-         my_log("%c ",c);
+         row[file]=c;
       }
-
-      my_log("\n");
+      row[8]='\0';
+      snprintf(line,sizeof(line),"POLYGLOT %s\n",row);
+      line[sizeof(line)-1]='\0';
+      my_log(line);
    }
-
-   my_log("POLYGLOT\n");
 
    my_log("POLYGLOT %s to play\n",(colour_is_black(board->turn))?"black":"white");
    my_log("POLYGLOT\n");

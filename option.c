@@ -71,6 +71,7 @@ option_t DefaultOptions[] = {
     { "PromoteWorkAround","check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
     { "WbWorkArounds",    "check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "WbWorkArounds2",   "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
     { NULL,               NULL,"0","0",         NULL        , NULL,0,NNB,  0},
 
 };

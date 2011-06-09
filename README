@@ -440,14 +440,19 @@ CONFIG FILE FORMAT
            case.
 
        WbWorkArounds (default: true)
-           The intention of this option is to provide work arounds for
-           xboard/winboard bugs should they arise.  Currently it decapitalizes
-           the word Draw in options that contain this word. Some versions of
+           The intention of these options is to provide work arounds for
+           xboard/winboard bugs should they arise.  This one decapitalizes the
+           word Draw in options that contain this word. Some versions of
            xboard/winboard contain a bug which causes such options to be
            interpreted as draw claims by the engine.
 
            Engines that send options with "Draw" in their name are Rybka and
            HIARCS.
+
+       WbWorkArounds2 (default: false)
+           Old version of Winboard clear the engine output window at depth 1.
+           With this work around PG will send info lines at depth >=2. This
+           may or may not improve the display.
 
        [Engine] section
 
@@ -521,4 +526,4 @@ SEE ALSO
 
 
 
-                                  2009-08-07                       POLYGLOT(6)
+                                  2009-08-11                       POLYGLOT(6)

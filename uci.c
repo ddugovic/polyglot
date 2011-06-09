@@ -162,8 +162,8 @@ void uci_clear(uci_t * uci) {
    uci->best_depth = 0;
    uci->best_sel_depth = 0;
    line_clear(uci->best_pv);
-
-   uci->node_nb = 0;
+// make the default 1 instead of 0 so that info lines can be recognized by their node number 0
+   uci->node_nb = 1;
    uci->time = 0.0;
    uci->speed = 0.0;
    uci->cpu = 0.0;
@@ -666,7 +666,8 @@ static int parse_info(uci_t * uci, const char string[]) {
           }else if(my_string_case_equal(argument,"Resign")){
 			  event |= EVENT_RESIGN;
           }else{
-              strcpy(uci->info,argument);
+              snprintf(uci->info,sizeof(uci->info),"%s",argument);
+              uci->info[sizeof(uci->info)-1]='\0';
               event|=EVENT_INFO;
           }
          // TODO: argument to EOS
@@ -692,11 +693,10 @@ static int parse_info(uci_t * uci, const char string[]) {
       } else {
 
          my_log("POLYGLOT unknown option \"%s\" for command \"%s\"\n",option,command);
-             // this is for buggy engines; it should probably be protected
+             // This should probably be protected
              // by a "WorkAround" option.
-         strcpy(uci->info,option);
-         strcat(uci->info," ");
-         strcat(uci->info,argument);
+         snprintf(uci->info,sizeof(uci->info),"%s %s",option,argument);
+         uci->info[sizeof(uci->info)-1]='\0';
          event|=EVENT_INFO;
       }
    }

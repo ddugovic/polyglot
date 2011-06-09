@@ -77,7 +77,7 @@
                           format,                                        \
                           arg_list);                                     \
         va_end(arg_list);                                                \
-        buf[sizeof(buf)]='\0';                                           \
+        buf[sizeof(buf)-1]='\0';                                         \
         if(written>=sizeof(buf) || written<0){                           \
            my_fatal("write_buffer overflow: file \"%s\", line %d\n",     \
                    __FILE__,__LINE__);                                   \

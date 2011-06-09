@@ -219,10 +219,7 @@ static void pipex_set_eof_input(pipex_t *pipex){
     EnterCriticalSection(&(pipex->CriticalSection));
     (pipex->state)|=PIPEX_EOF;
     LeaveCriticalSection(&(pipex->CriticalSection));
-        // not quit the right place
-    my_log("%s->Adapter: EOF\n",pipex->name);
-
-}
+ }
 
 // pipex_active()
 
@@ -395,6 +392,7 @@ bool pipex_readln(pipex_t *pipex, char *szLineStr) {
           WaitForSingleObject(pipex->hEvent,INFINITE);
       }
   }
+  my_log("%s->Adapter: EOF\n",pipex->name);
   szLineStr[0]='\0';
   return FALSE;
 }
@@ -474,8 +472,8 @@ void pipex_write(pipex_t *pipex, const char *szLineStr) {
 void pipex_writeln(pipex_t *pipex, const char *szLineStr) {
   DWORD dwBytes;
   DWORD dwLengthWriteBuffer;
-  my_log("Adapter->%s: %s\n",pipex->name,pipex->szWriteBuffer);
   pipex_write(pipex, szLineStr);
+  my_log("Adapter->%s: %s\n",pipex->name,pipex->szWriteBuffer);
   if(pipex->bPipe){
       dwLengthWriteBuffer = strlen(pipex->szWriteBuffer);
       if(dwLengthWriteBuffer>=sizeof(pipex->szWriteBuffer)-3){

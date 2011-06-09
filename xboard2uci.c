@@ -454,11 +454,17 @@ void xboard2uci_gui_step(char string[]) {
                 char *pg_name=Star[0];
                 polyglot_set_option(pg_name,value);
             }else{
-                start_protected_command();
-                if(!uci_send_option(Uci, name, "%s", value)){
+                option_t *opt=option_find(Uci->option,name);
+                if(opt){
+                    if(my_string_case_equal(opt->type,"check")){
+                       value=my_string_equal(value,"1")?"true":"false";
+                    }
+                    start_protected_command();
+                    uci_send_option(Uci, name, "%s", value);
+                    end_protected_command();
+                }else{
                     gui_send(GUI,"Error (unknown option): %s",name); 
                 }
-                end_protected_command();
             }
         } else if (match(string,"option *")){
             char *name=Star[0];
@@ -740,6 +746,7 @@ void xboard2uci_engine_step(char string[]) {
                 gui_send(GUI,"1-0 {polyglot: resign"
                          " (illegal engine move black)}");
             }
+            board_disp(board);
             XB->result = TRUE;
             mess();
         }
@@ -1463,7 +1470,7 @@ static void send_board(int extra_move) {
 
 static void send_info() {
     int min_depth;
-    if(option_get_bool(Option,"WbWorkArounds")){
+    if(option_get_bool(Option,"WbWorkArounds2")){
             // Silly bug in some versions of WinBoard.
             // depth <=1 clears the engine output window.
             // Why shouldn't an engine be allowed to send info at depth 1?

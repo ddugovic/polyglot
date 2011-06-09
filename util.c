@@ -187,8 +187,8 @@ void my_fatal(const char format[], ...) {
 
     CONSTRUCT_ARG_STRING(format,string);
     
-    fprintf(stderr,format,string);
-    if (LogFile != NULL) fprintf(LogFile,format,&string);
+    fprintf(stderr,"%s",string);
+    if (LogFile != NULL) fprintf(LogFile,"%s",string);
 
     if (Error) { // recursive error
         my_log("POLYGLOT *** RECURSIVE ERROR ***\n");
