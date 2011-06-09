@@ -1,2 +1,9 @@
-Better check for legality of arguments (i.e. stuff after [configfile]). 
-Implementation of Marc Lacrosse's utility
+Move static queue for engine writing to engine struct
+Continue refactoring of option stuff (search for option_nb)
+Make _ex versions the default (more object oriented).
+Remove most uci option commands. Refer directly to Uci->option. It will make the code more 
+readable.
+Replace "append_option" by "insert_option".
+Inifile handling. 
+Refactor removinging of trailing EOL and white space from string (see util.c and ini file parsing). 
+ML's utility

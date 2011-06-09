@@ -336,7 +336,7 @@ bool board_to_fen(const board_t * board, char string[], int size) {
 
    old_pos = pos;
 
-   if (option_get_bool("Chess960")) {
+   if (option_get_bool(Option,"Chess960")) {
 
       // FEN-960
 

@@ -10,10 +10,11 @@
 
 // defines
 
-#define VarNb  16
-#define XBOARD (1<<0)
-#define UCI    (1<<1)
-#define PG     (1<<2)
+#define VarNb    16
+#define XBOARD   (1<<0)
+#define UCI      (1<<1)
+#define PG       (1<<2)
+#define OptionNb 256
 
 // types
 
@@ -29,23 +30,50 @@ typedef struct {   // TODO: put back in more logical order
     int mode;
 } option_t;
 
+// all non NULL data in an option_list_t should be malloc'ed
+// use "my_string_set" to fill it. 
+
+typedef struct {
+    option_t options[OptionNb];
+    int option_nb;
+    int iter;
+} option_list_t;
+
 // variables
 
-extern option_t Option[];
+extern option_list_t Option[1];
 
 // functions
 
-extern void         option_init       ();
 
-extern bool         option_set        (const char var[], const char val[]);
-extern bool         option_set_default(const char var[], const char val[]);
-extern const char * option_get        (const char var[]);
-extern const char * option_get_default(const char var[]);
+extern void         option_init         (option_list_t *option);
 
-extern bool         option_get_bool   (const char var[]);
-extern double       option_get_double (const char var[]);
-extern int          option_get_int    (const char var[]);
-extern const char * option_get_string (const char var[]);
+extern void         option_init_pg      ();
+
+extern bool         option_set          (option_list_t *option,
+                                         const char var[],
+                                         const char val[]);
+extern bool         option_set_default  (option_list_t *option,
+                                         const char var[],
+                                         const char val[]);
+
+extern const char * option_get          (option_list_t *option, const char var[]);
+extern const char * option_get_default  (option_list_t *option, const char var[]);
+
+extern bool         option_get_bool     (option_list_t *option, const char var[]);
+extern double       option_get_double   (option_list_t *option, const char var[]);
+extern int          option_get_int      (option_list_t *option, const char var[]);
+extern const char * option_get_string   (option_list_t *option, const char var[]);
+
+extern bool         option_is_ok        (const option_list_t *option);
+extern option_t *   option_find         (option_list_t *option, const char var[]);
+extern void         option_clear        (option_list_t *option);
+extern void         option_insert       (option_list_t *option, option_t *new_option);
+
+extern void         option_start_iter   (option_list_t *option);
+extern option_t *   option_next         (option_list_t *option);
+
+extern void         option_free         (option_t *option);
 
 #endif // !defined OPTION_H
 

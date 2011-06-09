@@ -36,7 +36,7 @@ const char * thread_options[]={
   "number of threads",        // toga
   "number threads",           // Deep Learning Toga
   "threads",                  // glaurung, zappa, cyclone, grapefruit,
-                              // Deep Shredder, Deep Junior
+                              // Deep Shredder, Deep Junior, bright
   "core threads",             // HIARCS
   "max cpus",                 // rybka
   "cpus",                     // Deep Sjeng, Fruit2.3.5
@@ -61,33 +61,21 @@ static int  mate_score     (int dist);
 // uci_set_threads()
 
 void uci_set_threads(uci_t * uci, int n) {
-    const char **thread_options_copy = thread_options;
-    const char *thread_option;
     ASSERT(n>=1);
-    while((thread_option = *(thread_options_copy++))){
-        uci_send_option(uci,thread_option,"%d",n); // checks also for existence
+    const char *thread_option=uci_thread_option(uci);
+    if(thread_option){
+        uci_send_option(uci,thread_option,"%d",n);
     }
 }
 
-// uci_thread_option_exists()
-
-bool uci_thread_option_exist(uci_t * uci) {
-    const char **thread_options_copy = thread_options;
-    const char *thread_option;
-    while((thread_option = *(thread_options_copy++))){
-        if(uci_option_exist(uci,thread_option)) return TRUE;
-    }
-    return FALSE;
-}
 
 const char * uci_thread_option(uci_t * uci){
-    const char **thread_options_copy = thread_options;
+    const char **p = thread_options;
     const char *thread_option;
-    int i;
-    while((thread_option = *(thread_options_copy++))){
-        i=uci_get_option(uci,thread_option);
-        if(i>=0){
-            return Uci->option[i].name;
+    option_t *opt;
+    while((thread_option = *(p++))){
+        if((opt=option_find(uci->option,thread_option))){
+            return opt->name;
             break;
         }
     }
@@ -100,8 +88,7 @@ static bool uci_is_ok(const uci_t * uci) {
 
    if (uci == NULL) return FALSE;
    if (uci->engine == NULL) return FALSE;
-   if (uci->option_nb < 0 || uci->option_nb >= OptionNb) return FALSE;
-
+   if (!option_is_ok(uci->option)) return FALSE;
    return TRUE;
 }
 
@@ -123,7 +110,7 @@ void uci_open(uci_t * uci, engine_t * engine) {
    my_string_set(&uci->name,"<empty>");
    uci->author = NULL;
    my_string_set(&uci->author,"<empty>");
-   uci->option_nb = 0;
+   option_init(uci->option);
 
    uci->ready_nb = 0;
    uci->searching = 0;
@@ -146,22 +133,13 @@ void uci_open(uci_t * uci, engine_t * engine) {
 
 void uci_close(uci_t * uci) {
 
-   int i;
-   option_t * opt;
-
    ASSERT(uci_is_ok(uci));
    engine_close(uci->engine);
    uci->engine = NULL;
    my_string_clear(&uci->name);
    my_string_clear(&uci->author);
 
-   for (i = 0; i < uci->option_nb; i++) {
-      opt = &uci->option[i];
-      my_string_clear(&opt->name);
-      my_string_clear(&opt->default_);
-   }
-
-   uci->option_nb = 0;
+   option_clear(uci->option);
 }
 
 // uci_clear()
@@ -267,39 +245,18 @@ void uci_send_ucinewgame(uci_t * uci) {
 
    ASSERT(uci!=NULL);
 
-   if (option_get_int("UCIVersion") >= 2) {
+   if (option_get_int(Option,"UCIVersion") >= 2) {
       engine_send(uci->engine,"ucinewgame");
    }
 }
 
-// uci_option_exist()
-
-bool uci_option_exist(uci_t * uci, const char option[]) {
-
-   int i;
-   option_t * opt;
-
-   ASSERT(uci_is_ok(uci));
-   ASSERT(option!=NULL);
-
-   // scan options
-
-   for (i = 0; i < uci->option_nb; i++) {
-      opt = &uci->option[i];
-      if (my_string_case_equal(opt->name,option)) return TRUE;
-   }
-
-   return FALSE;
-}
-
 // uci_send_option()
 
-void uci_send_option(uci_t * uci, const char option[], const char format[], ...) {
+bool uci_send_option(uci_t * uci, const char option[], const char format[], ...) {
 
-   va_list arg_list;
-   char value[StringSize];
-   int i;
+   char value[FormatBufferSize];
    option_t * opt;
+   bool found=FALSE;
 
    ASSERT(uci_is_ok(uci));
    ASSERT(option!=NULL);
@@ -307,24 +264,27 @@ void uci_send_option(uci_t * uci, const char option[], const char format[], ...)
 
    // format
 
-   va_start(arg_list,format);
-   vsprintf(value,format,arg_list);
-   va_end(arg_list);
+   CONSTRUCT_ARG_STRING(format,value);
 
    if (UseDebug) my_log("POLYGLOT OPTION %s VALUE %s\n",option,value);
 
-   // scan options
-
-   for (i = 0; i < uci->option_nb; i++) {
-
-      opt = &uci->option[i];
-
-      if (my_string_case_equal(opt->name,option) && !my_string_equal(opt->default_,value)) {
-         engine_send(uci->engine,"setoption name %s value %s",opt->name,value);
-         my_string_set(&opt->default_,value);
-         break;
-      }
+   opt=option_find(uci->option,option);
+   if(opt){
+       found=TRUE;
+       if(!my_string_case_equal(opt->type,"button")){
+           if(!my_string_equal(opt->value,value)){
+               engine_send(uci->engine,"setoption name %s value %s",
+                           opt->name,value);
+               my_string_set(&opt->value,value);
+           }else{
+               my_log("POLYGLOT Not sending option \"%s\" since it "
+                      "already has the correct value.\n",opt->name);
+           }
+       }else{
+           engine_send(uci->engine,"setoption name %s",opt->name);
+       }
    }
+   return found;
 }
 
 // uci_parse()
@@ -387,9 +347,9 @@ int uci_parse(uci_t * uci, const char string[]) {
 
          // search information
 
-         if (uci->searching && uci->pending_nb == 1) { // current search
-            event = parse_info(uci,argument);
-         }
+              if (uci->searching && uci->pending_nb == 1) { // current search
+                  event = parse_info(uci,argument);
+               }
 
       } else if (my_string_equal(command,"option")) {
 
@@ -444,12 +404,19 @@ static int parse_bestmove(uci_t * uci, const char string[]) {
    // bestmove
 
    if (!parse_get_string(parse,argument,StringSize)) {
-      my_fatal("parse_bestmove(): missing argument\n");
+       return EVENT_ILLEGAL_MOVE;
+//      my_fatal("parse_bestmove(): missing argument\n");
    }
 
    uci->best_move = move_from_can(argument,uci->board);
-   if (uci->best_move == MoveNone) my_fatal("parse_bestmove(): not a move \"%s\"\n",argument);
+   if (uci->best_move == MoveNone) {
+       return EVENT_ILLEGAL_MOVE;
+//       my_fatal("parse_bestmove(): not a move \"%s\"\n",argument);
+   }
 
+   if(!move_is_legal(uci->best_move,uci->board)){
+       return EVENT_ILLEGAL_MOVE;
+   }
    ASSERT(uci->best_move!=MoveNone);
    ASSERT(move_is_legal(uci->best_move,uci->board));
 
@@ -544,6 +511,8 @@ static int parse_info(uci_t * uci, const char string[]) {
    int multipvline=0;
    sint64 ln;
 
+
+   
    ASSERT(uci_is_ok(uci));
    ASSERT(string!=NULL);
 
@@ -691,12 +660,15 @@ static int parse_info(uci_t * uci, const char string[]) {
 
          if (n >= 0) uci->sel_depth = n;
 
-      } else if (my_string_equal(option,"string")) {
-		  if(!strncmp(argument,"DrawOffer",9))
+      } else  if (my_string_equal(option,"string")) {
+		  if(my_string_case_equal(argument,"DrawOffer")){
 			  event |= EVENT_DRAW;
-		  if(!strncmp(argument,"Resign",6))
+          }else if(my_string_case_equal(argument,"Resign")){
 			  event |= EVENT_RESIGN;
-
+          }else{
+              strcpy(uci->info,argument);
+              event|=EVENT_INFO;
+          }
          // TODO: argument to EOS
 
          ASSERT(!my_string_empty(argument));
@@ -720,6 +692,12 @@ static int parse_info(uci_t * uci, const char string[]) {
       } else {
 
          my_log("POLYGLOT unknown option \"%s\" for command \"%s\"\n",option,command);
+             // this is for buggy engines; it should probably be protected
+             // by a "WorkAround" option.
+         strcpy(uci->info,option);
+         strcat(uci->info," ");
+         strcat(uci->info,argument);
+         event|=EVENT_INFO;
       }
    }
 
@@ -738,55 +716,11 @@ static int parse_info(uci_t * uci, const char string[]) {
    return event;
 }
 
-int uci_get_option(uci_t * uci, const char * name){
-    int i;
-    for(i=0;i<Uci->option_nb;i++){
-        if(my_string_case_equal(Uci->option[i].name,name)){
-            return i;
-        }
-    }
-    return -1;
-}
-
-
-
-// uci_set_option()
-
-void uci_set_option(uci_t * uci,
-                    const char * name,
-                    const char * default_,
-                    const char * type,
-                    const char * max,
-                    const char * min,
-                    int var_nb,
-                    const char * var[]){
-    int i,j;
-    for(i=0;i<Uci->option_nb;i++){
-        if(my_string_equal(Uci->option[i].name,name)){
-            break;
-       }
-   }
-   if(i<OptionNb){
-       my_string_set(&(Uci->option[i].name),name);
-       my_string_set(&(Uci->option[i].default_),default_);
-       my_string_set(&(Uci->option[i].type),type);
-       my_string_set(&(Uci->option[i].min),min);
-       my_string_set(&(Uci->option[i].max),max);
-       Uci->option[i].var_nb=var_nb;
-       for(j=0;j<var_nb;j++){
-           my_string_set(&(Uci->option[i].var[j]),var[j]);
-       }
-       if(i==Uci->option_nb){
-           Uci->option_nb++;
-       }
-   }
-}
-
 // parse_option()
 
 static void parse_option(uci_t * uci, const char string[]) {
 
-   option_t * opt;
+   option_t opt[1];
    parse_t parse[1];
    char command[StringSize];
    char option[StringSize];
@@ -799,32 +733,16 @@ static void parse_option(uci_t * uci, const char string[]) {
 
    strcpy(command,"option");
 
-   if (uci->option_nb >= OptionNb) return;
-
-   opt = &uci->option[uci->option_nb];
-   uci->option_nb++;
-
-   opt->value=NULL;
-   my_string_set(&opt->value,"<empty>");
-   opt->mode=0;
-
-   opt->name = NULL;
-   my_string_set(&opt->name,"<empty>");
-
+   memset(opt,0,sizeof(option_t));
    
-   opt->default_ = NULL;
+   my_string_set(&opt->value,"<empty>");
+   my_string_set(&opt->name,"<empty>");
    my_string_set(&opt->default_,"<empty>");
-
-   opt->max = NULL;
    my_string_set(&opt->max,"<empty>");
-
-   opt->min = NULL;
    my_string_set(&opt->min,"<empty>");
-
-   opt->type = NULL;
    my_string_set(&opt->type,"<empty>");
-
    opt->var_nb=0;
+   opt->mode=0;
    
    parse_open(parse,string);
    parse_add_keyword(parse,"default");
@@ -887,6 +805,8 @@ static void parse_option(uci_t * uci, const char string[]) {
    }
 
    parse_close(parse);
+   option_insert(uci->option,opt);
+   option_free(opt);
 
    if (UseDebug) my_log("POLYGLOT option name \"%s\" default \"%s\"\n",opt->name,opt->default_);
 }
@@ -966,9 +886,9 @@ static int mate_score(int dist) {
 
    if (FALSE) {
    } else if (dist > 0) {
-      return +option_get_int("MateScore") - (+dist) * 2 + 1;
+       return +option_get_int(Option,"MateScore") - (+dist) * 2 + 1;
    } else if (dist < 0) {
-      return -option_get_int("MateScore") + (-dist) * 2;
+       return -option_get_int(Option,"MateScore") + (-dist) * 2;
    }
 
    return 0;

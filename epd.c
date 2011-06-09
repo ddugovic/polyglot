@@ -22,12 +22,15 @@
 #include "uci.h"
 #include "util.h"
 
+
+// macros
+
+#define  StringSize 4096
+
 // constants
 
 static const bool UseDebug = FALSE;
 static const bool UseTrace = FALSE;
-
-static const int StringSize = 4096;
 
 // variables
 
@@ -179,7 +182,7 @@ static void epd_test_file(const char file_name[]) {
    time_tot = 0.0;
    node_tot = 0.0;
 
-   printf("\nEngineName=%s\n",option_get_string("EngineName"));
+   printf("\nEngineName=%s\n",option_get_string(Option,"EngineName"));
 
    printf("\n[Search parameters: MaxDepth=%d   MaxTime=%.1f   DepthDelta=%d   MinDepth=%d   MinTime=%.1f]\n\n",MaxDepth,MaxTime,DepthDelta,MinDepth,MinTime);
 

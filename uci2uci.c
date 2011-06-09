@@ -121,6 +121,7 @@ static void format_uci_option_line(char * option_line,option_t *opt){
     char option_string[StringSize];
     int j;
     strcpy(option_line,"");
+        // buffer overflow alert
     strcat(option_line,"option name");
     if(opt->mode&PG){
         strcat(option_line," Polyglot");
@@ -150,21 +151,22 @@ static void format_uci_option_line(char * option_line,option_t *opt){
 // send_uci_options()
 
 static void send_uci_options() {
-    int i;
-    option_t *p=Option;
+
+    option_t * opt;
     char option_line[StringSize]="";
     gui_send(GUI,"id name %s", Uci->name);
     gui_send(GUI,"id author %s", Uci->author);
-    for(i=0;i<Uci->option_nb;i++){
-        format_uci_option_line(option_line,Uci->option+i);
-         gui_send(GUI,"%s",option_line);
+    option_start_iter(Uci->option);
+    while((opt=option_next(Uci->option))){
+        format_uci_option_line(option_line,opt);
+        gui_send(GUI,"%s",option_line);
     }
-    while(p->name){
-        if(p->mode &UCI){
-            format_uci_option_line(option_line,p);
+    option_start_iter(Option);
+    while((opt=option_next(Option))){
+        if(opt->mode &UCI){
+            format_uci_option_line(option_line,opt);
             gui_send(GUI,"%s",option_line);
         }
-        p++;
     }   
     gui_send(GUI,"uciok");
 }
@@ -216,7 +218,7 @@ void uci2uci_gui_step(char string[]) {
          }
          SavedMove=MoveNone;
          if(!strstr(string,"infinite")){
-             move=book_move(UCIboard,option_get_bool("BookRandom"));
+             move=book_move(UCIboard,option_get_bool(Option,"BookRandom"));
              if (move != MoveNone && move_is_legal(move,UCIboard)) {
                  if(strstr(string,"ponder")){
                      SavedMove=move;

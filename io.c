@@ -196,8 +196,7 @@ bool io_get_line(io_t * io, char string[], int size) {
 
 void io_send(io_t * io, const char format[], ...) {
 
-   va_list arg_list;
-   char string[StringSize];
+   char string[FormatBufferSize];
    int len;
 
    ASSERT(io_is_ok(io));
@@ -207,9 +206,7 @@ void io_send(io_t * io, const char format[], ...) {
 
    // format
 
-   va_start(arg_list,format);
-   vsprintf(string,format,arg_list);
-   va_end(arg_list);
+   CONSTRUCT_ARG_STRING(format,string);
 
    // append string to buffer
 
@@ -245,8 +242,7 @@ void io_send(io_t * io, const char format[], ...) {
 
 void io_send_queue(io_t * io, const char format[], ...) {
 
-   va_list arg_list;
-   char string[StringSize];
+   char string[FormatBufferSize];
    int len;
 
    ASSERT(io_is_ok(io));
@@ -256,9 +252,7 @@ void io_send_queue(io_t * io, const char format[], ...) {
 
    // format
 
-   va_start(arg_list,format);
-   vsprintf(string,format,arg_list);
-   va_end(arg_list);
+   CONSTRUCT_ARG_STRING(format,string);
 
    // append string to buffer
 

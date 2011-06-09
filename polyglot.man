@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2009-08-06" "" ""
+.TH POLYGLOT 6 "2009-08-07" "" ""
 .SH "NAME"
 PolyGlot \-  Winboard protocol to UCI protocol adapter
          \-  book engine for Polyglot books 
@@ -515,8 +515,7 @@ process is allowed to run on. This option works only on Windows.
 .IX Subsection "Work arounds"
 Work arounds are identical to options except that they should be used
 only when necessary.  Their purpose is to try to hide problems with
-various software (not just engines).  The default value is always
-correct for bug-free software.
+various software (not just engines).  
 .PP
 \&\s-1IMPORTANT:\s0 Any of these work arounds might be removed in future
 versions of PolyGlot.  You are strongly recommended to contact the
@@ -553,14 +552,13 @@ however do not send a new pv string just before sending the move.
 In that case the output of PolyGlot would be inconsistent. 
 When RepeatPV is false PolyGlot does not repeat the last pv string.
 Due to the way kibitzing is implemented, KibitzMove is disabled in that case. 
-.IP "\fBWbWorkArounds\fR (default: false)" 4
-.IX Item "WbWorkArounds (default: false)"
+.IP "\fBWbWorkArounds\fR (default: true)" 4
+.IX Item "WbWorkArounds (default: true)"
 The intention of this option is to provide work arounds for
-xboard/winboard bugs should they arise.  Currently it only prevents
-\&\*(L"feature option=\*(R" commands which contain \*(L"Draw\*(R" in their name from
-being sent to the \s-1GUI\s0. Some versions of xboard/winboard contain a bug
-which causes such options to be interpreted as draw claims by the
-engine.
+xboard/winboard bugs should they arise.  Currently it decapitalizes
+the word Draw in options that contain this word. Some versions of
+xboard/winboard contain a bug which causes such options to be
+interpreted as draw claims by the engine.
 .Sp
 Engines that send options with \*(L"Draw\*(R" in their name are Rybka and \s-1HIARCS\s0. 
 .Sh "[Engine] section"

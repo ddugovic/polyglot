@@ -65,6 +65,25 @@
 #define snprintf _snprintf
 #endif
 
+#define FormatBufferSize 4096
+
+#define CONSTRUCT_ARG_STRING(format,buf)                                 \
+    {                                                                    \
+        va_list arg_list;                                                \
+        int written;                                                     \
+        va_start(arg_list,format);                                       \
+        written=vsnprintf(buf,                                           \
+                          sizeof(buf),                                   \
+                          format,                                        \
+                          arg_list);                                     \
+        va_end(arg_list);                                                \
+        buf[sizeof(buf)]='\0';                                           \
+        if(written>=sizeof(buf) || written<0){                           \
+           my_fatal("write_buffer overflow: file \"%s\", line %d\n",     \
+                   __FILE__,__LINE__);                                   \
+        }                                                                \
+    }                                                                    \
+
 // types
 
 typedef signed char sint8;
@@ -91,6 +110,7 @@ typedef struct {
    double elapsed_real;
    bool running;
 } my_timer_t;
+
 
 // functions
 
@@ -134,9 +154,6 @@ extern void   my_timer_stop         (my_timer_t * timer);
 extern double my_timer_elapsed_real (const my_timer_t * timer);
 
 extern char * my_error();
-
-extern char * my_getcwd             (char *buf, size_t size);
-extern int    my_chdir              (const char *path);
 
 #endif // !defined UTIL_H
 

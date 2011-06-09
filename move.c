@@ -239,7 +239,7 @@ bool move_to_can(int move, const board_t * board, char string[], int size) {
 
    // king-slide castling
 
-   if (move_is_castle(move,board) && !option_get_bool("Chess960")) {
+   if (move_is_castle(move,board) && !option_get_bool(Option,"Chess960")) {
       if (FALSE) {
       } else if (from == E1 && to == H1) {
          to = G1;
@@ -320,7 +320,7 @@ int move_from_can(const char string[], const board_t * board) {
    case '\0': // not a promotion
       if (piece_is_pawn(board->square[from])
        && square_side_rank(to,board->turn) == Rank8
-       && option_get_bool("PromoteWorkAround")) {
+          && option_get_bool(Option,"PromoteWorkAround")) {
          move |= MovePromoteQueen;
       }
       break;

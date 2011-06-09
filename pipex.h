@@ -36,6 +36,8 @@ typedef struct {
     volatile int nReadEnd;
     char lpBuffer[LINE_INPUT_MAX_CHAR];
     char lpReadBuffer[LINE_INPUT_MAX_CHAR];
+    char szWriteBuffer[LINE_INPUT_MAX_CHAR];
+    DWORD dwWriteIndex;
     const char *name;
 
 } pipex_t;
@@ -76,11 +78,13 @@ typedef struct {
 
 extern void pipex_open         (pipex_t *pipex, 
                                 const char *name,
+                                const char *working_dir,
                                 const char *command);
 extern bool pipex_active       (pipex_t *pipex);
 extern bool pipex_readln       (pipex_t *pipex, char *string);
 extern bool pipex_readln_nb    (pipex_t *pipex, char *string);
 extern void pipex_writeln      (pipex_t *pipex, const char *string);
+extern void pipex_write        (pipex_t *pipex, const char *string);
 extern bool pipex_eof          (pipex_t *pipex);
 extern void pipex_send_eof     (pipex_t *pipex);
 extern void pipex_exit         (pipex_t *pipex);

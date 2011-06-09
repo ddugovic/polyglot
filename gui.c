@@ -52,7 +52,7 @@ void gui_init(gui_t *gui){
 #ifdef SIGPIPE
     signal(SIGPIPE,sig_pipe);
 #endif
-    pipex_open(gui->pipex,"GUI",NULL);
+    pipex_open(gui->pipex,"GUI",NULL,NULL);
 }
 
 
@@ -84,17 +84,14 @@ void gui_get(gui_t * gui, char *string) {
 
 void gui_send(gui_t * gui, const char format[], ...) {
 
-   va_list arg_list;
-   char string[StringSize];
+   char string[FormatBufferSize];
 
    ASSERT(gui!=NULL);
    ASSERT(format!=NULL);
 
    // format
 
-   va_start(arg_list,format);
-   vsprintf(string,format,arg_list);
-   va_end(arg_list);
+   CONSTRUCT_ARG_STRING(format,string);
 
    // send
 

@@ -30,7 +30,7 @@ static void mainloop_gui_step(char * string);
 // mainloop_init()
     
 static void mainloop_init(){
-    if(!option_get_bool("UCI")){
+    if(!option_get_bool(Option,"UCI")){
         xboard2uci_init();  // the default
     }
 }
@@ -38,7 +38,7 @@ static void mainloop_init(){
 // mainloop_engine_step()
 
 static void mainloop_engine_step(char * string){
-    if(option_get_bool("UCI")){
+    if(option_get_bool(Option,"UCI")){
         uci2uci_engine_step(string); 
     }else{
         xboard2uci_engine_step(string);
@@ -48,11 +48,11 @@ static void mainloop_engine_step(char * string){
 // mainloop_gui_step()
 
 static void mainloop_gui_step(char * string){
-    if(option_get_bool("UCI")){
+    if(option_get_bool(Option,"UCI")){
         uci2uci_gui_step(string); 
     }else if(my_string_equal(string,"uci")){ // mode auto detection
         my_log("POLYGLOT *** Switching to UCI mode ***\n");
-        option_set("UCI","true");
+        option_set(Option,"UCI","true");
         uci2uci_gui_step(string);
     }else{
         xboard2uci_gui_step(string);

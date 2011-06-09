@@ -29,7 +29,6 @@ static bool Error;
 
 FILE * LogFile=NULL;
 
-
 // functions
 
 // util_init()
@@ -158,45 +157,47 @@ void my_log_close() {
 // my_log()
 
 void my_log(const char format[], ...) {
+    
+    char string[FormatBufferSize];
+    
+    ASSERT(format!=NULL);
 
-   va_list ap;
+//  format
 
-   ASSERT(format!=NULL);
+    CONSTRUCT_ARG_STRING(format,string);
+    
 
-   if (LogFile != NULL) {
-      fprintf(LogFile,"%.3f ",now_real());
-      va_start(ap,format);
-
-      vfprintf(LogFile,format,ap);
-      va_end(ap);
+    if (LogFile != NULL) {
+        fprintf(LogFile,"%.3f %s",now_real(),string);
 #ifdef _WIN32
-      fflush(LogFile);
+        fflush(LogFile);
 #endif
-   }
+    }
 }
 
 // my_fatal()
 
 void my_fatal(const char format[], ...) {
 
-   va_list ap;
+    char string[FormatBufferSize];
 
-   ASSERT(format!=NULL);
+    ASSERT(format!=NULL);
 
-   va_start(ap,format);
+// format
 
-   vfprintf(stderr,format,ap);
-   if (LogFile != NULL) vfprintf(LogFile,format,ap);
+    CONSTRUCT_ARG_STRING(format,string);
+    
+    fprintf(stderr,format,string);
+    if (LogFile != NULL) fprintf(LogFile,format,&string);
 
-   va_end(ap);
-   if (Error) { // recursive error
-      my_log("POLYGLOT *** RECURSIVE ERROR ***\n");
-      exit(EXIT_FAILURE);
-      // abort();
-   } else {
-      Error = TRUE;
-      quit();
-   }
+    if (Error) { // recursive error
+        my_log("POLYGLOT *** RECURSIVE ERROR ***\n");
+        exit(EXIT_FAILURE);
+            // abort();
+    } else {
+        Error = TRUE;
+        quit();
+    }
 }
 
 // my_file_read_line()
@@ -394,19 +395,4 @@ double my_timer_elapsed_real(const my_timer_t * timer) {
 }
 
 
-char * my_getcwd(char *buf, size_t size){
-#ifdef _WIN32
-    return _getcwd(buf,size);
-#else
-    return getcwd(buf,size);
-#endif
-}
 
-int my_chdir (const char *path){
-    ASSERT(path!=NULL);
-#ifdef _WIN32
-    return _chdir(path);
-#else
-    return chdir(path);
-#endif
-}

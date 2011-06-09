@@ -59,13 +59,17 @@ static DWORD WINAPI ThreadProc(LPVOID lpParam){
 
 // pipex_open()
 
-void pipex_open(pipex_t *pipex, const char *szName, const char *szProcFile) {
+void pipex_open(pipex_t *pipex,
+                const char *szName,
+                const char *szWorkingDir,
+                const char *szProcFile) {
     DWORD dwMode, dwThreadId;
     HANDLE hStdinRead, hStdinWrite, hStdoutRead, hStdoutWrite, hThread;
     SECURITY_ATTRIBUTES sa;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     int fdInput;
+    char *szCurrentDir;
     pipex->state=0;
     pipex->name=szName;
     pipex->hProcess=NULL;
@@ -88,6 +92,13 @@ void pipex_open(pipex_t *pipex, const char *szName, const char *szProcFile) {
         si.hStdInput = hStdinRead;
         si.hStdOutput = hStdoutWrite;
         si.hStdError = hStdoutWrite;
+        if((szCurrentDir = _getcwd( NULL, 0 )) == NULL )
+            my_fatal("pipex_open(): no current directory: %s\n",
+                     strerror(errno));
+        if(_chdir(szWorkingDir)){
+            my_fatal("pipex_open(): cannot change directory: %s\n",
+                     strerror(errno));
+        }
         if(CreateProcess(NULL,
                          (LPSTR) szProcFile,
                          NULL,
@@ -109,6 +120,7 @@ void pipex_open(pipex_t *pipex, const char *szName, const char *szProcFile) {
         }else{
             my_fatal("pipex_open(): %s",win32_error());
         }
+        _chdir(szCurrentDir);
     }
     if (pipex->bConsole) {
         SetConsoleMode(pipex->hInput,
@@ -144,8 +156,10 @@ void pipex_open(pipex_t *pipex, const char *szName, const char *szProcFile) {
     if(!hThread){
         my_fatal("pipex_open(): %s",win32_error());
     }
+    pipex->dwWriteIndex=0;
     pipex_set_active(pipex);
 }
+
 
 // pipex_wait_event(pipex)
 
@@ -166,7 +180,6 @@ void pipex_wait_event(pipex_t *pipex[]){
                            INFINITE         // no timeout
                            );
 }
-
 
 // pipex_send_eof()
 
@@ -435,22 +448,50 @@ void pipex_set_affinity(pipex_t *pipex, int value){
     }
 }
 
+// pipex_write()
+
+void pipex_write(pipex_t *pipex, const char *szLineStr) {
+    int size,written;
+    size=sizeof(pipex->szWriteBuffer)-pipex->dwWriteIndex;
+    written=snprintf(pipex->szWriteBuffer + pipex->dwWriteIndex,
+                     size,
+                     "%s",
+                     szLineStr);
+        // snprintf returns how many bytes should have been written
+        // (not including the trailing zero)
+        // old versions of glibc and msvcrt return -1 in
+        // case of truncated output.
+    if(written>=size || written<0){
+        my_fatal("engine_send(): write_buffer overflow\n");
+    }
+    pipex->dwWriteIndex+=written;
+    
+}
+
+
 // pipex_writeln()
 
 void pipex_writeln(pipex_t *pipex, const char *szLineStr) {
   DWORD dwBytes;
-  int nStrLen;
-  char szWriteBuffer[LINE_INPUT_MAX_CHAR];
-  my_log("Adapter->%s: %s\n",pipex->name,szLineStr);
+  DWORD dwLengthWriteBuffer;
+  my_log("Adapter->%s: %s\n",pipex->name,pipex->szWriteBuffer);
+  pipex_write(pipex, szLineStr);
   if(pipex->bPipe){
-      nStrLen = strlen(szLineStr);
-      memcpy(szWriteBuffer, szLineStr, nStrLen);
-      szWriteBuffer[nStrLen] = '\r';
-      szWriteBuffer[nStrLen + 1] = '\n';
-      WriteFile(pipex->hOutput, szWriteBuffer, nStrLen + 2, &dwBytes, NULL);
+      dwLengthWriteBuffer = strlen(pipex->szWriteBuffer);
+      if(dwLengthWriteBuffer>=sizeof(pipex->szWriteBuffer)-3){
+          my_fatal("pipex_writeln(): write buffer overflow\n");
+      }
+      pipex->szWriteBuffer[dwLengthWriteBuffer] = '\r';
+      pipex->szWriteBuffer[dwLengthWriteBuffer + 1] = '\n';
+          // for easy debugging
+      pipex->szWriteBuffer[dwLengthWriteBuffer + 2] = '\0';  
+      WriteFile(pipex->hOutput, pipex->szWriteBuffer,
+                dwLengthWriteBuffer + 2,
+                &dwBytes, NULL);
   }else{
-      printf("%s\n",szLineStr);
+      printf("%s\n",pipex->szWriteBuffer);
       fflush(stdout);
   }
+  pipex->dwWriteIndex = 0;
 }
 #endif

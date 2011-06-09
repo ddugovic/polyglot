@@ -7,21 +7,15 @@
 #include <string.h>
 #include <errno.h>
 
-
 #include "engine.h"
 #include "option.h"
 #include "pipex.h"
 #include "util.h"
 
-// defines
-
-#define StringSize 4096
-
 // variables
 
-static int write_index = 0;
-static char write_buffer[StringSize];
 engine_t Engine[1];
+static const int StringSize=4096;
 
 // functions
 
@@ -40,33 +34,17 @@ void engine_set_nice_value(engine_t *engine, int value){
 // engine_send_queue()
 
 void engine_send_queue(engine_t * engine, const char *format, ...) {
-    va_list arg_list;
-    if(write_index>=StringSize){
-        my_fatal("engine_send_queue(): write_buffer overflow\n");
-    }
-    va_start(arg_list,format);
-    write_index += vsnprintf(write_buffer + write_index,
-                             StringSize-write_index,
-                             format,
-                             arg_list);
-    va_end(arg_list);
+    char buf[FormatBufferSize];
+    CONSTRUCT_ARG_STRING(format,buf);
+    pipex_write(engine->pipex,buf);
 }
 
 // engine_send()
 
 void engine_send(engine_t * engine, const char *format, ...) {
-    va_list arg_list;
-    if(write_index>=StringSize){
-        my_fatal("engine_send(): write_buffer overflow\n");
-    }
-    va_start(arg_list,format);
-    vsnprintf(write_buffer + write_index,
-              StringSize-write_index,
-              format,
-              arg_list);
-    va_end(arg_list);
-    pipex_writeln(engine->pipex,write_buffer);
-    write_index = 0;
+    char buf[FormatBufferSize];
+    CONSTRUCT_ARG_STRING(format,buf);
+    pipex_writeln(engine->pipex,buf);
 }
 
 // engine_close()
@@ -76,7 +54,7 @@ void engine_close(engine_t * engine){
     pipex_send_eof(engine->pipex);
         // TODO: Timeout
     while (!engine_eof(engine)) { 
-      engine_get(Engine,string);
+      engine_get(engine,string);
     }
     pipex_exit(engine->pipex);
 }
@@ -85,23 +63,18 @@ void engine_close(engine_t * engine){
 
 void engine_open(engine_t * engine){
     int affinity;
-    char *my_dir;
-    if( (my_dir = my_getcwd( NULL, 0 )) == NULL )
-        my_fatal("engine_open(): no current directory: %s\n",strerror(errno));
-    if(my_chdir(option_get_string("EngineDir"))){
-        my_fatal("engine_open(): cannot change directory: %s\n",strerror(errno));
-    }
-    pipex_open(engine->pipex,"Engine",option_get_string("EngineCommand"));
+    pipex_open(engine->pipex,
+               "Engine",
+               option_get_string(Option,"EngineDir"),
+               option_get_string(Option,"EngineCommand"));
     if(pipex_active(engine->pipex)){
             //play with affinity (bad idea)
-        affinity=option_get_int("Affinity");
+        affinity=option_get_int(Option,"Affinity");
         if(affinity!=-1) set_affinity(engine,affinity); //AAA
-            //lets go back
-        my_chdir(my_dir);
             // set a low priority
-        if (option_get_bool("UseNice")){
+        if (option_get_bool(Option,"UseNice")){
             my_log("POLYGLOT Adjust Engine Piority\n");
-            engine_set_nice_value(engine, option_get_int("NiceValue"));
+            engine_set_nice_value(engine, option_get_int(Option,"NiceValue"));
         }
     }
     

@@ -108,6 +108,7 @@ static void stop_search    ();
 
 static void send_board     (int extra_move);
 static void send_pv        ();
+static void send_info      ();
 
 static void send_xboard_options ();
 
@@ -135,10 +136,10 @@ void xboard2uci_init() {
    my_timer_reset(State->timer);
 
    // yes there are engines that do not have the "Hash" option....
-   XB->has_feature_memory= uci_option_exist(Uci,"Hash");
-   XB->has_feature_smp = uci_thread_option_exist(Uci);
+   XB->has_feature_memory= (option_find(Uci->option,"Hash")!=NULL);
+   XB->has_feature_smp = (uci_thread_option(Uci)!=NULL);
    // TODO: support for other types of table bases
-   XB->has_feature_egt = uci_option_exist(Uci,"NalimovPath");
+   XB->has_feature_egt = (option_find(Uci->option,"NalimovPath")!=NULL);
    XB->analyse = FALSE;
    XB->computer = FALSE;
    XB->name = NULL;
@@ -193,7 +194,7 @@ void xboard2uci_gui_step(char string[]) {
 
 		} else if (match(string,"bk")) {
 
-			if (option_get_bool("Book")) {
+			if (option_get_bool(Option,"Book")) {
 				game_get_board(Game,board);
 				book_disp(board);
 			}
@@ -216,7 +217,7 @@ void xboard2uci_gui_step(char string[]) {
 			XB->computer = TRUE;
 
 		} else if (match(string,"draw")) {
-			if(uci_option_exist(Uci,"UCI_DrawOffers")){
+			if(option_find(Uci->option,"UCI_DrawOffers")){
 			    my_log("POLYGLOT draw from XB received");
 				uci_send_option(Uci,"DrawOffer","%s","draw");}
 		} else if (match(string,"easy")) {
@@ -266,7 +267,7 @@ void xboard2uci_gui_step(char string[]) {
 
 		} else if (match(string,"hint")) {
 
-			if (option_get_bool("Book")) {
+			if (option_get_bool(Option,"Book")) {
 
 				game_get_board(Game,board);
 				move = book_move(board,FALSE);
@@ -302,7 +303,7 @@ void xboard2uci_gui_step(char string[]) {
             uci_send_isready(Uci);
 			my_log("POLYGLOT NEW GAME\n");
 
-			option_set("Chess960","false");
+			option_set(Option,"Chess960","false");
 
 			game_clear(Game);
 
@@ -371,7 +372,8 @@ void xboard2uci_gui_step(char string[]) {
 			XB->post = TRUE;
 
 		} else if (match(string,"protover *")) {
-
+            XB->proto_ver = atoi(Star[0]);
+            ASSERT(XB->proto_ver>=2);
             send_xboard_options();
 
 		} else if (match(string,"quit")) {
@@ -423,7 +425,8 @@ void xboard2uci_gui_step(char string[]) {
 
 				// book learning
 
-				if (option_get_bool("Book") && option_get_bool("BookLearn")) {
+				if (option_get_bool(Option,"Book") &&
+                    option_get_bool(Option,"BookLearn")) {
 
 					if (FALSE) {
 					} else if (my_string_equal(Star[0],"1-0")) {
@@ -440,7 +443,11 @@ void xboard2uci_gui_step(char string[]) {
 
 			gui_send(GUI,"Error (unknown command): %s",string);
 
-        } else if (match(string,"option *=*")){
+        } else if (match(string,"option *=*")   ||
+                   match(string,"option * =*") ||
+                   match(string,"option *= *") ||
+                   match(string,"option * = *")
+                   ){
             char *name=Star[0];
             char *value=Star[1];
             if(match(name, "Polyglot *")){
@@ -448,13 +455,18 @@ void xboard2uci_gui_step(char string[]) {
                 polyglot_set_option(pg_name,value);
             }else{
                 start_protected_command();
-                engine_send(Engine,"setoption name %s value %s",name,value);
+                if(!uci_send_option(Uci, name, "%s", value)){
+                    gui_send(GUI,"Error (unknown option): %s",name); 
+                }
                 end_protected_command();
             }
         } else if (match(string,"option *")){
             char *name=Star[0];
             start_protected_command();
-            engine_send(Engine,"setoption name %s",name);
+                // value is ignored
+            if(!uci_send_option(Uci, name, "%s", "<empty>")){
+               gui_send(GUI,"Error (unknown option): %s",name); 
+            }; 
             end_protected_command();
         } else if (XB->has_feature_smp && match(string,"cores *")){
                 int cores=atoi(Star[0]);
@@ -490,9 +502,10 @@ void xboard2uci_gui_step(char string[]) {
             int real_memory;
             if(memory>=1){
                 // updating the available memory
+                option_t *opt;
                 my_log("POLYGLOT setting the amount of memory to %dMb\n",memory);
-                if(uci_get_option(Uci,"NalimovCache")>=0){
-                    nalimov_cache=atoi(Uci->option[uci_get_option(Uci,"NalimovCache")].value);
+                if((opt=option_find(Uci->option,"NalimovCache"))){
+                    nalimov_cache=atoi(opt->value);
                 }else{
                     nalimov_cache=0;
                 }
@@ -574,9 +587,9 @@ void xboard2uci_gui_step(char string[]) {
 		} else if (match(string,"variant *")) {
 
 			if (my_string_equal(Star[0],"fischerandom")) {
-				option_set("Chess960","true");
+				option_set(Option,"Chess960","true");
 			} else {
-				option_set("Chess960","false");
+				option_set(Option,"Chess960","false");
 			}
 
 		} else if (match(string,"white")) {
@@ -658,6 +671,7 @@ void xboard2uci_gui_step(char string[]) {
 void xboard2uci_engine_step(char string[]) {
 
 	int event;
+    board_t board[1];
 		event = uci_parse(Uci,string);
 
 		// react to events
@@ -702,15 +716,33 @@ void xboard2uci_engine_step(char string[]) {
 
 			send_pv();
 		}
+		if ((event & EVENT_INFO) != 0) {
+
+			// the engine has sent info
+
+			send_info();
+		}
 		if((event & (EVENT_DRAW|EVENT_RESIGN))!=0){
 			my_log("POYGLOT draw offer/resign from engine\n");
-			if(uci_option_exist(Uci,"UCI_DrawOffers")){
+			if(option_find(Uci->option,"UCI_DrawOffers")){
 				if(event & EVENT_DRAW)
 					gui_send(GUI,"offer draw");
 				else
 					gui_send(GUI,"resign");
 			}
 		}
+		if(((event & EVENT_ILLEGAL_MOVE)!=0) && (State->state == THINK)){
+            game_get_board(Game,board);
+            if(board->turn==White){
+                gui_send(GUI,"0-1 {polyglot: resign"
+                            " (illegal engine move white)}");
+            }else{
+                gui_send(GUI,"1-0 {polyglot: resign"
+                         " (illegal engine move black)}");
+            }
+            XB->result = TRUE;
+            mess();
+        }
 }
 
 // format_xboard_option_line
@@ -718,7 +750,9 @@ void xboard2uci_engine_step(char string[]) {
 void format_xboard_option_line(char * option_line, option_t *opt){
     int j;
     char option_string[StringSize];
+    char *tmp;
     strcpy(option_line,"");
+        // buffer overflow alert
     strcat(option_line,"feature option=\"");
     if(opt->mode&PG){
         strcat(option_line,"Polyglot ");
@@ -756,17 +790,21 @@ void format_xboard_option_line(char * option_line, option_t *opt){
         }
     }
     strcat(option_line,"\"");
+    if(option_get_bool(Option,"WbWorkArounds") &&
+       (tmp=strstr(option_line,"Draw"))){
+        *tmp='d';
+        my_log("POLYGLOT Decapitalizing \"Draw\" in option \"%s\"\n",
+               opt->name);
+    }
 }
 
-// send_xboard_options
+// send_xboard_options()
 
 static void send_xboard_options(){
-    int i;
+
     char option_line[StringSize]="";
-    option_t *p=Option;
     const char * name;
-    XB->proto_ver = atoi(Star[0]);
-    ASSERT(XB->proto_ver>=2);
+    option_t *opt;
     
     gui_send(GUI,"feature done=0");
     
@@ -774,7 +812,8 @@ static void send_xboard_options(){
     gui_send(GUI,"feature colors=0");
     gui_send(GUI,"feature draw=1");
     gui_send(GUI,"feature ics=1");
-    gui_send(GUI,"feature myname=\"%s\"",option_get_string("EngineName"));
+    gui_send(GUI,"feature myname=\"%s\"",
+             option_get_string(Option,"EngineName"));
     gui_send(GUI,"feature name=1");
     gui_send(GUI,"feature pause=0");
     gui_send(GUI,"feature ping=1");
@@ -803,34 +842,33 @@ static void send_xboard_options(){
         gui_send(GUI,"feature egt=\"\"");
     }
     
-    if (uci_option_exist(Uci,"UCI_Chess960")) {
+    if (option_find(Uci->option,"UCI_Chess960")) {
         gui_send(GUI,"feature variants=\"normal,fischerandom\"");
     } else {
         gui_send(GUI,"feature variants=\"normal\"");
     }
-    
-    for(i=0;i<Uci->option_nb;i++){
-        if(my_string_case_equal(Uci->option[i].name,"UCI_AnalyseMode")) continue;
-        if(my_string_case_equal(Uci->option[i].name,"Ponder")) continue;
-        if(my_string_case_equal(Uci->option[i].name,"Hash")) continue;
-        if(my_string_case_equal(Uci->option[i].name,"NalimovPath")) continue;
-        if((name=uci_thread_option(Uci))!=NULL && my_string_case_equal(Uci->option[i].name,name)) continue;
-        if(option_get_bool("WbWorkArounds") &&
-           strstr(Uci->option[i].name,"Draw")){
-            my_log("POLYGLOT Dropping option \"%s\" because it contains \"Draw\"\n",Uci->option[i].name);
-            continue;
-        }
-        format_xboard_option_line(option_line,Uci->option+i);
 
+    option_start_iter(Uci->option);
+    while((opt=option_next(Uci->option))){
+        if(my_string_case_equal(opt->name,"UCI_AnalyseMode")) continue;
+        if(my_string_case_equal(opt->name,"Ponder")) continue;
+        if(my_string_case_equal(opt->name,"Hash")) continue;
+        if(my_string_case_equal(opt->name,"NalimovPath")) continue;
+        if((name=uci_thread_option(Uci))!=NULL &&
+           my_string_case_equal(opt->name,name)) continue;
+        
+        format_xboard_option_line(option_line,opt);
+        
         gui_send(GUI,"%s",option_line);
-
     }
-    while(p->name){
-        if(p->mode &XBOARD){
-            format_xboard_option_line(option_line,p);
+
+
+    option_start_iter(Option);
+    while((opt=option_next(Option))){
+        if(opt->mode &XBOARD){
+            format_xboard_option_line(option_line,opt);
             gui_send(GUI,"%s",option_line);
         }
-        p++;
     }       
     gui_send(GUI,"feature done=1"); 
     
@@ -839,7 +877,8 @@ static void send_xboard_options(){
 // report_best_score()
 
 static int report_best_score(){
-    if(!option_get_bool("ScoreWhite") || colour_is_white(Uci->board->turn)){
+    if(!option_get_bool(Option,"ScoreWhite") ||
+       colour_is_white(Uci->board->turn)){
         return Uci->best_score;
     }else{
         return -Uci->best_score;
@@ -858,14 +897,14 @@ static void comp_move(int move) {
    ASSERT(State->state==THINK);
    ASSERT(!XB->analyse);
 
-   if(option_get_bool("RepeatPV"))
+   if(option_get_bool(Option,"RepeatPV"))
 	   send_pv(); // to update time and nodes
 
    // send the move
 
    game_get_board(Game,board);
 
-   if (move_is_castle(move,board) && option_get_bool("Chess960")) {
+   if (move_is_castle(move,board) && option_get_bool(Option,"Chess960")) {
       if (!move_to_san(move,board,string,256)) my_fatal("comp_move(): move_to_san() failed\n"); // O-O/O-O-O
    } else {
       if (!move_to_can(move,board,string,256)) my_fatal("comp_move(): move_to_can() failed\n");
@@ -875,14 +914,14 @@ static void comp_move(int move) {
 
    // resign?
 
-   if (option_get_bool("Resign") && Uci->root_move_nb > 1) {
+   if (option_get_bool(Option,"Resign") && Uci->root_move_nb > 1) {
 
-      if (Uci->best_score <= -abs(option_get_int("ResignScore"))) {
+       if (Uci->best_score <= -abs(option_get_int(Option,"ResignScore"))) {
 
          State->resign_nb++;
          my_log("POLYGLOT %d move%s with resign score\n",State->resign_nb,(State->resign_nb>1)?"s":"");
 
-         if (State->resign_nb >= option_get_int("ResignMoves")) {
+         if (State->resign_nb >= option_get_int(Option,"ResignMoves")) {
             my_log("POLYGLOT *** RESIGN ***\n");
             gui_send(GUI,"resign");
          }
@@ -1153,11 +1192,11 @@ static void search_update() {
 
       // opening book
 
-      if (State->state == THINK && option_get_bool("Book")) {
+       if (State->state == THINK && option_get_bool(Option,"Book")) {
 
          game_get_board(Game,Uci->board);
 
-         move = book_move(Uci->board,option_get_bool("BookRandom"));
+         move = book_move(Uci->board,option_get_bool(Option,"BookRandom"));
 
          if (move != MoveNone && move_is_legal(move,Uci->board)) {
 
@@ -1186,9 +1225,10 @@ static void search_update() {
 
       // options
 
-      uci_send_option(Uci,"UCI_Chess960","%s",option_get_bool("Chess960")?"true":"false");
+      uci_send_option(Uci,"UCI_Chess960","%s",
+                      option_get_bool(Option,"Chess960")?"true":"false");
 
-      if (option_get_int("UCIVersion") >= 2) {
+      if (option_get_int(Option,"UCIVersion") >= 2) {
          uci_send_option(Uci,"UCI_Opponent","none none %s %s",(XB->computer)?"computer":"human",XB->name);
          uci_send_option(Uci,"UCI_AnalyseMode","%s",(XB->analyse)?"true":"false");
       }
@@ -1291,7 +1331,8 @@ static bool active() {
 
 static bool ponder() {
 
-   return XB->ponder && (option_get_bool("CanPonder") || uci_option_exist(Uci,"Ponder"));
+    return XB->ponder && (option_get_bool(Option,"CanPonder") ||
+                          option_find(Uci->option,"Ponder"));
 }
 // ponder_ok()
 
@@ -1319,7 +1360,7 @@ static bool ponder_ok(int move) {
 
    if (status != PLAYING) return FALSE; // game ended
 
-   if (option_get_bool("Book") && is_in_book(board)) {
+   if (option_get_bool(Option,"Book") && is_in_book(board)) {
       return FALSE;
    }
 
@@ -1342,7 +1383,7 @@ static void stop_search() {
       Uci->searching = FALSE;
 */
 
-      if (option_get_bool("SyncStop")) {
+      if (option_get_bool(Option,"SyncStop")) {
          uci_send_stop_sync(Uci);
       } else {
          uci_send_stop(Uci);
@@ -1418,6 +1459,15 @@ static void send_board(int extra_move) {
    engine_send(Engine,""); // newline
 }
 
+// send_info()
+
+static void send_info() {
+    if (XB->post) {
+        gui_send(GUI,"%d %+d %.0f "S64_FORMAT" %s",Uci->best_depth>0?Uci->best_depth:1,
+                 0,0,0.0,0,Uci->info);  
+    }  
+}
+
 // send_pv()
 
 static void send_pv() {
@@ -1444,7 +1494,8 @@ static void send_pv() {
 
 		 gui_send(GUI,"%d %+d %.0f "S64_FORMAT" %s",Uci->best_depth,report_best_score(),Uci->time*100.0,Uci->node_nb,pv_string);
 
-      } else if (State->state == PONDER && option_get_bool("ShowPonder")) {
+      } else if (State->state == PONDER &&
+                 option_get_bool(Option,"ShowPonder")) {
 
          game_get_board(Game,board);
          move = State->exp_move;
@@ -1459,14 +1510,16 @@ static void send_pv() {
 
    // kibitz
 
-   if ((Uci->searching && option_get_bool("KibitzPV") && Uci->time >= option_get_double("KibitzDelay"))
-    || (!Uci->searching && option_get_bool("KibitzMove"))) {
+   if ((Uci->searching &&
+        option_get_bool(Option,"KibitzPV") &&
+        Uci->time >= option_get_double(Option,"KibitzDelay"))
+       || (!Uci->searching && option_get_bool(Option,"KibitzMove"))) {
 
       if (State->state == THINK || State->state == ANALYSE) {
 
          line_to_san(Uci->best_pv,Uci->board,pv_string,StringSize);
          if(kibitz_throttle(Uci->searching)){
-             gui_send(GUI,"%s depth=%d time=%.2f node="S64_FORMAT" speed=%.0f score=%+.2f pv=\"%s\"",option_get_string("KibitzCommand"),Uci->best_depth,Uci->time,Uci->node_nb,Uci->speed,((double)report_best_score())/100.0,pv_string);
+             gui_send(GUI,"%s depth=%d time=%.2f node="S64_FORMAT" speed=%.0f score=%+.2f pv=\"%s\"",option_get_string(Option,"KibitzCommand"),Uci->best_depth,Uci->time,Uci->node_nb,Uci->speed,((double)report_best_score())/100.0,pv_string);
          }
       } else if (State->state == PONDER) {
 
@@ -1477,7 +1530,7 @@ static void send_pv() {
             move_to_san(move,board,move_string,256);
             line_to_san(Uci->best_pv,Uci->board,pv_string,StringSize);
             if(kibitz_throttle(Uci->searching)){
-                gui_send(GUI,"%s depth=%d time=%.2f node="S64_FORMAT" speed=%.0f score=%+.2f pv=\"(%s) %s\"",option_get_string("KibitzCommand"),Uci->best_depth,Uci->time,Uci->node_nb,Uci->speed,((double)report_best_score())/100.0,move_string,pv_string);
+                gui_send(GUI,"%s depth=%d time=%.2f node="S64_FORMAT" speed=%.0f score=%+.2f pv=\"(%s) %s\"",option_get_string(Option,"KibitzCommand"),Uci->best_depth,Uci->time,Uci->node_nb,Uci->speed,((double)report_best_score())/100.0,move_string,pv_string);
             }
          }
       }
@@ -1492,12 +1545,14 @@ static bool kibitz_throttle(bool searching){
     static time_t lastKibitzPV=0;
     curr_time = time(NULL);
     if(searching){   // KibitzPV
-        if(curr_time >= (option_get_int("KibitzInterval") + lastKibitzPV)){
+        if(curr_time >=
+           (option_get_int(Option,"KibitzInterval") + lastKibitzPV)){
             lastKibitzPV=curr_time;
             return TRUE;
         }
     }else{       // KibitzMove
-        if(curr_time >= (option_get_int("KibitzInterval") + lastKibitzMove)){
+        if(curr_time >=
+           (option_get_int(Option,"KibitzInterval") + lastKibitzMove)){
             lastKibitzPV=curr_time;
             lastKibitzMove=curr_time;
             return TRUE;
@@ -1555,4 +1610,4 @@ static void learn(int result) {
    book_flush();
 }
 
-// end of adapter.cpp
+// end of xboard2uci.c

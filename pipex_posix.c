@@ -19,7 +19,10 @@ static void my_dup2(int old_fd, int new_fd) ;
 
 // pipex_open()
 
-void pipex_open(pipex_t *pipex, const char *name, const char *command){
+void pipex_open(pipex_t *pipex,
+                const char *name,
+                const char *working_dir,
+                const char *command){
     char string[StringSize];
     int argc;
     char * ptr;
@@ -93,8 +96,13 @@ void pipex_open(pipex_t *pipex, const char *name, const char *command){
             
            /* my_dup2(STDOUT_FILENO,STDERR_FILENO); */
             
-                // launch the new executable file
+            if(chdir(working_dir)){
+                my_fatal("pipex_open(): cannot change directory: %s\n",
+                         strerror(errno));
+            }
             
+            // launch the new executable file
+
             execvp(argv[0],&argv[0]);
             
                 // execvp() only returns when an error has occured
@@ -225,6 +233,13 @@ bool pipex_readln_nb(pipex_t *pipex, char *string){
         return FALSE;
     }
 }
+
+// pipex_write()
+
+void pipex_write(pipex_t *pipex, const char *string){
+       io_send_queue(pipex->io,"%s",string);
+}
+
 
 // pipex_writeln()
 

@@ -473,8 +473,7 @@ process is allowed to run on. This option works only on Windows.
 
 Work arounds are identical to options except that they should be used
 only when necessary.  Their purpose is to try to hide problems with
-various software (not just engines).  The default value is always
-correct for bug-free software.
+various software (not just engines).  
 
 IMPORTANT: Any of these work arounds might be removed in future
 versions of PolyGlot.  You are strongly recommended to contact the
@@ -519,14 +518,13 @@ In that case the output of PolyGlot would be inconsistent.
 When RepeatPV is false PolyGlot does not repeat the last pv string.
 Due to the way kibitzing is implemented, KibitzMove is disabled in that case. 
 
-=item B<WbWorkArounds> (default: false)
+=item B<WbWorkArounds> (default: true)
 
 The intention of this option is to provide work arounds for
-xboard/winboard bugs should they arise.  Currently it only prevents
-"feature option=" commands which contain "Draw" in their name from
-being sent to the GUI. Some versions of xboard/winboard contain a bug
-which causes such options to be interpreted as draw claims by the
-engine.
+xboard/winboard bugs should they arise.  Currently it decapitalizes
+the word Draw in options that contain this word. Some versions of
+xboard/winboard contain a bug which causes such options to be
+interpreted as draw claims by the engine.
 
 Engines that send options with "Draw" in their name are Rybka and HIARCS. 
 
