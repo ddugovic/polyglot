@@ -323,14 +323,18 @@ engine_t Engine[1];
 
 void set_affinity(engine_t *engine, int affin){
 	if(affin==-1) return;
-    {   typedef void (WINAPI *SPAM)(HANDLE, int);
-	SPAM pSPAM;
 
-	pSPAM = (SPAM) GetProcAddress(
-	    GetModuleHandle(TEXT("kernel32.dll")), 
-	    "SetProcessAffinityMask");
-	if(NULL != pSPAM) // [HGM] avoid crash on Win95 by first checking if API call exists
-	    pSPAM((engine->io).hProcess,affin);
+    typedef void (WINAPI *SPAM)(HANDLE, int);
+    SPAM pSPAM;
+    pSPAM = (SPAM) GetProcAddress(
+        GetModuleHandle(TEXT("kernel32.dll")), 
+        "SetProcessAffinityMask");
+    if(NULL != pSPAM){
+            // [HGM] avoid crash on Win95 by first checking if API call exists
+        my_log("POLYGLOT Setting process affinity to %d\n",affin);
+        pSPAM((engine->io).hProcess,affin);
+    }else{
+        my_log("POLYGLOT API call \"SetProcessAffinityMask\" not available\n");
     }
 }
 
@@ -371,9 +375,8 @@ void engine_close(engine_t * engine){
     char string[StringSize];
     (engine->io).Close();
         // TODO: Timeout
-    while (!engine_eof(Engine)) { 
-        engine_get_non_blocking(Engine,string,StringSize);
-        Idle();
+    while (!engine_eof(engine)) { 
+      engine_get(Engine,string,StringSize);
     }
     (engine->io).Kill();
 }
@@ -412,13 +415,14 @@ bool engine_eof(engine_t *engine){
 
 bool engine_get_non_blocking(engine_t * engine, char *szLineStr, int size){
     if(engine_eof(engine)){ return false;}
-	if ((engine->io).GetBuffer(szLineStr)) {
+    if ((engine->io).GetBuffer(szLineStr)) {
         my_log("Engine->Adapter: %s\n",szLineStr);
         return true;
     } else {
         szLineStr[0]='\0';
         if(engine->io.EOF_()){
             engine->state|=ENGINE_EOF;
+	    my_log("POLYGLOT *** EOF from Engine ***\n");
         }
         return false;
     }
@@ -427,7 +431,10 @@ bool engine_get_non_blocking(engine_t * engine, char *szLineStr, int size){
 void engine_get(engine_t * engine, char *szLineStr, int size){
     (engine->io).LineInput(szLineStr);
     if(engine->io.EOF_()){
-        engine->state|=ENGINE_EOF;
+      engine->state|=ENGINE_EOF;
+      my_log("POLYGLOT *** EOF from Engine ***\n");
+    }else{
+      my_log("Engine->Adapter: %s\n",szLineStr);
     }
 }
 

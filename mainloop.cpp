@@ -84,7 +84,12 @@ void mainloop() {
         }
         mainloop_wait_for_event();
     }
-    my_log("POLYGLOT *** EOF file received from engine ***\n");
+    my_log("POLYGLOT *** Mainloop has ended ***\n");
+    // This should be handled better.
+    engine_close(Engine);
+    my_log("POLYGLOT Calling exit\n");
+    exit(EXIT_SUCCESS);
+
 }
 
 

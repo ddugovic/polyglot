@@ -21,13 +21,23 @@ const int LINE_INPUT_MAX_CHAR = 40960;
 
 // types
 
-struct PipeStruct {
-
+class  PipeStruct {
+  friend DWORD WINAPI ThreadProc(LPVOID lpParam);
+ public:
+    HANDLE hProcess;
+    HANDLE hEvent;
+    bool GetBuffer(char *szLineStr);
+    void LineInput(char *szLineStr);
+    void LineOutput(const char *szLineStr) const;
+    void Open(const char *szExecFile = NULL);
+    void Close(void) const;
+    void Kill(void) const;
+    bool Active(void);
+    bool EOF_(void);
+ private:
     HANDLE hInput, hOutput;
     FILE *fpInput;
-    HANDLE hProcess;
     HANDLE hThread;
-    HANDLE hEvent;
     BOOL bConsole;
     BOOL bPipe;
 
@@ -39,18 +49,11 @@ struct PipeStruct {
     char lpBuffer[LINE_INPUT_MAX_CHAR];
     char lpReadBuffer[LINE_INPUT_MAX_CHAR];
 
-    void Open(const char *szExecFile = NULL);
-    void Close(void) const;
-    void Kill(void) const;
-    bool EOF_(void);
-    void set_EOF_(void);
-    bool Active(void);
+    bool EOF_input(void);
+    void set_EOF_input(void);
     void set_Active(void);
     void ReadInput(void);
     int ReadData(void);
-    bool GetBuffer(char *szLineStr);
-    void LineInput(char *szLineStr);
-    void LineOutput(const char *szLineStr) const;
 
 };
 

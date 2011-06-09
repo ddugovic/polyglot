@@ -68,7 +68,11 @@ bool gui_get_non_blocking(gui_t * gui, char string[], int size) {
        return false;
    }
 #else
-   if ((gui->io).GetBuffer(string)) {
+   if((gui->io).EOF_()){
+        my_log("POLYGLOT *** EOF from GUI ***\n");
+        quit();
+        return true; // we never get here
+   }else if ((gui->io).GetBuffer(string)) {
        my_log("GUI->Adapter: %s\n", string);
        return true;
    } else {
@@ -83,6 +87,10 @@ bool gui_get_non_blocking(gui_t * gui, char string[], int size) {
 void gui_get(gui_t * gui, char string[], int size) {
     bool data_available;
 #ifdef _WIN32
+    if((gui->io).EOF_()){
+        my_log("POLYGLOT *** EOF from GUI ***\n");
+        quit();
+    }
     (gui->io).LineInput(string);
     my_log("GUI->Adapter: %s\n", string);
 #else

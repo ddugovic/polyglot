@@ -1,3 +1,10 @@
+=========1.4b26===========
+- Contraction of version number.
+- Log if SetProcessAffinityMask is not available (suggested by E.M.).
+- pipe.cpp : Make PipeStruct a proper class with private/public members.
+- Check for EOF in GUI input.
+- pipe.cpp : delay reporting EOF until buffer is empty.
+- Messages from the Engine to PG were not logged in the windows version.
 =========1.4w10UCIb24===========
 - Portability fixes for WIN9X (Eric Mullins).
 - Portability fixes for MSVC++ (Eric Mullins).

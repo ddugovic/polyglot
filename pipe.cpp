@@ -6,7 +6,7 @@
 
 DWORD WINAPI ThreadProc(LPVOID lpParam){ 
     PipeStruct *p=(PipeStruct *) lpParam;
-    while(!p->EOF_()){
+    while(!p->EOF_input()){
         if(p->nReadEnd<LINE_INPUT_MAX_CHAR-1){
             p->ReadInput();
         }else{
@@ -123,7 +123,7 @@ void PipeStruct::Kill(void) const {
 	CloseHandle(hProcess);
 }
 
-bool PipeStruct::EOF_(void){   // EOF is defined
+bool PipeStruct::EOF_input(void){   // EOF is defined
     int ret;
     EnterCriticalSection(&CriticalSection);
     ret=state&PIPE_EOF;
@@ -131,7 +131,7 @@ bool PipeStruct::EOF_(void){   // EOF is defined
     return ret;
 }
 
-void PipeStruct::set_EOF_(void){
+void PipeStruct::set_EOF_input(void){
     EnterCriticalSection(&CriticalSection);
     state|=PIPE_EOF;
     LeaveCriticalSection(&CriticalSection);
@@ -159,7 +159,7 @@ int PipeStruct::ReadData(void){
         // This just means we have read less than we could have. 
     ret=fgets(lpReadBuffer,LINE_INPUT_MAX_CHAR-nReadEnd,fpInput);
     if(!ret){
-        set_EOF_();
+        set_EOF_input();
         lpReadBuffer[0]='\0';
         return 0;
     }
@@ -176,7 +176,7 @@ void PipeStruct::ReadInput(void) {
       // would block during the blocking read
   ret=ReadData();
   EnterCriticalSection(&CriticalSection);
-  if(!EOF_()){
+  if(!EOF_input()){
       if(ret+nReadEnd>=LINE_INPUT_MAX_CHAR){
           my_fatal("PipeStruct::ReadInput(): Internal error: buffer overflow\n");
       }
@@ -192,9 +192,23 @@ void PipeStruct::ReadInput(void) {
       }
   }
   LeaveCriticalSection(&CriticalSection);
-  if(EOF_() || bSetEvent){
+  if(EOF_input() || bSetEvent){
       SetEvent(hEvent);
   }
+}
+
+bool PipeStruct::EOF_(void){
+  int ret;
+  EnterCriticalSection(&CriticalSection);
+  if(lpFeedEnd != NULL){
+    ret=FALSE;
+  }else if(EOF_input()){
+    ret=TRUE;
+  }else{
+    ret=FALSE;
+  }
+  LeaveCriticalSection(&CriticalSection);
+  return ret;
 }
 
 bool PipeStruct::GetBuffer(char *szLineStr) {
@@ -221,8 +235,10 @@ bool PipeStruct::GetBuffer(char *szLineStr) {
   return ret;
 }
 
+
+
 void PipeStruct::LineInput(char *szLineStr) {
-    while(!EOF_()){
+  while(!EOF_()){
         if (GetBuffer(szLineStr)) {
             break;
         }else{
