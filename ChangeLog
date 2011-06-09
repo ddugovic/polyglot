@@ -1,3 +1,6 @@
+=========1.4.33b================
+- New option: "WbWorkArounds". Currently it blocks options which contain "Draw" in their name from being sent to the GUI. Engines that have such options are Rybka and HIARCS. 
+- Bugfix for ASSERT failure in bright. Now another ASSERT failure has appeared which seems to be bright's fault however. 
 =========1.4.32b================
 - Bugfix: the default setting for RepeatPV had become false again...
 =========1.4.31b================

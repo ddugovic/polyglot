@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2009-08-03" "" ""
+.TH POLYGLOT 6 "2009-08-06" "" ""
 .SH "NAME"
 PolyGlot \-  Winboard protocol to UCI protocol adapter
          \-  book engine for Polyglot books 
@@ -553,6 +553,16 @@ however do not send a new pv string just before sending the move.
 In that case the output of PolyGlot would be inconsistent. 
 When RepeatPV is false PolyGlot does not repeat the last pv string.
 Due to the way kibitzing is implemented, KibitzMove is disabled in that case. 
+.IP "\fBWbWorkArounds\fR (default: false)" 4
+.IX Item "WbWorkArounds (default: false)"
+The intention of this option is to provide work arounds for
+xboard/winboard bugs should they arise.  Currently it only prevents
+\&\*(L"feature option=\*(R" commands which contain \*(L"Draw\*(R" in their name from
+being sent to the \s-1GUI\s0. Some versions of xboard/winboard contain a bug
+which causes such options to be interpreted as draw claims by the
+engine.
+.Sp
+Engines that send options with \*(L"Draw\*(R" in their name are Rybka and \s-1HIARCS\s0. 
 .Sh "[Engine] section"
 .IX Subsection "[Engine] section"
 This section contains engine \s-1UCI\s0 options.  PolyGlot does not

@@ -815,6 +815,11 @@ static void send_xboard_options(){
         if(my_string_case_equal(Uci->option[i].name,"Hash")) continue;
         if(my_string_case_equal(Uci->option[i].name,"NalimovPath")) continue;
         if((name=uci_thread_option(Uci))!=NULL && my_string_case_equal(Uci->option[i].name,name)) continue;
+        if(option_get_bool("WbWorkArounds") &&
+           strstr(Uci->option[i].name,"Draw")){
+            my_log("POLYGLOT Dropping option \"%s\" because it contains \"Draw\"\n",Uci->option[i].name);
+            continue;
+        }
         format_xboard_option_line(option_line,Uci->option+i);
 
         gui_send(GUI,"%s",option_line);

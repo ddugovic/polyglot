@@ -35,7 +35,7 @@
 // constants
 
 
-static const char * const Version = "1.4.32b";
+static const char * const Version = "1.4.33b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile]\n\
@@ -43,7 +43,7 @@ SYNTAX\n\
 * polyglot make-book [-pgn inputfile] [-bin outputfile] [-max-ply ply] [-min-game games] [-min-score score] [-only-white] [-only-black] [-uniform]\n\
 * polyglot merge-book -in1 inputfile1 -in2 inputfile2 [-out outputfile]\n\
 * polyglot info-book [-bin inputfile] [-exact]\n\
-* polyglot dumb-book [-bin inputfile] -color color [-out outputfile]\n\
+* polyglot dump-book [-bin inputfile] -color color [-out outputfile]\n\
 * polyglot [configfile] epd-test [-epd inputfile] [-min-depth depth] [-max-depth depth] [-min-time time] [-max-time time] [-depth-delta delta]\n\
 * polyglot perft [-fen fen] [-max-depth depth]\
 ";

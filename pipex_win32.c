@@ -322,6 +322,8 @@ bool pipex_eof(pipex_t *pipex){
 bool pipex_readln_nb(pipex_t *pipex, char *szLineStr) {
   int nFeedEnd;
   int ret;
+  int src, dst;
+  char c;
   EnterCriticalSection(&(pipex->CriticalSection));
   if ((pipex->lpFeedEnd) == NULL) {
     ret=FALSE;
@@ -329,10 +331,18 @@ bool pipex_readln_nb(pipex_t *pipex, char *szLineStr) {
     nFeedEnd = pipex->lpFeedEnd - pipex->lpBuffer;
     memcpy(szLineStr, pipex->lpBuffer, nFeedEnd+1);
     szLineStr[nFeedEnd] = '\0';
-        // temp hack: we use the fact that strtok modifies its first argument
-    strtok(szLineStr,"\r\n");
+    
+        // temp hack: stolen from util.c
+        // remove CRs and LFs
+    src = 0;
+    dst = 0;
+    while ((c=szLineStr[src++]) != '\0') {
+        if (c != '\r' && c != '\n') szLineStr[dst++] = c;
+    }
+    szLineStr[dst] = '\0';    
     ASSERT(strchr(szLineStr,'\n')==NULL)
     ASSERT(strchr(szLineStr,'\r')==NULL)
+        
     nFeedEnd ++;
     pipex->nReadEnd -= nFeedEnd;
     memcpy(pipex->lpBuffer, pipex->lpBuffer + nFeedEnd, pipex->nReadEnd+1);

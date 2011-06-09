@@ -440,6 +440,17 @@ CONFIG FILE FORMAT
            to the way kibitzing is implemented, KibitzMove is disabled in that
            case.
 
+       WbWorkArounds (default: false)
+           The intention of this option is to provide work arounds for
+           xboard/winboard bugs should they arise.  Currently it only prevents
+           "feature option=" commands which contain "Draw" in their name from
+           being sent to the GUI. Some versions of xboard/winboard contain a
+           bug which causes such options to be interpreted as draw claims by
+           the engine.
+
+           Engines that send options with "Draw" in their name are Rybka and
+           HIARCS.
+
        [Engine] section
 
        This section contains engine UCI options.  PolyGlot does not understand
@@ -512,4 +523,4 @@ SEE ALSO
 
 
 
-                                  2009-08-03                       POLYGLOT(6)
+                                  2009-08-06                       POLYGLOT(6)
