@@ -25,6 +25,10 @@
 #include "main.h"
 #include "util.h"
 
+// macros
+
+#define StringSize 4096
+
 // variables
 
 static bool Error;
@@ -234,6 +238,32 @@ bool my_file_read_line(FILE * file, char string[], int size) {
 
    return TRUE;
 }
+
+// my_file_join()
+
+void my_path_join(char *join_path, const char *path, const char *file){
+    char separator;
+#ifdef _WIN32
+    separator='\\';
+#else
+    separator='/';
+#endif
+    snprintf(join_path,StringSize,"%s%c%s",path,separator,file);
+    join_path[StringSize-1]='\0';
+}
+
+// my_mkdir()
+
+int my_mkdir(const char *path){
+    int ret;
+#ifdef _WIN32
+    ret=_mkdir(path);
+#else
+    ret=mkdir(path,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
+    return ret;
+}
+
 
 // my_string_empty()
 

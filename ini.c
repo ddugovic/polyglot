@@ -305,7 +305,9 @@ int ini_parse(ini_t *ini, const char *filename){
         }else if(result==NAME_VALUE){
             ini_insert_ex(ini,current_section,name,value);
         }else if(result==SYNTAX_ERROR){
-            my_fatal("ini_parse(): Syntax error in \"%s\": line %d\n",
+	  // Dirty hack.
+          // The "not found" triggers xboard to show the error.
+            my_fatal("ini_parse(): Syntax error in \"%s\": line %d (not found)\n",
                      filename,
                      line_nr);
             

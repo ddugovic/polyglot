@@ -118,7 +118,7 @@ void pipex_open(pipex_t *pipex,
             pipex->bConsole = FALSE;
             pipex->bPipe=TRUE;
         }else{
-            my_fatal("pipex_open(): %s",win32_error());
+	  my_fatal("pipex_open(): %s: %s",szProcFile,win32_error());
         }
         _chdir(szCurrentDir);
     }

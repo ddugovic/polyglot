@@ -1,3 +1,7 @@
+=========1.4.45b================
+- The engine specific config files (<myname>.ini) are now stored in a separate directory. $HOME/.polyglot on Linux and "./Polyglot Settings" on Windows. 
+- The engine specific config files are now complete config files. So they can be used in a stand alone fashion.
+- Implemented a minor hack to make xboard show error messages during startup. 
 =========1.4.44b================
 - "Implementation" of new buttons and controls.
 - The "Persist" option is now persistent. That is if you turn of "Persist" then as a special case PG will remember this.

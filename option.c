@@ -12,7 +12,7 @@
 // constants
 
 static const bool UseDebug = FALSE;
-
+static const int  StringSize = 4096;
 
 // variables
 
@@ -25,9 +25,9 @@ option_t DefaultOptions[] = {
 
    // options
 
-    { "Persist",      "check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD},
-
+    { "Persist",      "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD},
     { "PersistFile",  "string","0","0",     "<empty>"   , NULL,0,NNB,  PG},
+    { "PersistDir",   "string","0","0",     "<empty>"   , NULL,0,NNB,  PG},
     
     { "EngineName",       "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
     { "EngineDir",        "string","0","0",     "."         , NULL,0,NNB,  PG}, 
@@ -105,6 +105,8 @@ void option_init_pg() {
 
     int i;
     option_t *p=DefaultOptions;
+    char *home_dir;
+    char PersistDir[StringSize];
     
     option_init(Option);
     while(p){
@@ -118,6 +120,18 @@ void option_init_pg() {
     for(i=0;i<Option->option_nb;i++){
         Option->options[i].value=my_strdup(Option->options[i].default_);
     }
+#ifndef _WIN32
+    home_dir=getenv("HOME");
+    if(!home_dir){
+        home_dir=".";
+    }
+    snprintf(PersistDir,sizeof(PersistDir),"%s/.polyglot",home_dir);
+    PersistDir[sizeof(PersistDir)-1]='\0';
+#else
+    sprintf(PersistDir,".\\Polyglot Settings");
+#endif
+    option_set(Option,"PersistDir",PersistDir);
+    option_set_default(Option,"PersistDir",PersistDir);
 }
 
 // option_init()

@@ -107,7 +107,7 @@ void pipex_open(pipex_t *pipex,
             
                 // execvp() only returns when an error has occured
             
-            my_fatal("engine_open(): execvp(): %s\n",strerror(errno));
+            my_fatal("engine_open(): execvp(): %s: %s\n",command,strerror(errno));
             
         } else { // pid > 0
             

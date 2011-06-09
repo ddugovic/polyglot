@@ -142,15 +142,15 @@ set the engine option <name> to <value>.
 
 =item B<-ec> 
 
-This is an alias for -pg "EngineCommand=<value>".
+This sets the EngineCommand.
 
 =item B<-ed>
 
-This is an alias for -pg "EngineDir=<value>".
+This sets the EngineDir.
 
 =item B<-en>
 
-This is an alias for -pg "EngineName=<value>"
+This sets the EngineName.
 
 =item B<-hash>
 
@@ -515,16 +515,20 @@ process is allowed to run on. This option works only on Windows.
 
 =item B<Persist> (default: true)
 
-If true then PolyGlot will implement persistence by loading 
-options from an additional INI file which is specified by the option
-"PersistFile". At exit PolyGlot will also save its options to this INI
-file. 
+If true then PolyGlot will implement persistence by loading options
+from an additional INI file whose name is by default derived from the
+engine name. At exit PolyGlot will also save its options to this INI
+file.
 
-=item B<PersistFile> (default: PG_<EngineName>.ini)
+=item B<PersistFile> (default: <EngineName>.ini)
 
-The name of the file from which to take the additional options.
-You can safely edit this file, or delete it to restore the default
-options.
+The name of the file from which to take the additional options.  It is
+probably best to stick with the default. You can safely edit this
+file, or delete it to restore the default options.
+
+=item B<PersistDir> (default: $HOME/.polyglot on Linux; ".\Polyglot Settings" on Windows)
+
+The directory where the PersistFile is stored.
 
 =back
 
@@ -623,6 +627,22 @@ GUI or launch the engine in a console and type "uci".
 
 =head1 EXAMPLES
 
+Running the UCI engine "fruit" under xboard 4.3.15 and later (this invokes PolyGlot internally).
+
+    xboard -fcp fruit -fUCI
+
+An explicit command line for using the UCI engine "fruit" with 128M hash in xboard with logging enabled (this also works on xboard 4.2.7).
+
+    xboard -fcp "polyglot -noini -log -ec fruit -hash 128"
+
+The equivalent config file would be:
+
+    [PolyGlot]
+    EngineCommand = fruit
+    Log = true
+    [Engine]
+    Hash=128
+
 Compile "games.pgn" into a book "book.bin" retaining all lines of at
 most 30 plies.
 
@@ -640,18 +660,6 @@ Test epd file "test.epd" with a (maximum) search time of 7 minutes per position
 
     polyglot epd-test -epd test.epd -max-time 420
 
-The command line for using the UCI engine "fruit" with 128M hash in xboard with logging enabled.
-
-    xboard -fcp "polyglot -noini -log -ec fruit -hash 128"
-
-The equivalent config file would be:
-
-    [PolyGlot]
-    EngineCommand = fruit
-    Log = true
-    [Engine]
-    Hash=128
-
 =head1 EXIT STATUS
 
 PolyGlot always returns 0 on exit. 
@@ -664,7 +672,10 @@ Native Windows port:  Huang Chen<webmaster@elephantbase.net> ("Morning Yellow")
 
 Various enhancements: Fonzy Bleumers<match(at)geenvis.net>
 
-UCI port: Michel Van den Bergh <michel.vandenbergh(at)uhasselt.be>
+UCI port, option persistence and new WB protocol: Michel Van den Bergh
+<michel.vandenbergh(at)uhasselt.be>
+
+
 
 =head1 SEE ALSO
 

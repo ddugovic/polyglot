@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/timeb.h>
+#include <sys/stat.h>
 
 // defines
 
@@ -143,6 +144,9 @@ extern void   my_log                (const char format[], ...);
 extern void   my_fatal              (const char format[], ...);
 
 extern bool   my_file_read_line     (FILE * file, char string[], int size);
+extern void   my_path_join          (char *join_path, const char *path, const char *file);
+
+extern int    my_mkdir              (const char *path);
 
 extern bool   my_string_empty       (const char string[]);
 extern bool   my_string_whitespace  (const char string[]);
