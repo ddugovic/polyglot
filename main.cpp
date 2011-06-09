@@ -35,14 +35,17 @@
 // constants
 
 
-static const char * const Version = "1.4W10UCIb17";
+static const char * const Version = "1.4W10UCIb18";
 static const char * const HelpMessage = "\
 SYNTAX\n\
-polyglot [configfile]\n\
-polyglot make-book [-pgn inputfile] [-bin outputfile] [-max-ply ply] [-min-game games] [-min-score score] [-only-white] [-only-black] [-uniform]\n\
-polyglot merge-book -in1 inputfile1 -in2 inputfile2 [-out outputfile]\n\
-polyglot [configfile] epd-test [-epd inputfile] [-min-depth depth] [-max-depth depth] [-max-time time] [-depth-delta delta]\n\
-polyglot perft [-fen fen] [-max-depth depth]\
+* polyglot [configfile]\n\
+* polyglot -ec enginecommand\n\
+* polyglot make-book [-pgn inputfile] [-bin outputfile] [-max-ply ply] [-min-game games] [-min-score score] [-only-white] [-only-black] [-uniform]\n\
+* polyglot merge-book -in1 inputfile1 -in2 inputfile2 [-out outputfile]\n\
+* polyglot info-book [-bin inputfile] [-exact]\n\
+* polyglot dumb-book [-bin inputfile] -color color [-out outputfile]\n\
+* polyglot [configfile] epd-test [-epd inputfile] [-min-depth depth] [-max-depth depth] [-max-time time] [-depth-delta delta]\n\
+* polyglot perft [-fen fen] [-max-depth depth]\
 ";
 
 static const int SearchDepth = 63;
@@ -59,7 +62,6 @@ static void parse_option ();
 static void init_book ();
 static bool parse_line   (char line[], char * * name_ptr, char * * value_ptr);
 static void stop_search  ();
-static void sig_quit(int);
 
 // functions
 
@@ -101,6 +103,21 @@ int main(int argc, char * argv[]) {
         book_merge(argc,argv);
         return EXIT_SUCCESS;
     }
+
+       if (argc >= 2 && my_string_equal(argv[1],"merge-book")) {
+      book_merge(argc,argv);
+      return EXIT_SUCCESS;
+   }
+
+   if (argc >= 2 && my_string_equal(argv[1],"dump-book")) {
+      book_dump(argc,argv);
+      return EXIT_SUCCESS;
+   }
+
+   if (argc >= 2 && my_string_equal(argv[1],"info-book")) {
+      book_info(argc,argv);
+      return EXIT_SUCCESS;
+   }
     
     if (argc >= 2 && my_string_equal(argv[1],"perft")) {
         do_perft(argc,argv);
@@ -185,7 +202,6 @@ void polyglot_set_option(char *name, char *value){ // this must be cleaned up!
 // init_book()
 
 static void init_book(){
-    const char *empty_var[]={};
     book_clear();
     if (option_get_bool("Book")){
         my_log("POLYGLOT *** SETTING BOOK ***\n");
@@ -221,8 +237,6 @@ static void parse_option() {
            my_fatal("parse_option(): missing [Engine] section\n");
        }
        
-       if(line[0]=='#') continue;
-       
        if (my_string_case_equal(line,"[engine]")) break;
        
        if (parse_line(line,&name,&value)) {
@@ -249,8 +263,6 @@ static void parse_option() {
    Init = true;
    while (my_file_read_line(file,line,256)) {
        if (line[0] == '[') my_fatal("parse_option(): unknown section %s\n",line);
-       if (line[0]=='#') continue;
-       
        if (parse_line(line,&name,&value)) {
            uci_send_option(Uci,name,"%s",value);
                //to get a decent display in winboard_x we need to now if an engine really is doing multipv analysis

@@ -1,3 +1,5 @@
+=========1.4w10UCIb18===========
+- Two new utilities: info-book and dump-book.
 =========1.4w10UCIb17===========
 - More refactoring. main.cpp is now #ifdef _WIN32 free.
 - The main loop (previously in adapter.cpp) is now in its own file mainloop.cpp.

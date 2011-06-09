@@ -48,6 +48,10 @@
 #  define ASSERT(a)
 #endif
 
+#ifdef _WIN32
+#define snprintf _snprintf
+#endif
+
 // types
 
 typedef signed char sint8;

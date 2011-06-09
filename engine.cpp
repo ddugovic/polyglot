@@ -22,7 +22,7 @@
 
 // constants
 
-static const int StringSize = 4096;
+static const unsigned int StringSize = 4096;
 
 // variables
 

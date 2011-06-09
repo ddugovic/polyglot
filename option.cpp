@@ -81,7 +81,7 @@ void option_init() {
     option_t *p=Option;
     const char * name;
 
-    while(name=(p++)->name){
+    while((name=(p++)->name)){
         option_set(name,option_get_default(name));
     }
 }

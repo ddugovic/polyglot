@@ -479,7 +479,7 @@ void xboard_step(char string[]) {
         } else if (XB->has_feature_egt && match(string,"egtpath * *")){
                 char *type=Star[0];
                 char *path=Star[1];
-                if(!my_string_case_equal(Star[0],"nalimov")){
+                if(!my_string_case_equal(type,"nalimov")){
                    // refuse
                     gui_send(GUI,"Error (unsupported table base format): %s",string);
                 }else if(my_string_empty(path)){
@@ -1132,8 +1132,6 @@ static void search_update() {
    int move;
    int move_nb;
    board_t board[1];
-   int nalimov_cache;
-   int real_memory;
 
    ASSERT(!Uci->searching);
 

@@ -146,9 +146,8 @@ static void format_uci_option_line(char * option_line,option_t *opt){
 // send_uci_options()
 
 void send_uci_options() {
-    int i,j;
+    int i;
     option_t *p=Option;
-    const char * name;
     char option_line[StringSize]="";
     gui_send(GUI,"id name %s", Uci->name);
     gui_send(GUI,"id author %s", Uci->author);
@@ -171,7 +170,6 @@ void send_uci_options() {
 
 
 static void parse_setoption(const char string[]) {
-    parse_t parse[1];
     char *name;
     char *pg_name;
     char *value;
