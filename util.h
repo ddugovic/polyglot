@@ -185,6 +185,8 @@ extern void my_quote                (char *out,
 				     const char *in, 
 				     const char *special);
 
+extern void my_sleep                (int msec);
+
 #endif // !defined UTIL_H
 
 // end of util.h

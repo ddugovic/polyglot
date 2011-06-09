@@ -1,3 +1,6 @@
+=========1.4.55b================
+- Suppression of some error dialogs.
+- Small delay in between final error message and actually quitting.
 =========1.4.54b================
 - More graceful handling of engine crashes.
 - New EngineCommand is now passed through wordexp on Linux.

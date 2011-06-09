@@ -514,3 +514,13 @@ void my_quote(char *out, const char *in, const char *special){
 }
 
 
+void my_sleep(int msec){
+#ifndef _WIN32
+  struct timespec tm;
+  tm.tv_sec=msec/1000;
+  tm.tv_nsec=1000000*(msec%1000);
+  nanosleep(&tm,NULL);
+#else
+  Sleep(msec);
+#endif
+}

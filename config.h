@@ -115,13 +115,13 @@
 #define PACKAGE_NAME "polyglot"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "polyglot 1.4.54b"
+#define PACKAGE_STRING "polyglot 1.4.55b"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "polyglot"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.4.54b"
+#define PACKAGE_VERSION "1.4.55b"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
@@ -142,7 +142,7 @@
 #define TIME_WITH_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "1.4.54b"
+#define VERSION "1.4.55b"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */

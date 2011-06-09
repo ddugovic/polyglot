@@ -39,7 +39,7 @@
 // constants
 
 
-static const char * const Version = "1.4.54b";
+static const char * const Version = "1.4.55b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log] [-lf logfile] [-hash value] [-bk book] [-pg <name>=<value>]* [-uci <name>=<value>]*\n\
@@ -641,7 +641,8 @@ void quit() {
         engine_close(Engine);
         
     }
-	my_log("POLYGLOT Calling exit\n");
+    my_sleep(200);
+    my_log("POLYGLOT Calling exit\n");
     exit(EXIT_SUCCESS);
 }
 
