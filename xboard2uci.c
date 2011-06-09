@@ -75,6 +75,8 @@ typedef struct {
     
     double my_time;
     double opp_time;
+
+    int node_rate;
 } xb_t;
 
 typedef enum { WAIT, THINK, PONDER, ANALYSE } dummy_state_t;
@@ -165,6 +167,8 @@ void xboard2uci_init() {
 
    XB->my_time = 300.0;
    XB->opp_time = 300.0;
+
+   XB->node_rate = -1;
 }
 
 // xboard2uci_gui_step()
@@ -320,6 +324,7 @@ void xboard2uci_gui_step(char string[]) {
 			XB->result = FALSE;
 
 			XB->depth_limit = FALSE;
+            XB->node_rate=-1;
 
 			XB->computer = FALSE;
 			my_string_set(&XB->name,"<empty>");
@@ -356,7 +361,10 @@ void xboard2uci_gui_step(char string[]) {
 				ASSERT(XB->ping==-1);
 				gui_send(GUI,"pong %s",Star[0]);
 			}
-
+        } else if (match(string,"nps *")) {
+            
+                // fake WB play-by-nodes mode
+            XB->node_rate = atoi(Star[0]);
 		} else if (match(string,"playother")) {
 
 			State->computer[game_turn(Game)] = FALSE;
@@ -837,6 +845,7 @@ static void send_xboard_options(){
     gui_send(GUI,"feature sigterm=0");
     gui_send(GUI,"feature time=1");
     gui_send(GUI,"feature usermove=1");
+    gui_send(GUI,"feature nps=1");
     if (XB->has_feature_memory){
         gui_send(GUI,"feature memory=1");
     }else{
@@ -1281,30 +1290,63 @@ static void search_update() {
          if (XB->time_limit) {
 
             // fixed time per move
-
-            engine_send_queue(Engine," movetime %.0f",XB->time_max*1000.0);
+             
+             if(XB->node_rate > 0){
+                 engine_send_queue(Engine,
+                                   " nodes %.0f",
+                                   XB->time_max*((double)XB->node_rate));
+             }else{
+                 engine_send_queue(Engine,
+                                   " movetime %.0f",
+                                   XB->time_max*1000.0);
+             }
 
          } else {
 
             // time controls
 
-            if (colour_is_white(Uci->board->turn)) {
-               engine_send_queue(Engine," wtime %.0f btime %.0f",XB->my_time*1000.0,XB->opp_time*1000.0);
-            } else {
-               engine_send_queue(Engine," wtime %.0f btime %.0f",XB->opp_time*1000.0,XB->my_time*1000.0);
-            }
+                 if(XB->node_rate > 0) {
+                     double time;
+                     move_nb = 40;
+                     if (XB->mps != 0){
+                         move_nb = XB->mps - (Uci->board->move_nb % XB->mps);
+                     }
+                     time = XB->my_time / move_nb;
+                     if(XB->inc != 0){
+                         time += XB->inc;
+                     }
+                     if(time > XB->my_time){
+                         time = XB->my_time;
+                     }
+                     engine_send_queue(Engine,
+                                       " nodes %.0f",
+                                       time*XB->node_rate);
+                 } else {
+                     
+                     if (colour_is_white(Uci->board->turn)) {
+                         engine_send_queue(Engine,
+                                           " wtime %.0f btime %.0f",
+                                           XB->my_time*1000.0,XB->opp_time*1000.0);
+                     } else {
+                         engine_send_queue(Engine,
+                                           " wtime %.0f btime %.0f",
+                                           XB->opp_time*1000.0,XB->my_time*1000.0);
+                     }
+                     
+                     if (XB->inc != 0.0){
+                         engine_send_queue(Engine,
+                                           " winc %.0f binc %.0f",
+                                           XB->inc*1000.0,XB->inc*1000.0);
+                     }
+                     if (XB->mps != 0) {
 
-            if (XB->inc != 0.0) engine_send_queue(Engine," winc %.0f binc %.0f",XB->inc*1000.0,XB->inc*1000.0);
-
-            if (XB->mps != 0) {
-
-               move_nb = XB->mps - (Uci->board->move_nb % XB->mps);
-               ASSERT(move_nb>=1&&move_nb<=XB->mps);
-
-               engine_send_queue(Engine," movestogo %d",move_nb);
-            }
+                         move_nb = XB->mps - (Uci->board->move_nb % XB->mps);
+                         ASSERT(move_nb>=1&&move_nb<=XB->mps);
+                         
+                         engine_send_queue(Engine," movestogo %d",move_nb);
+                     }
+                 }
          }
-
          if (XB->depth_limit) engine_send_queue(Engine," depth %d",XB->depth_max);
 
          if (State->state == PONDER) engine_send_queue(Engine," ponder");

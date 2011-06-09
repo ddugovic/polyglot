@@ -1,3 +1,5 @@
+=========1.4.51b================
+- Support for new nps command. Code provided by Harm Geert Muller. 
 =========1.4.50b================
 - Change in architecture. Persistence is disabled. The user is required to push the "Save" button explicitly to save the settings. What is retained is that in case PG is invoked with -noini (or as a special exception for WB 4.4.0 when the config files are polyglot_1st.ini or polyglot_2nd.ini) then PG uses a default config file whose name is derived from the engine name. 
 - New option: OnlyWbOptions (default: true). Restrict the options that PG sends to those that are potentially useful for WinBoard.
