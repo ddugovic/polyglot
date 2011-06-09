@@ -1,0 +1,75 @@
+polyglot (1.4w10UCIb15) unstable; urgency=low
+
+  * bugfix : due to refactoring time stamps in Windows would be written twice. This has been fixed. 
+
+  * More refactoring; the number of #ifdef _WIN32's has again been drastically reduced.
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 10 Jan 2009 20:00:00 +0100
+
+polyglot (1.4w10UCIb14) unstable; urgency=low
+	
+  * option to alter priority now also works on windows (Eric Mullins)
+
+  * refactoring so that posix and win32 part share more code
+
+  * a number of potential busy loop scenarios have been eliminated in the Windows code (Windows uses polling)
+	
+  * the return value of CreateProcess is now checked
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 09 Jan 2009 20:00:00 +0100
+
+polyglot (1.4w10UCIb13) unstable; urgency=low
+	
+  * Perft mode exposed.
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Thu, 06 Jan 2009 20:00:00 +0100
+	
+polyglot (1.4w10UCIb12) unstable; urgency=low
+	
+  * Replaced %lld everywhere by S64_FORMAT.
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Thu, 06 Jan 2009 18:00:00 +0100
+	
+polyglot (1.4w10UCIb11) unstable; urgency=low
+
+  * Crash bug fix (wrong parentheses in instruction that checked for help
+option)
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Thu, 05 Jan 2009 18:00:00 +0100
+
+polyglot (1.4w10UCIb10) unstable; urgency=low
+
+  * Trivial bug fixes
+
+  * It is now possible to do "make rpm" to make an rpm binary package. 
+
+  * Documentation added for epd-test functionality (man page).
+	
+  * Cosmetic cleanups of output of epd-test.
+	
+  * "polyglot --help" output added.
+	
+  * Added polyglot book format specification to distribution.
+
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Thu, 02 Jan 2009 18:00:00 +0100
+
+polyglot (1.4w10UCIb9) unstable; urgency=low
+
+  * Trivial cosmetic fixes
+
+  * Some engines do not support the Hash option. So we don't send memory=1 in that case.
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Thu, 02 Jan 2009 15:15:15 +0100
+
+polyglot (1.4w10UCIb8) unstable; urgency=low
+
+  * Support for egtpath command in xboard protocol
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 02 Jan 2009 11:10:23 +0100
+
+polyglot (1.4w10UCIb7) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Thu, 01 Jan 2009 21:32:12 +0100

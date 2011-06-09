@@ -1,0 +1,414 @@
+POLYGLOT(6)                                                        POLYGLOT(6)
+
+
+
+NAME
+       PolyGlot -  Winboard protocol to UCI protocol adapter
+                -  book engine for Polyglot books
+                -  a collection of utilities for creating opening books
+                -  a utility for analyzing epd files
+                -  a perft counter
+
+SYNOPSIS
+       polyglot [configfile]
+
+       polyglot make-book [-pgn inputfile] [-bin outputfile] [-max-ply ply]
+       [-min-game games] [-min-score score] [-only-white] [-only-black] [-uni-
+       form]
+
+       polyglot merge-book -in1 inputfile1 -in2 inputfile2 [-out outputfile]
+
+       polyglot [configfile] epd-test [-epd inputfile] [-min-depth depth]
+       [-max-depth depth] [-max-time time] [-depth-delta delta]
+
+       polyglot perft [-fen fen] [-max-depth depth]
+
+DESCRIPTION
+       PolyGlot as adapter and book engine
+
+       PolyGlot is a "UCI adapter".  It connects a GUI interface (such as
+       XBoard, Winboard, Arena or Chessbase) to a UCI chess engine.
+
+       By specifying an opening book (in PolyGlot book format) chess engines
+       can transparently use such books.
+
+       PolyGlot understands the two main GUI protocols: UCI and xboard. Nor-
+       mally the protocol will be auto detected but this can be overridden in
+       the configuration file.
+
+       In xboard mode PolyGlot fully translates between the xboard and UCI
+       protocols.  In addition it tries to solve known problems with other
+       adapters.  For instance, it detects and reports draws by fifty-move
+       rule, repetition, etc ... It also supports Chess960.
+
+       When in UCI mode PolyGlot mostly passes commands from the GUI to the
+       engine and vice versa, except that it will play book moves on behalf of
+       the engine when the occasion arises.
+
+       Book making utilities
+
+       PolyGlot supports the "PolyGlot opening book format". This is the
+       defacto standard non-proprietary opening book format. It is fully docu-
+       mented here
+
+       http://alpha.uhasselt.be/Research/Algebra/Toga/book_format.html
+
+       Roughly speaking a PolyGlot opening book is a collection of triples
+       (position, move, weight). A "position" is represented by a 64-bit
+       Zobrist hash key. The weight is proportional to the probability the
+       move should be played.
+
+       Other opening book formats such as ChessBase's .ctg format and Arena's
+       .abk format are undocumented and proprietary. They can only be used by
+       their own GUIs.
+
+       PolyGlot can compile a pgn file into a binary PolyGlot book and fur-
+       thermore it can merge two such binary books into a third one.
+
+       Epd test mode
+
+       In epd test mode, PolyGlot will search positions in an epd file and
+       record the number of times the right best move was found.  The argu-
+       ments specify when to stop the search in any given position.
+
+       Perft counts
+
+       A perft count is the number of legal move sequence in a given position
+       up to a given depth. PolyGlot can perform such perft counts. It is how-
+       ever much slower than other more dedicated programs.
+
+OPTIONS
+       When invoked without options or with a config file as argument PolyGlot
+       acts as an adapter. The config file format is documented below.  The
+       default config file is "polyglot.ini".
+
+       When invoked as
+
+       polyglot make-book
+
+       PolyGlot supports the following options
+
+       -pgn (default: "book.pgn")
+           Input file in pgn format.
+
+       -bin (default: "book.bin")
+           Output file in PolyGlot format.
+
+       -max-ply (default: 1024)
+           Specifies the maximum ply-depth of lines included in the book.
+
+       -min-game (default: 3)
+           Specifies the minimum number of games that have to contain this
+           move for it to be included in the book.
+
+       -min-score (default: 0.0)
+           Specifies the minimum score (or weight) this move should have
+           received for it to  be included in the book. The score is
+           2*(wins)+(draws), globally scaled to fit into 16 bits.
+
+       -only-white
+           Include only moves for white in the book.
+
+       -only-black
+           Include only moves for black in the book.
+
+       -uniform
+           Set all weights to 1. In other words, all moves will be selected
+           with equal probability.
+
+       When invoked as
+
+       polyglot merge-book
+
+       PolyGlot supports the following options
+
+       -in1
+           First input file (in PolyGlot book format).
+
+       -in2
+           Second input file (in PolyGlot book format).
+
+       -out (default: out.bin)
+           Output file (in PolyGlot book format).
+
+       Input files are not symmetrical, "in1" has priority over "in2". In
+       other words when a position occurs both in "in1" and "in2" only the
+       moves and weights from "in1" will be retained in "out".
+
+       When invoked as
+
+       polyglot epd-test
+
+       (possibly with a config file as first argument) PolyGlot supports the
+       following options
+
+       -max-depth (default: 63)
+           Unconditionally stop the search when this depth has been reached.
+
+       -max-time (default: 5.0)
+           Unconditionally stop the seach after this amount of time.
+
+       -depth-delta (default: 3)
+           Stop the search if the best move has been constant for this many
+           depths, on condition that the mininal depth and minimal time have
+           been reached.
+
+       -min-depth (default: 8)
+           Minimal search depth when the search is stopped using
+           "-depth-delta".
+
+       -min-time (default: 1.0)
+           Minimal search time when the search is stopped using
+           "-depth-delta".
+
+       When invoked as
+
+       polyglot perft
+
+       PolyGlot supports the following options
+
+       -fen (default: starting position)
+           Fen at which to start searching.
+
+       -max-depth (default: 1)
+           Maximum depth to search.
+
+CONFIG FILE FORMAT
+       There should be a different config file for each engine.
+
+       The config file is in the traditional INI format.
+
+           [PolyGLot]
+           option = value
+           ...
+           [Engine]
+           option = value
+           ...
+
+       Lines starting with "#" are ignored.
+
+       NOTE: There can be spaces in option names or values.  Do not use
+       quotes. Boolean values are written as "true" or "false".
+
+       [PolyGlot] section
+
+       This section is used by PolyGlot only.  The engine is unaware of these
+       options.  The list of available options is detailed below.
+
+       EngineName (default: UCI name)
+           This is the name that will appear in the GUI.  It is cosmetic only.
+           You can use different names for tweaked versions of the same
+           engine.
+
+       EngineDir (default: ".")
+           Full path of the directory where the engine is installed.  You can
+           use "." (without the quotes) if you know that PolyGlot will be
+           launched in the engine directory or the engine is in the "path" and
+           does not need any data file.
+
+       EngineCommand
+           Put here the name of the engine executable file.  You can also add
+           command-line arguments.  Path searching is used and the current
+           directory will be "EngineDir".
+
+       Log (default: false)
+           Whether PolyGlot should log all transactions with the interface and
+           the engine.  This should be necessary only to locate problems.
+
+       LogFile (default: polyglot.log)
+           The name of the log file.  Note that it is put where PolyGlot was
+           launched from, not into the engine directory.
+
+           WARNING: Log files are not cleared between sessions, and can become
+           very large.  It is safe to remove them though.
+
+       Resign (default: false)
+           Set this to "true" if you want PolyGlot to resign on behalf of the
+           engine.
+
+           NOTE: Some engines display buggy scores from time to time although
+           the best move is correct.  Use this option only if you know what
+           you are doing (e.g. you always check the final position of games).
+
+       ResignMoves (default: 3)
+           Number of consecutive moves with "resign" score (see below) before
+           PolyGlot resigns for the engine.  Positions with only one legal
+           move are ignored.
+
+       ResignScore (default: 600)
+           This is the score in centipawns that will trigger resign "count-
+           ing".
+
+       ShowPonder (default: true)
+           Show search information during engine pondering.  Turning this off
+           might be better for interactive use in some interfaces.
+
+       KibitzMove (default: false)
+           Whether to kibitz when playing a move.
+
+       KibitzPV (default: false)
+           Whether to kibitz when the PV is changed (new iteration or new best
+           move).
+
+       KibitzCommand (default: "tellall")
+           xboard command to use for kibitzing, normally "tellall" for kibitz-
+           ing or "tellothers" for whispering.
+
+       KibitzDelay (default: 5)
+           How many seconds to wait before starting kibitzing.  This has an
+           effect only if "KibitzPV" is selected, move kibitzes are always
+           sent regardless of the delay.
+
+       UCI (default: false)
+           If true PolyGlot will not understand xboard commands.
+
+       Book (default: false)
+           Indicates whether a PolyGlot book should be used.  This has no
+           effect on the engine own book (which can be controlled with the UCI
+           option "OwnBook" in the [Engine] section).  In particular, it is
+           possible to use both a PolyGlot book and an engine book.  In that
+           case, the engine book will be used whenever PolyGlot is out of
+           book.  Remember that PolyGlot is unaware of whether the engine is
+           itself using a book or not.
+
+       Chess960 (default: false)
+           Play Chess960 (also called Fischer Random Chess or FRC),
+
+       MateScore (default: 10000)
+           Mate score reported to GUI when in xboard mode.
+
+       BookFile (default: book.bin)
+           The name of the (binary) book file.  Note that PolyGlot will look
+           for it in the directory it was launched from, not in the engine
+           directory.  Of course, full path can be used in which case the cur-
+           rent directory does not matter.
+
+           NOTE: When using PolyGlot with a UCI GUI this parameter can be set
+           via the UCI option "Polyglot BookFile".
+
+       BookRandom (default: true)
+           Select moves according to their weights in the book. If false the
+           move with the highest weight is selected.
+
+       BookLearn (default: false)
+           Record learning information in the opening book. Naturally this
+           requires the opening book to be writable.
+
+       UseNice (default: false)
+           Run the engine at nice level 5, or "NiceValue" if it set.  On some
+           operating systems it may be necessary to run the engine at lower
+           priority for it to be responsive to commands from PolyGlot while
+           searching.
+
+       NiceValue (default: 5)
+           Nice levels go from -20 to 20 with 20 being the lowest priority.
+           On Unix only root can set negative nice levels. On Windows the
+           standard Win32 priority levels are mapped in a sensible way to Unix
+           nice levels.
+
+       Affinity (default: -1)
+           This a bit vector in which each bit represents the processors that
+           a process is allowed to run on. This option works only on Windows.
+
+       Work arounds
+
+       Work arounds are identical to options except that they should be used
+       only when necessary.  Their purpose is to try to hide problems with
+       various software (not just engines).  The default value is always cor-
+       rect for bug-free software.
+
+       IMPORTANT: Any of these work arounds might be removed in future ver-
+       sions of PolyGlot.  You are strongly recommended to contact the author
+       of faulty software and truly fix the problem.
+
+       PolyGlot supports the following work arounds:
+
+       UCIVersion (default: 2)
+           The default value of 2 corresponds to UCI+.  Use 1 to select plain
+           UCI for engines that have problems with UCI+.
+
+       CanPonder (default: false)
+           PolyGlot now conforms to the documented UCI behaviour: the engine
+           will be allowed to ponder only if it (the engine) declares the
+           "Ponder" UCI option.  However some engines which can actually pon-
+           der do not declare the option.  This work around lets PolyGlot know
+           that they can ponder.
+
+       SyncStop (default: false)
+           When a ponder miss occurs, Polyglot interrupts the engine and IMME-
+           DIATELY launches a new search.  While there should be no problem
+           with this, some engines seem confused and corrupt their search
+           board.  "SyncStop" forces PolyGlot to wait for the (now useless)
+           ponder search to finish before launching the new search.
+
+       PromoteWorkAround (default: false)
+           Some engines do not specify a promotion piece, e.g. they send
+           "e7e8" instead of the correct "e7e8q".  This work around enables
+           the incorrect form (and of course promotes into a queen).
+
+       RepeatPV (default: true)
+           When true, PolyGlot repeats the last pv string (which also contains
+           score,depth and time usage) it got from the engine. Some engines
+           however do not send a new pv string just before sending the move
+           and the now old pv string might confuse debugtools that parse the
+           winboard debug files.
+
+       [Engine] section
+
+       This section contains engine UCI options.  PolyGlot does not understand
+       them, but sends the information to the engine at startup (converted to
+       UCI form).  You can add any UCI option that makes sense to the engine
+       (not just the common options about hash-table size and tablebases).
+
+       NOTE: use INI syntax, not UCI.  For example "OwnBook = true" is cor-
+       rect.  It will be replaced by PolyGlot with "setoption name OwnBook
+       value true" at engine startup.
+
+       Standard UCI options are
+
+           Hash
+           NalimovPath
+           NalimovCache
+           OwnBook
+
+       Hidden options like "Ponder" or "UCI_xxx" are automatic and should not
+       be put in an INI file.
+
+       The other options are engine-specific.  Check their name using a UCI
+       GUI or launch the engine in a console and type "uci".
+
+EXAMPLES
+       Compile "games.pgn" into a book "book.bin" retaining all lines of at
+       most 30 plies.
+
+           polyglot make-book -pgn games.pgn -bin book.bin -max-ply 30
+
+       Merge books "in1.bin" and "in2.bin" into a book "out.bin".
+
+           polyglot merge-book -in1 w1.bin -in2 w2.bin -out w.bin
+
+       Here is a minimal config file
+
+           [PolyGlot]
+           EngineCommand = fruit
+           [Engine]
+
+EXIT STATUS
+       PolyGlot always returns 0 on exit.
+
+AUTHORS
+       Main author: Fabien Letouzey<fabien_letouzey(at)hotmail.com>
+
+       Native Windows port:  Huang Chen<webmaster@elephantbase.net> ("Morning
+       Yellow")
+
+       Various enhancements: Fonzy Bleumers<match(at)geenvis.net>
+
+       UCI port: Michel Van den Bergh <michel.vandenbergh(at)uhasselt.be>
+
+SEE ALSO
+       xboard(6)
+
+
+
+                                  2009-01-10                       POLYGLOT(6)

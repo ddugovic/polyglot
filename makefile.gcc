@@ -1,0 +1,6 @@
+# what's this??
+# This is not a makefile....
+
+# Anyway here is the command for compiling polyglot under Mingw/Cygwin
+
+g++ -O2 -mno-cygwin -D_WIN32 *.cpp -opolyglot

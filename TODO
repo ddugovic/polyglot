@@ -1,0 +1,6 @@
+Better check for legality of arguments (i.e. stuff after [configfile]). 
+Implementation of new wb/xb options
+GUI mode 
+Allow buttons in UCI mode
+Set book [none] instead of nothing as it is now. 
+Implementation of Marc Lacrosse's utility

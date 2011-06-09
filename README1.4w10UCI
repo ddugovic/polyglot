@@ -1,0 +1,50 @@
+Description
+===========
+
+This is an enhanced version of Polyglot 1.4w10 which can be used as a book
+engine for Polyglot books on UCI GUIs. It also has some additional features
+(see below).
+
+Some GUIs like ChessBase do not support Winboard engines at all.  Other
+GUIs do support the Winboard protocol (like Arena) but you still lose
+the convenience of setting UCI options through the GUI.
+
+This new version of Polyglot is fully backward compatible and will in
+fact under normal circumstances autodetect the protocol.
+
+The following is a minimal polyglot.ini file to make an engine use
+Polyglot books. 
+
+[Polyglot]
+EngineCommand = <path to engine>
+[Engine]
+
+By default this does not use any book but you can set the Polyglot book
+in the GUI through the exported UCI option "Polyglot BookFile".
+
+Any normal polyglot.ini file can be used with this version. The UCI
+options you set in the [Engine] section will be honored and the
+results will be shown in the GUI as "defaults".
+
+If you want to override the protocol autodetection (which should
+normally not be necessary) you can put
+
+UCI = true
+
+in the [Polyglot] section. 
+
+Just like 1.4w10, this version of Polyglot compiles both under Linux
+and Windows.
+
+Some notes on Arena
+===================
+
+Up to version 1.99b5 Arena contained a bug with drive letters in UCI
+options. This bug has been fixed in 2.00.
+
+If you let Arena autodetect the engine type then it will use Polyglot
+in Winboard mode. So either configure the Polyglot adapter explicitly
+as a UCI engine in the Arena GUI, or else put UCI = true in the
+[Polyglot] section of polyglot.ini.
+
+

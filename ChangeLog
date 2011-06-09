@@ -1,0 +1,102 @@
+=========1.4w10UCIb15===========
+- Due to refactoring time stamps in Windows would be written twice. 
+This has been fixed. 
+- More refactoring; the number of #ifdef _WIN32's has again been
+drastically reduced.
+=========1.4w10UCIb14===========
+- option to alter priority now also works on windows
+(Eric Mullins)
+- refactoring so that posix and win32 part share more
+code
+- a number of potential busy loop scenarios have been eliminated 
+in the Windows code (Windows uses polling)
+- the return value of CreateProcess is now checked
+=========1.4w10UCIb13===========
+- perft mode exposed.
+=========1.4w10UCIb12===========
+- Replaced %lld everywhere by S64_FORMAT.
+=========1.4w10UCIb11===========
+- Crash bug fix (wrong parentheses in instruction that checked for help
+option).
+=========1.4w10UCIb10===========
+- It is now possible to do "make rpm" to make an rpm binary package. 
+- Trivial bug fixes.
+- Documentation added for epd-test functionality (man page).
+- Cosmetic cleanups of output of epd-test.
+- "polyglot --help" output added.
+- Added polyglot book format specification to distribution.
+=========1.4w10UCIb9===========
+- Trivial cosmetic fixes
+- Some engines do not support the "Hash" options.
+So we do not send memory=1 in that case. 
+=========1.4w10UCIb8===========
+- Support for egtpath command in xboard protocol
+=========1.4w10UCIb7===========
+- Debianization: it is now possible to do "make deb" to build a Debian/Ubuntu
+package.
+=========1.4w10UCIb6===========
+- UCI GUI support added. This makes it possible to use PG as a book engine
+on GUI's like ChessBase and Arena which normally only support their
+own proprietary format. 
+
+- Support for new xboard "cores N" and "memory N" commands. See here
+for a complete description
+
+	http://home.hccnet.nl/h.g.muller/engine-intf.html
+
+- Some work arounds for engines like Toga which only allow some settings
+to be set before the first "isready" command. 
+
+- Autotooled distribution.
+
+- Proper manual page. The README file is generated automatically from this. 
+
+- More sane naming of README files.
+
+- If BookLearn is false (the default) PG will open the book read only.
+
+- Windows and non-Windows log file formats are now the same.
+
+- Proper ChangeLog (you are reading it!).
+=========1.4w10================
+fixed analysis output for toga
+=========1.4w9=================
+fixed bug in 1.4w8
+added RepeatPV workaround
+	fixed disappearing output in engine-output window while in multipv mode
+	when an engine sends its move to polyglot,
+	polyglot normally repeats the last pv string(which also contains score,depth and time usage) it got from the engine.
+	Some engines however do not send a new pv string just before sending the move and the now old pv string
+	find might confuse debugtools that parse the winboard debug files.
+	Adding "RepeatPV = false" to the [POLYGLOT] section of the ini file stops this repetition.
+ 
+=========1.4w8=================
+fixed multipv output
+note that the pv with the worst score will be on top of the engine-output window.
+added timestamp in logfile (Jaap Weidemann)
+
+=========1.4w7=================
+compiles under linux/unix again
+=========1.4w6=================
+access to winboard draw/drawoffer and resign
+
+	1:to activate draw offers the engine has 
+	   to define the "UCI_DrawOffers" parameter with the 'option" command at startup. 
+	2:to offer a draw or accept a draw offer:just send "info string DrawOffer" to polyglot. 
+	3:if winboard sends "draw" polyglot sends "setoption DrawOffer draw" to the engine.
+	4.to resign: send "info string Resign" to polyglot.
+	please check the winboard documentation for the draw/drawoffer and resign commands.
+		
+=========1.4w5:================
+Fixed errors in SyncStop handling.
+book building: the error message now also contains the game number 
+added Affinity option:
+In the [PolyGlot] section(ini file):
+- "Affinity" mask
+mask is a bit vector in which each bit represents the processors that a process is allowed to run on.
+
+some minor bugs fixed
+
+checks if child did really quit.
+
+

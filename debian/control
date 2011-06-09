@@ -1,0 +1,13 @@
+Source: polyglot
+Section: games
+Priority: extra
+Maintainer: Michel Van den Bergh <michel.vandenbergh@uhasselt.be>
+Build-Depends: debhelper (>= 5), autotools-dev
+Standards-Version: 3.7.2
+
+Package: polyglot
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A Winboard protocol to UCI protocol adapter
+ PolyGlot is a "UCI adapter".  It connects a GUI interface (such as
+ XBoard, Winboard, Arena or Chessbase) to a UCI chess engine.
