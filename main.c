@@ -39,7 +39,7 @@
 // constants
 
 
-static const char * const Version = "1.4.52b";
+static const char * const Version = "1.4.53b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log] [-lf logfile] [-hash value] [-bk book] [-pg <name>=<value>]* [-uci <name>=<value>]*\n\
@@ -543,11 +543,6 @@ int main(int argc, char * argv[]) {
         if(my_string_case_equal(entry->section,"engine")){
                 // also updates value in Uci->option
             uci_send_option(Uci,entry->name,"%s",entry->value);
-                // this is inherited, it probably does not work correctly
-           if(my_string_case_equal(entry->name,"MultiPV") &&
-              atoi(entry->value)>1){
-               Uci->multipv_mode=TRUE;
-           }
         }
     }
 

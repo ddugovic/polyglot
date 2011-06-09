@@ -203,6 +203,8 @@ void uci_clear(uci_t * uci) {
    uci->root_move = MoveNone;
    uci->root_move_pos = 0;
    uci->root_move_nb = board_mobility(uci->board);
+
+   uci->multipvSP=0;
 }
 
 // uci_send_isready()
@@ -640,7 +642,7 @@ static int parse_info(uci_t * uci, const char string[]) {
          ASSERT(!my_string_empty(argument));
 
          n = atoi(argument);
-		 if(Uci->multipv_mode) multipvline=n;
+	 multipvline=n;
         
          ASSERT(n>=1);
 
@@ -733,16 +735,43 @@ static int parse_info(uci_t * uci, const char string[]) {
 
    parse_close(parse);
 
-   // update display
-   //lousy uci,filter out lower depth multipv lines that have been repeated from the engine 
-   if(multipvline>1 && uci->depth<uci->best_depth) event &= ~EVENT_PV;
+
+   // code by HGM
    if ((event & EVENT_PV) != 0) {
       uci->best_score = uci->score; 
-	  uci->best_depth = uci->depth;
-	  if(multipvline==1)uci->depth=-1; //HACK ,clears the engine outpout window,see send_pv in adapter.cpp 
       uci->best_sel_depth = uci->sel_depth;
       line_copy(uci->best_pv,uci->pv);
    }
+   if(uci->depth < uci->best_depth){
+     // ignore lines of lower depth
+     event &= ~EVENT_PV;
+   } else {
+     if(uci->depth > uci->best_depth) {
+       // clear stack when we start new depth
+       uci->multipvSP = 0; 
+     }
+     uci->best_depth = uci->depth;
+     if(multipvline >= 1) {
+       int i;
+       for(i=0; i<uci->multipvSP; i++) {
+	 if(uci->score == uci->multipvScore[i] && uci->pv[0] == uci->multipvMove[i]) {
+	   event &= ~EVENT_PV; // ignore duplicates
+	 }
+       }
+       if(event & EVENT_PV){
+	 // line is new, try to add to stack
+	 if(uci->multipvSP<MultiPVStackSize){
+	   uci->multipvMove[uci->multipvSP] = uci->pv[0];
+	   uci->multipvScore[uci->multipvSP] = uci->score;
+	   uci->multipvSP++;
+	 }else{
+	   my_fatal("parse_info(): multipv stack overflow.");
+	 }
+       }
+     }
+   }
+
+
    return event;
 }
 

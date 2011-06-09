@@ -18,51 +18,55 @@
 // I need to make a uniform string type.
 
 #define UciStringSize 4096
+#define MultiPVStackSize 256
 
 // types
 
 typedef struct {
-
-   engine_t * engine;
-
-   const char * name;
-   const char * author;
-
-   option_list_t option[1];
-
-   bool ready;
-   int ready_nb;
-
-   bool searching;
-   int pending_nb;
-
-   board_t board[1];
-
-   int best_move;
-   int ponder_move;
-
-   int score;
-   int depth;
-   int sel_depth;
-   move_t pv[LineSize];
-
-   int best_score;
-   int best_depth;
-   int best_sel_depth;
-   move_t best_pv[LineSize];
-
-   sint64 node_nb;
-   double time;
-   double speed;
-   double cpu;
-   double hash;
-   move_t current_line[LineSize];
-
-   int root_move;
-   int root_move_pos;
-   int root_move_nb;
-   bool multipv_mode;
-   char info[UciStringSize];
+  
+  engine_t * engine;
+  
+  const char * name;
+  const char * author;
+  
+  option_list_t option[1];
+  
+  bool ready;
+  int ready_nb;
+  
+  bool searching;
+  int pending_nb;
+  
+  board_t board[1];
+  
+  int best_move;
+  int ponder_move;
+  
+  int score;
+  int depth;
+  int sel_depth;
+  move_t pv[LineSize];
+  
+  int best_score;
+  int best_depth;
+  int best_sel_depth;
+  move_t best_pv[LineSize];
+  
+  sint64 node_nb;
+  double time;
+  double speed;
+  double cpu;
+  double hash;
+  move_t current_line[LineSize];
+  
+  int root_move;
+  int root_move_pos;
+  int root_move_nb;
+  bool multipv_mode;
+  int multipvSP;
+  int multipvScore[MultiPVStackSize];
+  move_t multipvMove[MultiPVStackSize];
+  char info[UciStringSize];
 } uci_t;
 
 typedef enum {
