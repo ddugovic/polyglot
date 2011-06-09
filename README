@@ -427,13 +427,14 @@ CONFIG FILE FORMAT
            a process is allowed to run on. This option works only on Windows.
 
        SaveSettingsOnExit (default: true)
-           If true then PolyGlot will implement persistence by loading its
-           options from an additional INI file which is specified by the
-           option "SaveFile". At exit PolyGlot will also save its options to
-           this INI file.
+           If true then PolyGlot will implement persistence by loading options
+           from an additional INI file which is specified by the option "Save-
+           File". At exit PolyGlot will also save its options to this INI
+           file.
 
-       SaveFile (default: <EngineName>.ini)
+       SaveFile (default: PG_<EngineName>.ini)
            The name of the file from which to take the additional options.
+           You can safely edit this file.
 
        Work arounds
 

@@ -36,7 +36,7 @@
 // constants
 
 
-static const char * const Version = "1.4.39b";
+static const char * const Version = "1.4.41b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log] [-lf logfile] [-hash value] [-bk book] [-pg <name>=<value>]* [-uci <name>=<value>]*\n\
@@ -83,10 +83,15 @@ void write_ini(const char *filename,
     if(!f){
         my_fatal("ini_create_pg(): Cannot open %s for writing.\n",filename);
     }
+    fprintf(f,"; You may edit this file to set options for the\n"
+              "; UCI engine whose PolyGlot name is %s.\n"
+              "; You may also safely delete this file\n"
+              "; to restore the default options.\n",
+            option_get_string(Option,"EngineName"));
     fprintf(f,"[PolyGlot]\n");
     option_start_iter(pg_options);
     while((opt=option_next(pg_options))){
-        if(opt->mode & XBOARD){
+        if(!my_string_case_equal(opt->type,"button") && (opt->mode & XBOARD)){
             snprintf(tmp,sizeof(tmp),"%s=%s\n",opt->name,opt->value);
             tmp[sizeof(tmp)-1]='\0';
             fprintf(f,"%s",tmp);
@@ -95,9 +100,11 @@ void write_ini(const char *filename,
     fprintf(f,"[Engine]\n");
     option_start_iter(uci_options);
     while((opt=option_next(uci_options))){
-        snprintf(tmp,sizeof(tmp),"%s=%s\n",opt->name,opt->value);
-        tmp[sizeof(tmp)-1]='\0';
-        fprintf(f,"%s",tmp);
+        if(!my_string_case_equal(opt->type,"button")){
+            snprintf(tmp,sizeof(tmp),"%s=%s\n",opt->name,opt->value);
+            tmp[sizeof(tmp)-1]='\0';
+            fprintf(f,"%s",tmp);
+        }
     }
     fclose(f);
 }
@@ -334,7 +341,7 @@ int main(int argc, char * argv[]) {
 
     if(my_string_equal(option_get_string(Option,"SaveFile"),"<empty>")){
         char tmp[StringSize];
-        snprintf(tmp,sizeof(tmp),"%s.ini",
+        snprintf(tmp,sizeof(tmp),"PG_%s.ini",
                  option_get_string(Option,"EngineName"));
         tmp[sizeof(tmp)-1]='\0';
         option_set(Option,"SaveFile",tmp);
@@ -347,8 +354,8 @@ int main(int argc, char * argv[]) {
     }
         // start if it was enabled in the SaveFile
     
+    my_log_close();
     if (option_get_bool(Option,"Log")) {
-        my_log_close();
         my_log_open(option_get_string(Option,"LogFile"));
     }
         // remind the user of the options that are now in effect

@@ -515,14 +515,15 @@ process is allowed to run on. This option works only on Windows.
 
 =item B<SaveSettingsOnExit> (default: true)
 
-If true then PolyGlot will implement persistence by loading its
+If true then PolyGlot will implement persistence by loading 
 options from an additional INI file which is specified by the option
 "SaveFile". At exit PolyGlot will also save its options to this INI
-file.
+file. 
 
-=item B<SaveFile> (default: <EngineName>.ini)
+=item B<SaveFile> (default: PG_<EngineName>.ini)
 
 The name of the file from which to take the additional options.
+You can safely edit this file. 
 
 =back
 

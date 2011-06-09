@@ -1,3 +1,6 @@
+=========1.4.41b================
+- Some segfaults fixed in case of corrupt config files.
+- Persistence of options. If the option SaveSettingsOnExit is true (the default) PolyGlot now saves its options in a file whose name is given by the option SaveFile which by default is equal to the engine name, prefixex by PG_ and suffixed by ".ini".
 =========1.4.39b================
 - Refactoring of config file parsing
 - Fix crash bug in epd-test

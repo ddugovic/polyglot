@@ -547,13 +547,14 @@ This a bit vector in which each bit represents the processors that a
 process is allowed to run on. This option works only on Windows. 
 .IP "\fBSaveSettingsOnExit\fR (default: true)" 4
 .IX Item "SaveSettingsOnExit (default: true)"
-If true then PolyGlot will implement persistence by loading its
+If true then PolyGlot will implement persistence by loading 
 options from an additional \s-1INI\s0 file which is specified by the option
 \&\*(L"SaveFile\*(R". At exit PolyGlot will also save its options to this \s-1INI\s0
-file.
-.IP "\fBSaveFile\fR (default: <EngineName>.ini)" 4
-.IX Item "SaveFile (default: <EngineName>.ini)"
+file. 
+.IP "\fBSaveFile\fR (default: PG_<EngineName>.ini)" 4
+.IX Item "SaveFile (default: PG_<EngineName>.ini)"
 The name of the file from which to take the additional options.
+You can safely edit this file. 
 .Sh "Work arounds"
 .IX Subsection "Work arounds"
 Work arounds are identical to options except that they should be used
