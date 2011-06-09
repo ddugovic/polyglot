@@ -1,3 +1,57 @@
+polyglot (1.4.50b) unstable; urgency=low
+
+  * Change in architecture. Persistence is disabled. The user is required to push th "Save" button explicitly to save the settings. What is retained is that in case PG is invoked with -noini (or as a special exception for WB 4.4.0 when the config files are polyglot_1st.ini or polyglot_2nd.ini) then PG uses a default config file whose name is derived from the engine name. 
+
+  * New option: OnlyWbOptions (default: true). Restrict the options that PG sends to those that are potentially useful for WinBoard.
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 9 Sep 2009 21:00:00 +0100
+	
+polyglot (1.4.46b) unstable; urgency=low
+
+  * The default persistence directory on Windows is now _PG. The names of the engine specific ini files are mangled so as not to contain spaces. 
+	
+  * PG now tries to guess if a string option is really a file or a path (like in the Arena GUI). 
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 4 Sep 2009 21:00:00 +0100
+
+polyglot (1.4.45b) unstable; urgency=low
+
+  * The engine specific config files (<myname>.ini) are now stored in a separate directory. $HOME/.polyglot on Linux and "./Polyglot Settings" on Windows. 
+	
+  * The engine specific config files are now complete config files. So they can be used in a stand alone fashion.
+
+  * Implemented a minor hack to make xboard show error messages during startup.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Fri, 4 Sep 2009 21:00:00 +0100
+
+polyglot (1.4.44b) unstable; urgency=low
+
+  * "Implementation" of new buttons and controls.
+	
+  * The "Persist" option is now persistent. That is if you turn of "Persist" then as a special case PG will remember this.
+	
+  * There is now a "reset" button which restores the default options. The code is commented out since WB does not support it yet.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Thu, 3 Sep 2009 21:00:00 +0100
+
+polyglot (1.4.42b) unstable; urgency=low
+
+  * SaveSettingsOnExit/SaveFile renamed as Persist/PersistFile.
+	
+  * Many bug fixes in the persistence feature.
+	
+  * The PG_<myname>.ini file now contains only options that have been changed. So the resulting ini files are much smaller. This makes this version of PG usable on WB 4.3.15 as now the engine specific ini file will be empty (the user has no way to change options).	
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Mon, 1 Sep 2009 21:00:00 +0100
+
+polyglot (1.4.41b) unstable; urgency=low
+	
+  * Some segfaults fixed in case of corrupt config files.
+	
+  * Persistence of options. If the option SaveSettingsOnExit is true (the default) PolyGlot now saves its options in a file whose name is given by the option SaveFile which by default is equal to the engine name, prefixed by PG_ suffixed by ".ini".
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sun, 31 Aug 2009 21:00:00 +0100
+
 polyglot (1.4.39b) unstable; urgency=low
 	
   * Refactoring of config file parsing

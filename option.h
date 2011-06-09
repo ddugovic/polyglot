@@ -15,6 +15,7 @@
 #define XBOARD   (1<<0)
 #define UCI      (1<<1)
 #define PG       (1<<2)
+#define XBSEL    (1<<3)
 #define OptionNb 256
 
 #define IS_BUTTON(str) (my_string_case_equal(str,"button") ||      \

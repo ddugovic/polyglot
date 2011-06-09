@@ -142,31 +142,27 @@ set the engine option <name> to <value>.
 
 =item B<-ec> 
 
-This sets the EngineCommand.
+This is an alias for -pg "EngineCommand=<value>"
 
 =item B<-ed>
 
-This sets the EngineDir.
+This is an alias for -pg "EngineDir=<value>"
 
 =item B<-en>
 
-This sets the EngineName.
+This is an alias for -pg "EngineName=<value>"
 
-=item B<-hash>
+=item B<-log> (default: false)
 
-This is an alias for -uci "Hash=<value>".
-
-=item B<-log>
-
-This is an alias for -pg "Log=true".
+This is an alias for -pg "Log=<value>"
 
 =item B<-lf> (default: "polyglot.log")
 
 This is an alias for -pg "LogFile=<value>".
 
-=item B<-bk> 
+=item B<-wb> (default: "true")
 
-This is an alias for -pg "Book=true" -pg "BookFile=<value>".
+This is an alias for -pg "OnlyWbOptions=<value>".
 
 =back
 
@@ -386,6 +382,15 @@ Put here the name of the engine executable file.  You can also add
 command-line arguments.  Path searching is used and the current
 directory will be "EngineDir".
 
+=item B<SettingsDir> (default: $HOME/.polyglot on Linux; ".\_PG" on Windows)
+
+The directory where ini files are stored for engines that are started with
+-noini. Such ini files may be created by pushing the "Save" button in the
+Engine settings dialog in WB/XB 4.4.0 and higher. As a special exception
+(for WB/XB 4.4.0 compatibility) this directory is also used in case
+PolyGlot is started with config files named "polyglot_1st.ini" or
+"polyglot_2nd.ini".
+
 =item B<Log> (default: false)
 
 Whether PolyGlot should log all transactions with the interface and
@@ -513,22 +518,10 @@ Win32 priority levels are mapped in a sensible way to Unix nice levels.
 This a bit vector in which each bit represents the processors that a
 process is allowed to run on. This option works only on Windows. 
 
-=item B<Persist> (default: true)
+=item B<OnlyWbOptions> (default: true)
 
-If true then PolyGlot will implement persistence by loading options
-from an additional INI file whose name is by default derived from the
-engine name. At exit PolyGlot will also save its options to this INI
-file.
-
-=item B<PersistFile> (default: <EngineName>.ini)
-
-The name of the file from which to take the additional options.  It is
-probably best to stick with the default. You can safely edit this
-file, or delete it to restore the default options.
-
-=item B<PersistDir> (default: $HOME/.polyglot on Linux; ".\Polyglot Settings" on Windows)
-
-The directory where the PersistFile is stored.
+If true then PolyGlot restricts the options it sends to those that
+are potentially useful for WinBoard. 
 
 =back
 
@@ -580,22 +573,6 @@ however do not send a new pv string just before sending the move.
 In that case the output of PolyGlot would be inconsistent. 
 When RepeatPV is false PolyGlot does not repeat the last pv string.
 Due to the way kibitzing is implemented, KibitzMove is disabled in that case. 
-
-=item B<WbWorkArounds> (default: true)
-
-The intention of these options is to provide work arounds for
-xboard/winboard bugs should they arise.  This one decapitalizes
-the word Draw in options that contain this word. Some versions of
-xboard/winboard contain a bug which causes such options to be
-interpreted as draw claims by the engine.
-
-Engines that send options with "Draw" in their name are Rybka and HIARCS. 
-
-=item B<WbWorkArounds2> (default: false)
-
-Old version of Winboard clear the engine output window at depth 1. With this
-work around PG will send info lines at depth >=2. This may or may not improve
-the display. 
 
 =back
 
@@ -672,7 +649,7 @@ Native Windows port:  Huang Chen<webmaster@elephantbase.net> ("Morning Yellow")
 
 Various enhancements: Fonzy Bleumers<match(at)geenvis.net>
 
-UCI port, option persistence and new WB protocol: Michel Van den Bergh
+UCI port and implementation of new WB protocol: Michel Van den Bergh
 <michel.vandenbergh(at)uhasselt.be>
 
 

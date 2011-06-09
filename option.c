@@ -9,6 +9,11 @@
 #include "option.h"
 #include "util.h"
 
+
+// defines
+
+#define NNB { NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL }
+
 // constants
 
 static const bool UseDebug = FALSE;
@@ -16,44 +21,41 @@ static const int  StringSize = 4096;
 
 // variables
 
-#define NNB { NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL }
 
 option_list_t Option[1];
 
 option_t DefaultOptions[] = {    
-    { "OptionFile",       "file","0","0",     "polyglot.ini", NULL,0,NNB,  PG}, 
-
    // options
 
-    { "Persist",          "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD},
-    { "PersistFile",      "file","0","0",     "<empty>"   , NULL,0,NNB,  PG},
-    { "PersistDir",       "path","0","0",     "<empty>"   , NULL,0,NNB,  PG},
-    
+    { "SettingsFile",     "file","0","0",       "polyglot.ini", NULL,0,NNB,  PG|XBOARD|XBSEL}, 
+
+    { "SettingsDir",      "path","0","0",       "<empty>"   , NULL,0,NNB,  PG},
+
+    { "OnlyWbOptions",    "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD},
+
     { "EngineName",       "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
-    { "EngineDir",        "path","0","0",     "."         , NULL,0,NNB,  PG}, 
+    { "EngineDir",        "path","0","0",       "."         , NULL,0,NNB,  PG}, 
     { "EngineCommand",    "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
 
-    { "Log",              "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI}, 
-    { "LogFile",          "file","0","0",     "polyglot.log", NULL,0,NNB,  PG|XBOARD|UCI}, 
+    { "Log",              "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|XBSEL|UCI}, 
+    { "LogFile",          "file","0","0",       "polyglot.log", NULL,0,NNB,  PG|XBOARD|XBSEL|UCI}, 
 
     { "UCI",              "check","0","0",      "false"     , NULL,0,NNB,  PG}, 
 
     { "UseNice",          "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI}, 
     { "NiceValue",        "spin", "0","20",     "5"         , NULL,0,NNB,  PG|XBOARD|UCI}, 
 
-    { "Chess960",         "check","0","0",      "false"     , NULL,0,NNB,  PG}, 
-
-    { "Resign",           "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
-    { "ResignMoves",      "spin","0","10000",    "3"        , NULL,0,NNB,  PG|XBOARD}, 
-    { "ResignScore",      "spin","0","10000",   "600"       , NULL,0,NNB,  PG|XBOARD}, 
+    { "Resign",           "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|XBSEL}, 
+    { "ResignMoves",      "spin","0","10000",    "3"        , NULL,0,NNB,  PG|XBOARD|XBSEL}, 
+    { "ResignScore",      "spin","0","10000",   "600"       , NULL,0,NNB,  PG|XBOARD|XBSEL}, 
 
     { "MateScore",        "spin","0","100000",  "10000"     , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "Book",             "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI}, 
-    { "BookFile",         "file","0","0",     "book.bin"  , NULL,0,NNB,  PG|XBOARD|UCI}, 
+    { "Book",             "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|XBSEL|UCI}, 
+    { "BookFile",         "file","0","0",       "book.bin"  , NULL,0,NNB,  PG|XBOARD|XBSEL|UCI}, 
 
-    { "BookRandom",       "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD|UCI}, 
-    { "BookDepth",        "spin","0","256",     "256"       , NULL,0,NNB,  PG|XBOARD}, 
+    { "BookRandom",       "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD|XBSEL|UCI}, 
+    { "BookDepth",        "spin","0","256",     "256"       , NULL,0,NNB,  PG|XBOARD|XBSEL}, 
     { "BookTreshold",     "spin","0","1000",    "5"         , NULL,0,NNB,  PG|XBOARD|UCI}, 
     { "BookLearn",        "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
@@ -64,7 +66,7 @@ option_t DefaultOptions[] = {
     { "KibitzDelay",      "spin","0","1000",    "5"         , NULL,0,NNB,  PG|XBOARD}, 
     { "KibitzInterval",   "spin","0","1000",    "0"         , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "ShowPonder",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "ShowPonder",       "check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD}, 
     { "ScoreWhite",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
    // work-arounds
@@ -74,15 +76,26 @@ option_t DefaultOptions[] = {
     { "SyncStop",         "check","1","2",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
     { "Affinity",         "spin","-1","32",     "-1"        , NULL,0,NNB,  PG}, 
     { "RepeatPV",         "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD},
-    { "PromoteWorkAround","check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "PromoteWorkAround","check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
 
-    { "WbWorkArounds",    "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD}, 
-    { "WbWorkArounds2",   "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+   // internal
+
+    { "Chess960",         "check","0","0",      "false"     , NULL,0,NNB,  PG}, 
+
+   // These options flag various hacks in the source to work around
+   // WB quirks. They will eventually all be set to false. Probably
+   // in 4.5.0
+    
+    { "WbWorkArounds",    "check","0","0",      "true"      , NULL,0,NNB,  PG}, 
+    { "WbWorkArounds2",   "check","0","0",      "false"     , NULL,0,NNB,  PG}, 
+    { "WbWorkArounds3",   "check","0","0",      "true"      , NULL,0,NNB,  PG}, 
 
     // Buttons
 
-//    { "Defaults",         "reset","0","0",     "false"     , NULL,0,NNB,  PG|XBOARD},
+    { "Save",             "save","0","0",       "false"     , NULL,0,NNB,  PG|XBOARD|XBSEL},
 
+    // Sentinel
+    
     { NULL,               NULL,"0","0",         NULL        , NULL,0,NNB,  0},
 
 };
@@ -106,7 +119,7 @@ void option_init_pg() {
     int i;
     option_t *p=DefaultOptions;
     char *home_dir;
-    char PersistDir[StringSize];
+    char SettingsDir[StringSize];
     
     option_init(Option);
     while(p){
@@ -125,13 +138,13 @@ void option_init_pg() {
     if(!home_dir){
         home_dir=".";
     }
-    snprintf(PersistDir,sizeof(PersistDir),"%s/.polyglot",home_dir);
-    PersistDir[sizeof(PersistDir)-1]='\0';
+    snprintf(SettingsDir,sizeof(SettingsDir),"%s/.polyglot",home_dir);
+    SettingsDir[sizeof(SettingsDir)-1]='\0';
 #else
-    sprintf(PersistDir,".\\_PG");
+    sprintf(SettingsDir,".\\_PG");
 #endif
-    option_set(Option,"PersistDir",PersistDir);
-    option_set_default(Option,"PersistDir",PersistDir);
+    option_set(Option,"SettingsDir",SettingsDir);
+    option_set_default(Option,"SettingsDir",SettingsDir);
 }
 
 // option_init()

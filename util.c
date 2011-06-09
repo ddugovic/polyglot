@@ -150,6 +150,10 @@ void my_log_open(const char file_name[]) {
 //line buffering doesn't work too well in MSVC and/or windows 
    if (LogFile != NULL) setvbuf(LogFile,NULL,_IOLBF,0); // line buffering
 #endif
+   if(LogFile!=NULL){
+       my_log("POLYGLOT *** LOGFILE OPENED ***\n");
+   }
+
 }
 
 // my_log_close()

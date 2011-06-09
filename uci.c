@@ -10,6 +10,7 @@
 
 #include "board.h"
 #include "engine.h"
+#include "gui.h"
 #include "move.h"
 #include "move_do.h"
 #include "move_legal.h"
@@ -17,6 +18,7 @@
 #include "parse.h"
 #include "line.h"
 #include "uci.h"
+
 
 // constants
 
@@ -148,6 +150,11 @@ void uci_open(uci_t * uci, engine_t * engine) {
 
    do {
       engine_get(uci->engine,string);
+      // Handle the case that the engine is really a WB engine somewhat gracefully.
+      if((strstr(string,"Illegal") || strstr(string,"Error"))
+         &&strstr(string,"uci")){
+          my_fatal("uci_open(): Not an UCI engine (not found).\n");
+      }
       event = uci_parse(uci,string);
    } while (!engine_eof(Engine) && (event & EVENT_UCI) == 0);
 }
@@ -331,7 +338,7 @@ int uci_parse(uci_t * uci, const char string[]) {
    parse_open(parse,string);
 
    if (parse_get_word(parse,command,StringSize)) {
-
+       
       parse_get_string(parse,argument,StringSize);
       if (UseDebug) my_log("POLYGLOT COMMAND \"%s\" ARGUMENT \"%s\"\n",command,argument);
 

@@ -91,8 +91,13 @@
         }                                                                \
     }                                                                    \
 
+#define TO_BOOL(string) ((my_string_case_equal(string,"false") ||   \
+                          my_string_equal(string,"0"))?FALSE:TRUE)
 
-
+#define IS_BOOL(string) (my_string_case_equal(string,"false")||     \
+                         my_string_case_equal(string,"true") ||     \
+                         my_string_case_equal(string,"1")    ||     \
+                         my_string_case_equal(string,"0"))
 // types
 
 typedef signed char sint8;
