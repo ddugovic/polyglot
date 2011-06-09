@@ -21,20 +21,20 @@ static const int  StringSize = 4096;
 option_list_t Option[1];
 
 option_t DefaultOptions[] = {    
-    { "OptionFile",       "string","0","0",     "polyglot.ini", NULL,0,NNB,  PG}, 
+    { "OptionFile",       "file","0","0",     "polyglot.ini", NULL,0,NNB,  PG}, 
 
    // options
 
-    { "Persist",      "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD},
-    { "PersistFile",  "string","0","0",     "<empty>"   , NULL,0,NNB,  PG},
-    { "PersistDir",   "string","0","0",     "<empty>"   , NULL,0,NNB,  PG},
+    { "Persist",          "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD},
+    { "PersistFile",      "file","0","0",     "<empty>"   , NULL,0,NNB,  PG},
+    { "PersistDir",       "path","0","0",     "<empty>"   , NULL,0,NNB,  PG},
     
     { "EngineName",       "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
-    { "EngineDir",        "string","0","0",     "."         , NULL,0,NNB,  PG}, 
+    { "EngineDir",        "path","0","0",     "."         , NULL,0,NNB,  PG}, 
     { "EngineCommand",    "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
 
     { "Log",              "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI}, 
-    { "LogFile",          "string","0","0",     "polyglot.log", NULL,0,NNB,  PG|XBOARD|UCI}, 
+    { "LogFile",          "file","0","0",     "polyglot.log", NULL,0,NNB,  PG|XBOARD|UCI}, 
 
     { "UCI",              "check","0","0",      "false"     , NULL,0,NNB,  PG}, 
 
@@ -50,7 +50,7 @@ option_t DefaultOptions[] = {
     { "MateScore",        "spin","0","100000",  "10000"     , NULL,0,NNB,  PG|XBOARD}, 
 
     { "Book",             "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI}, 
-    { "BookFile",         "string","0","0",     "book.bin"  , NULL,0,NNB,  PG|XBOARD|UCI}, 
+    { "BookFile",         "file","0","0",     "book.bin"  , NULL,0,NNB,  PG|XBOARD|UCI}, 
 
     { "BookRandom",       "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD|UCI}, 
     { "BookDepth",        "spin","0","256",     "256"       , NULL,0,NNB,  PG|XBOARD}, 
@@ -128,7 +128,7 @@ void option_init_pg() {
     snprintf(PersistDir,sizeof(PersistDir),"%s/.polyglot",home_dir);
     PersistDir[sizeof(PersistDir)-1]='\0';
 #else
-    sprintf(PersistDir,".\\Polyglot Settings");
+    sprintf(PersistDir,".\\_PG");
 #endif
     option_set(Option,"PersistDir",PersistDir);
     option_set_default(Option,"PersistDir",PersistDir);

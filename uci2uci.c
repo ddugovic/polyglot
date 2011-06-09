@@ -33,6 +33,26 @@ static int SavedMove=MoveNone;
 
 static void send_uci_options();
 
+
+// normalize_type()
+
+static void normalize_type(char *dst, const char* src){
+  if(option_get_int(Option,"UCIVersion") <=2){
+    if(IS_STRING(src)){
+      strcpy(dst,"string");
+      return;
+    }else if(IS_SPIN(src)){
+      strcpy(dst,"spin");
+    }else if(IS_BUTTON(src)){
+      strcpy(dst,"button");
+    }else{
+      strcpy(dst,src);
+    }
+  }else{
+    strcpy(dst,src);
+  }
+}
+
 // parse_position()
 
 static void parse_position(const char string[]) {
@@ -119,6 +139,7 @@ static void send_book_move(int move){
 
 static void format_uci_option_line(char * option_line,option_t *opt){
     char option_string[StringSize];
+    char type[StringSize];
     int j;
     strcpy(option_line,"");
         // buffer overflow alert
@@ -128,17 +149,18 @@ static void format_uci_option_line(char * option_line,option_t *opt){
     }
     sprintf(option_string," %s",opt->name);
     strcat(option_line,option_string);
-    sprintf(option_string," type %s",opt->type);
+    normalize_type(type,opt->type);
+    sprintf(option_string," type %s",type);
     strcat(option_line,option_string);
-    if(!IS_BUTTON(opt)){
-        sprintf(option_string," default %s",opt->default_);
+    if(!IS_BUTTON(opt->type)){
+        sprintf(option_string," default %s",opt->value);
         strcat(option_line,option_string);
     }
-    if(IS_SPIN(opt)){
+    if(IS_SPIN(opt->type)){
         sprintf(option_string," min %s",opt->min);
         strcat(option_line,option_string);
     }
-    if(IS_SPIN(opt)){
+    if(IS_SPIN(opt->type)){
         sprintf(option_string," max %s",opt->max);
         strcat(option_line,option_string);
     }

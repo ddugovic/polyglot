@@ -17,12 +17,16 @@
 #define PG       (1<<2)
 #define OptionNb 256
 
-#define IS_BUTTON(opt) (my_string_case_equal(opt->type,"button") ||      \
-                        my_string_case_equal(opt->type,"save")   ||      \
-                        my_string_case_equal(opt->type,"reset"))         \
+#define IS_BUTTON(str) (my_string_case_equal(str,"button") ||      \
+                        my_string_case_equal(str,"save")   ||      \
+                        my_string_case_equal(str,"reset"))         \
 
-#define IS_SPIN(opt)   (my_string_case_equal(opt->type,"spin") ||        \
-                        my_string_case_equal(opt->type,"slider"))        \
+#define IS_SPIN(str)   (my_string_case_equal(str,"spin") ||        \
+                        my_string_case_equal(str,"slider"))        \
+
+#define IS_STRING(str) (my_string_case_equal(str,"string") ||      \
+                        my_string_case_equal(str,"path")   ||      \
+                        my_string_case_equal(str,"file"))          \
 
 // types
 

@@ -481,10 +481,10 @@ does not matter.
 Select moves according to their weights in the book. If false the move
 with the highest weight is selected. 
 
-=item B<BookRandom> (default: true)
+=item B<BookLearn> (default: false)
 
-Select moves according to their weights in the book. If false the move
-with the highest weight is selected. 
+Store learning information in the book (which must be writable). Currently
+no engine actually uses this information. 
 
 =item B<BookDepth> (default: 256)
 

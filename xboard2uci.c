@@ -774,7 +774,7 @@ void format_xboard_option_line(char * option_line, option_t *opt){
     strcat(option_line,option_string);
     sprintf(option_string," -%s",opt->type);
     strcat(option_line,option_string);
-    if(!IS_BUTTON(opt) && strcmp(opt->type,"combo")){
+    if(!IS_BUTTON(opt->type) && strcmp(opt->type,"combo")){
         if(strcmp(opt->type,"check")){
             sprintf(option_string," %s",opt->value);
         }else{
@@ -785,11 +785,11 @@ void format_xboard_option_line(char * option_line, option_t *opt){
         }
         strcat(option_line,option_string);
     }
-    if(IS_SPIN(opt)){
+    if(IS_SPIN(opt->type)){
         sprintf(option_string," %s",opt->min);
             strcat(option_line,option_string);
     }
-    if(IS_SPIN(opt)){
+    if(IS_SPIN(opt->type)){
         sprintf(option_string," %s",opt->max);
         strcat(option_line,option_string);
     }

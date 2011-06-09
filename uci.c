@@ -58,6 +58,29 @@ static int  mate_score     (int dist);
 
 // functions
 
+
+// uci_adapt_UCI3()
+
+static void apply_UCI3_heuristics(option_t *opt){
+  if(option_get_int(Option,"UCIVersion")>2){
+    return;
+  }
+  if(!my_string_equal(opt->type,"string")){
+    return;
+  }
+  if(!strncmp(opt->name,"UCI_",4)){
+    return;
+  }
+  if(my_string_case_contains(opt->name,"file")){
+    my_string_set(&opt->type,"file");
+    return;
+  }
+  if(my_string_case_contains(opt->name,"path")){
+    my_string_set(&opt->type,"path");
+    return;
+  }
+}
+
 // uci_set_threads()
 
 void uci_set_threads(uci_t * uci, int n) {
@@ -271,7 +294,7 @@ bool uci_send_option(uci_t * uci, const char option[], const char format[], ...)
    opt=option_find(uci->option,option);
    if(opt){
        found=TRUE;
-       if(!IS_BUTTON(opt)){
+       if(!IS_BUTTON(opt->type)){
            if(!my_string_equal(opt->value,value)){
                engine_send(uci->engine,"setoption name %s value %s",
                            opt->name,value);
@@ -805,6 +828,8 @@ static void parse_option(uci_t * uci, const char string[]) {
    }
 
    parse_close(parse);
+
+   apply_UCI3_heuristics(opt);
    option_insert(uci->option,opt);
    option_free(opt);
 

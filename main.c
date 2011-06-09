@@ -39,7 +39,7 @@
 // constants
 
 
-static const char * const Version = "1.4.45b";
+static const char * const Version = "1.4.46b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log] [-lf logfile] [-hash value] [-bk book] [-pg <name>=<value>]* [-uci <name>=<value>]*\n\
@@ -64,6 +64,9 @@ static const char * const IniIntro=
               "; obtained from the engine settings dialog\n"
               "; in WinBoard/xboard 4.4.0 and higher.\n"
               "\n" 
+              "; If the value of the option \"Persist\" is false\n"
+              "; then the content of this file is ignored.\n"
+              "\n"
               "; It is allowed to manually edit this file\n"
               "; and you may safely delete it as well.\n"
               "\n";
@@ -88,58 +91,42 @@ static void arg_shift_left(char **argv, int index){
     }
 }
 
+
+// make_ini()
+
+static void make_ini(ini_t *ini){
+    option_t *opt;
+    char tmp[StringSize];
+    ini_insert_ex(ini,"polyglot",
+		  "EngineName",
+		  option_get_string(Option,"EngineName"));
+    ini_insert_ex(ini,"polyglot",
+		  "EngineCommand",
+		  option_get_string(Option,"EngineCommand"));
+    ini_insert_ex(ini,"polyglot",
+		  "EngineDir",
+		  option_get_string(Option,"EngineDir"));
+    option_start_iter(Option);
+    while((opt=option_next(Option))){
+        if(!my_string_equal(opt->value,opt->default_)&&
+           !IS_BUTTON(opt->type) &&
+           (opt->mode & XBOARD)){
+	  ini_insert_ex(ini,"polyglot",opt->name,opt->value);
+        }
+    }
+    option_start_iter(Uci->option);
+    while((opt=option_next(Uci->option))){
+        if(!my_string_equal(opt->value,opt->default_)&&
+           !IS_BUTTON(opt->type)){
+	  ini_insert_ex(ini,"engine",opt->name,opt->value);
+        }
+    }
+}
+
+
 // write_ini()
 
 static void write_ini(const char *filename,
-                      option_list_t *pg_options,
-                      option_list_t *uci_options){
-    option_t *opt;
-    char tmp[StringSize];
-    FILE *f;
-    time_t t=time(NULL);
-    f=fopen(filename,"w");
-    if(!f){
-      // alas this does nothing....
-      gui_send(GUI,"tellusererror write_ini(): %s: %s.",filename,strerror(errno));
-      // but at least we log the error
-      my_log("POLYGLOT write_ini(): %s: %s.\n",filename,strerror(errno));
-      return;
-    }
-    fprintf(f,"; %s\n",ctime(&t));
-    fprintf(f,IniIntro,option_get_string(Option,"EngineName"));
-    fprintf(f,"[PolyGlot]\n");
-    fprintf(f,"EngineName=%s\n",
-	    option_get_string(Option,"EngineName"));
-    fprintf(f,"EngineCommand=%s\n",
-	    option_get_string(Option,"EngineCommand"));
-    fprintf(f,"EngineDir=%s\n",
-	    option_get_string(Option,"EngineDir"));
-    option_start_iter(pg_options);
-    while((opt=option_next(pg_options))){
-        if(!my_string_equal(opt->value,opt->default_)&&
-           !IS_BUTTON(opt) &&
-           (opt->mode & XBOARD)){
-            snprintf(tmp,sizeof(tmp),"%s=%s\n",opt->name,opt->value);
-            tmp[sizeof(tmp)-1]='\0';
-            fprintf(f,"%s",tmp);
-        }
-    }
-    fprintf(f,"[Engine]\n");
-    option_start_iter(uci_options);
-    while((opt=option_next(uci_options))){
-        if(!my_string_equal(opt->value,opt->default_)&&
-           !IS_BUTTON(opt)){
-            snprintf(tmp,sizeof(tmp),"%s=%s\n",opt->name,opt->value);
-            tmp[sizeof(tmp)-1]='\0';
-            fprintf(f,"%s",tmp);
-        }
-    }
-    fclose(f);
-}
-
-// write_ini_ex()
-
-static void write_ini_ex(const char *filename,
 			 ini_t *ini){
     ini_entry_t *entry;
     char tmp[StringSize];
@@ -156,12 +143,6 @@ static void write_ini_ex(const char *filename,
     fprintf(f,"; %s\n",ctime(&t));
     fprintf(f,IniIntro,option_get_string(Option,"EngineName"));
     fprintf(f,"[PolyGlot]\n");
-    fprintf(f,"EngineName=%s\n",
-	    option_get_string(Option,"EngineName"));
-    fprintf(f,"EngineCommand=%s\n",
-	    option_get_string(Option,"EngineCommand"));
-    fprintf(f,"EngineDir=%s\n",
-	    option_get_string(Option,"EngineDir"));
     ini_start_iter(ini);
     while((entry=ini_next(ini))){
       if(my_string_case_equal(entry->section,"polyglot")){
@@ -388,9 +369,15 @@ int main(int argc, char * argv[]) {
 
     if(my_string_equal(option_get_string(Option,"PersistFile"),"<empty>")){
         char tmp[StringSize];
+	int i;
         snprintf(tmp,sizeof(tmp),"%s.ini",
                  option_get_string(Option,"EngineName"));
         tmp[sizeof(tmp)-1]='\0';
+	for(i=0;i<strlen(tmp);i++){
+	  if(tmp[i]==' '){
+	    tmp[i]='_';
+	  }
+	}
         option_set(Option,"PersistFile",tmp);
     }
 
@@ -561,14 +548,14 @@ void polyglot_set_option(const char *name, const char *value){ // this must be c
     if(my_string_case_equal(name,"Defaults")){
       option_start_iter(Uci->option);
       while((opt=option_next(Uci->option))){
-	if(!IS_BUTTON(opt)){
+	if(!IS_BUTTON(opt->type)){
 	// also sets opt->value
 	  uci_send_option(Uci,opt->name,opt->default_);
 	}
       }
       option_start_iter(Option);
       while((opt=option_next(Option))){
-	if(!IS_BUTTON(opt)){
+	if(!IS_BUTTON(opt->type)){
 	  polyglot_set_option(opt->name,opt->default_);
 	}
       }
@@ -625,11 +612,11 @@ static void init_book(){
 
 void quit() {
 
-    ini_t empty[1];
+    ini_t ini[1];
     char persist_path[StringSize];
     int ret;
 
-    ini_init(empty);
+    ini_init(ini);
 
     my_log("POLYGLOT *** QUIT ***\n");
     
@@ -649,21 +636,25 @@ void quit() {
     // engine is started. 
     if(!my_string_case_equal(option_get(Option,"PersistFile"),
 			     "<empty>")){
-      my_path_join(persist_path,
-                 option_get(Option,"PersistDir"),
-                 option_get(Option,"PersistFile"));
-      if(option_get_bool(Option,"Persist")){
-        write_ini(persist_path,
-                  Option,Uci->option);
-      }else if(!my_string_case_equal(option_get_default(Option,"Persist"),
-				     option_get_string(Option,"Persist"))){
-	// Hack
-	ini_insert_ex(empty,"PolyGlot","Persist","false");
-	write_ini_ex(persist_path,empty);
-      }else{
-	write_ini_ex(persist_path,empty);
+      // Persistence should only work in XBOARD mode.
+      // In UCI mode the GUI is responsible for remembering options.
+      if(!option_get_bool(Option,"UCI")){
+	my_path_join(persist_path,
+		     option_get(Option,"PersistDir"),
+		     option_get(Option,"PersistFile"));
+	make_ini(ini);
+	if(option_get_bool(Option,"Persist")){
+	  write_ini(persist_path,ini);
+	}else if(!my_string_case_equal(option_get_default(Option,"Persist"),
+				       option_get_string(Option,"Persist"))){
+	  // Hack
+	  ini_insert_ex(ini,"polyglot","Persist","false");
+	  write_ini(persist_path,ini);
+	}else{
+	  write_ini(persist_path,ini);
+	}
+	my_log("POLYGLOT Calling exit\n");
       }
-      my_log("POLYGLOT Calling exit\n");
     }
     exit(EXIT_SUCCESS);
 }

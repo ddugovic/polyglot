@@ -316,6 +316,44 @@ bool my_string_case_equal(const char string_1[], const char string_2[]) {
    return FALSE;
 }
 
+// my_strtolower()
+
+void my_string_tolower(char *dst, const char *src){
+  int c;
+  ASSERT(src!=NULL);
+  ASSERT(dst!=NULL);
+  while((c=*(src++))){
+    *dst=tolower(c);
+    dst++;
+  }
+  *(dst++)='\0';
+}
+
+// my_string_case_contains()
+
+const char* my_string_case_contains(const char string_1[], const char string_2[]){
+   
+   char tmp1[StringSize];
+   char tmp2[StringSize];
+   char *where;
+
+
+   ASSERT(string_1!=NULL);
+   ASSERT(string_2!=NULL);
+
+   my_string_tolower(tmp1,string_1);
+   my_string_tolower(tmp2,string_2);
+
+   where=strstr(tmp1,tmp2);
+   if(where){
+      return string_1+(where-tmp1);
+   }
+   return NULL;
+
+  
+}
+
+
 // my_strdup()
 
 char * my_strdup(const char string[]) {
@@ -354,6 +392,8 @@ void my_string_set(const char * * variable, const char string[]) {
    if (*variable != NULL) my_free((void*)(*variable));
    *variable = my_strdup(string);
 }
+
+// now_real()
 
 double now_real() {
 #ifndef _WIN32

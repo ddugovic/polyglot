@@ -1,3 +1,6 @@
+=========1.4.46b================
+- The default persistence directory on Windows is now _PG. The names of the engine specific ini files are mangled so as not to contain spaces. 
+- PG now tries to guess if a string option is really a file or a path (like in the Arena GUI). 
 =========1.4.45b================
 - The engine specific config files (<myname>.ini) are now stored in a separate directory. $HOME/.polyglot on Linux and "./Polyglot Settings" on Windows. 
 - The engine specific config files are now complete config files. So they can be used in a stand alone fashion.

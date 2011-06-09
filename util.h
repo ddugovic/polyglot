@@ -152,6 +152,12 @@ extern bool   my_string_empty       (const char string[]);
 extern bool   my_string_whitespace  (const char string[]);
 extern bool   my_string_equal       (const char string_1[], const char string_2[]);
 extern bool   my_string_case_equal  (const char string_1[], const char string_2[]);
+extern const char* my_string_case_contains(const char haystack[], 
+					   const char needle[]);
+
+
+extern bool   my_string_to_lower    (char dst[], const char src[]);
+
 extern char * my_strdup             (const char string[]);
 
 extern void   my_string_clear       (const char * * variable);
