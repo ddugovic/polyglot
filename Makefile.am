@@ -2,7 +2,7 @@
 #AM_CXXFLAGS=-g
 
 bin_PROGRAMS = polyglot
-polyglot_SOURCES = adapter.cpp attack.cpp board.cpp book.cpp book_make.cpp book_merge.cpp colour.cpp  engine.cpp epd.cpp fen.cpp gui.cpp game.cpp hash.cpp io.cpp line.cpp list.cpp main.cpp move.cpp move_do.cpp move_gen.cpp move_legal.cpp option.cpp parse.cpp pgn.cpp piece.cpp pipe.cpp posix.cpp random.cpp san.cpp search.cpp square.cpp uci.cpp uci2uci.cpp util.cpp adapter.h colour.h hash.h move_gen.h piece.h uci2uci.h attack.h config.h gui.h io.h move.h pipe.h posix.h uci.h board.h engine.h line.h move_legal.h random.h util.h book.h epd.h list.h option.h san.h book_make.h fen.h main.h parse.h search.h book_merge.h game.h move_do.h pgn.h square.h
+polyglot_SOURCES = mainloop.cpp attack.cpp board.cpp book.cpp book_make.cpp book_merge.cpp colour.cpp  engine.cpp epd.cpp fen.cpp gui.cpp game.cpp hash.cpp io.cpp line.cpp list.cpp main.cpp move.cpp move_do.cpp move_gen.cpp move_legal.cpp option.cpp parse.cpp pgn.cpp piece.cpp pipe.cpp posix.cpp random.cpp san.cpp search.cpp square.cpp uci.cpp uci2uci.cpp util.cpp xboard2uci.cpp mainloop.h colour.h hash.h move_gen.h piece.h uci2uci.h attack.h config.h gui.h io.h move.h pipe.h posix.h uci.h board.h engine.h line.h move_legal.h random.h util.h book.h epd.h list.h option.h san.h book_make.h fen.h main.h parse.h search.h book_merge.h game.h move_do.h pgn.h square.h xboard2uci.h
 
 dist_doc_DATA = README README1.3 README1.4 README1.4w README1.4w10UCI book_format.html
 

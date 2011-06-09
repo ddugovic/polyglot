@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2009-01-13" "" ""
+.TH POLYGLOT 6 "2009-01-14" "" ""
 .SH "NAME"
 PolyGlot \-  Winboard protocol to UCI protocol adapter
          \-  book engine for Polyglot books 
@@ -527,7 +527,14 @@ Merge books \*(L"in1.bin\*(R" and \*(L"in2.bin\*(R" into a book \*(L"out.bin\*(R
 \&    polyglot merge\-book \-in1 w1.bin \-in2 w2.bin \-out w.bin
 .Ve
 .PP
-Here is a minimal config file
+The command line for using the \s-1UCI\s0 engine \*(L"fruit\*(R" in a \s-1GUI\s0 which uses the
+xboard protocol.
+.PP
+.Vb 1
+\&    polyglot \-ec fruit
+.Ve
+.PP
+The equivalent config file:
 .PP
 .Vb 3
 \&    [PolyGlot]

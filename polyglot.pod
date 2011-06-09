@@ -476,8 +476,12 @@ Merge books "in1.bin" and "in2.bin" into a book "out.bin".
 
     polyglot merge-book -in1 w1.bin -in2 w2.bin -out w.bin
 
+The command line for using the UCI engine "fruit" in a GUI which uses the
+xboard protocol.
 
-Here is a minimal config file
+    polyglot -ec fruit
+
+The equivalent config file:
 
     [PolyGlot]
     EngineCommand = fruit

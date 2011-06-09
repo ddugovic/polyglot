@@ -100,7 +100,6 @@ void io_get_update(io_t * io) {
    if (size <= 0) my_fatal("io_get_update(): buffer overflow\n");
 
    // read as many data as possible
-
    n = my_read(io->in_fd,&io->in_buffer[pos],size);
    if (UseDebug) my_log("POLYGLOT read %d byte%s from %s\n",n,(n>1)?"s":"",io->name);
 

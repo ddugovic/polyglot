@@ -405,7 +405,12 @@ EXAMPLES
 
            polyglot merge-book -in1 w1.bin -in2 w2.bin -out w.bin
 
-       Here is a minimal config file
+       The command line for using the UCI engine "fruit" in a GUI which uses
+       the xboard protocol.
+
+           polyglot -ec fruit
+
+       The equivalent config file:
 
            [PolyGlot]
            EngineCommand = fruit
@@ -429,4 +434,4 @@ SEE ALSO
 
 
 
-                                  2009-01-13                       POLYGLOT(6)
+                                  2009-01-14                       POLYGLOT(6)

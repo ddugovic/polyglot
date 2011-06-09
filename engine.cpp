@@ -160,9 +160,22 @@ void engine_open(engine_t * engine) {
       engine->io->out_fd = to_engine[1];
       engine->io->name = "Engine";
       engine->pid=pid;
+      engine->state|=ENGINE_ACTIVE; // can we test if this really true?
 
       io_init(engine->io);
    }
+}
+
+// engine_active
+
+bool engine_active(engine_t *engine){
+    return (engine->state & ENGINE_ACTIVE)!=0;
+}
+
+// engine_eof
+
+bool engine_eof(engine_t *engine){
+    return (engine->state & ENGINE_EOF)!=0;
 }
 
 // engine_set_nice_value()
@@ -178,7 +191,13 @@ void engine_close(engine_t * engine) {
 
    ASSERT(engine_is_ok(engine));
 
+   char string[StringSize];
    io_close(engine->io);
+       // TODO: timeout
+   while (!engine_eof(engine)) {
+       engine_get(engine,string,StringSize); 
+   }
+
 }
 
 // engine_get()
@@ -194,8 +213,7 @@ void engine_get(engine_t * engine, char string[], int size) {
    }
 
    if (!io_get_line(engine->io,string,size)) { // EOF
-       my_log("POLYGLOT *** EOF from Engine ***\n");
-      exit(EXIT_SUCCESS);
+       engine->state|=ENGINE_EOF;
    }
 }
 
@@ -335,45 +353,69 @@ void engine_send(engine_t * engine, const char *szFormat, ...) {
 }
 
 void engine_close(engine_t * engine){
+    char string[StringSize];
     (engine->pipeEngine).Close();
+        // TODO: Timeout
+    while (!engine_eof(Engine)) {
+            engine_get(Engine,string,StringSize); 
+        }
+    (engine->pipeEngine).Kill();
 }
 
 
 void engine_open(engine_t * engine){
    int affinity;
     char *my_dir;
+    engine->state=0;
     if( (my_dir = _getcwd( NULL, 0 )) == NULL )
         my_fatal("Can't build path: %s\n",strerror(errno));
     SetCurrentDirectory(option_get_string("EngineDir"));
     (engine->pipeEngine).Open(option_get_string("EngineCommand"));
-        //play with affinity (bad idea) 
-    affinity=option_get_int("Affinity");
-    if(affinity!=-1) set_affinity(engine,affinity); //AAA
-        //lets go back
-    SetCurrentDirectory(my_dir);
-        // set a low priority
-    if (option_get_bool("UseNice")){
-          my_log("POLYGLOT Adjust Engine Piority\n");
-          engine_set_nice_value(engine, option_get_int("NiceValue"));
+    if((engine->pipeEngine).Active()){
+        engine->state|=ENGINE_ACTIVE;
+            //play with affinity (bad idea)
+        affinity=option_get_int("Affinity");
+        if(affinity!=-1) set_affinity(engine,affinity); //AAA
+            //lets go back
+        SetCurrentDirectory(my_dir);
+            // set a low priority
+        if (option_get_bool("UseNice")){
+            my_log("POLYGLOT Adjust Engine Piority\n");
+            engine_set_nice_value(engine, option_get_int("NiceValue"));
+        }
     }
     
 }
 
+bool engine_active(engine_t *engine){
+    return (engine->state & ENGINE_ACTIVE)!=0;
+}
+
+bool engine_eof(engine_t *engine){
+    return (engine->state & ENGINE_EOF)!=0;
+}
+
 bool engine_get_non_blocking(engine_t * engine, char *szLineStr, int size){
+    if(engine_eof(engine)){ return false;}
 	if ((engine->pipeEngine).LineInput(szLineStr)) {
         my_log("Engine->Adapter: %s\n",szLineStr);
         return true;
     } else {
         szLineStr[0]='\0';
+        if(engine->pipeEngine.EOF_()){
+            my_log("POLYGLOT EOF received from engine\n");
+            engine->state|=ENGINE_EOF;
+        }
         return false;
     }
 }
 
 void engine_get(engine_t * engine, char *szLineStr, int size){
     bool data_available;
+    if(engine_eof(engine))return;
     while(true){
         data_available=engine_get_non_blocking(engine,szLineStr,size);
-        if(!data_available){
+        if(!data_available && !engine_eof(engine)){
             Idle();
         }else{
             break;

@@ -1,3 +1,9 @@
+=========1.4w10UCIb17===========
+- More refactoring. main.cpp is now #ifdef _WIN32 free.
+- The main loop (previously in adapter.cpp) is now in its own file mainloop.cpp.
+- adapter.cpp has been renamed into xboard2uci.cpp. It is #ifdef _WIN32 free.
+- EOF from the engine no longer kills PG. It should now
+be possible to close an engine and reopen another one (if that ever were useful) 
 =========1.4w10UCIb16===========
 - xboard options commands
 - correction of handling of combo boxes in UCI protocol

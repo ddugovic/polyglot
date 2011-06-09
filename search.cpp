@@ -105,7 +105,7 @@ void search(const board_t * board, int depth_max, double time_max) {
 
    // wait for feed-back
 
-   while (true) {
+   while (!engine_eof(Engine)) {
 
       engine_get(Engine,string,256);
 

@@ -3,6 +3,7 @@
 // includes
 
 #include <cstdarg>
+#include <csignal>
 
 #include "gui.h"
 #include "main.h"
@@ -17,18 +18,35 @@ gui_t GUI[1];
 
 // functions
 
+// sig_quit()
+
+static void sig_quit(int dummy){
+    my_log("POLYGLOT *** SIGINT Received ***\n");
+    quit();
+}
+
 
 // gui_init()
 
 void gui_init(gui_t *gui){
-    #ifdef _WIN32
+
+// the following is nice if the "GUI" is a console!
+    signal(SIGINT,sig_quit);
+#ifdef _WIN32
+    signal(SIGTERM,SIG_IGN);
+#ifdef SIGPIPE
+    signal(SIGPIPE,SIG_IGN);
+#endif
+#endif
+    
+#ifdef _WIN32
    (gui->pipeStdin).Open();
 #else
    
    gui->io->in_fd = STDIN_FILENO;
    gui->io->out_fd = STDOUT_FILENO;
    gui->io->name = "GUI";
-
+   
    io_init(gui->io);
 #endif
 }

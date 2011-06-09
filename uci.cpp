@@ -139,7 +139,7 @@ void uci_open(uci_t * uci, engine_t * engine) {
    do {
       engine_get(uci->engine,string,StringSize);
       event = uci_parse(uci,string);
-   } while ((event & EVENT_UCI) == 0);
+   } while (!engine_eof(Engine) && (event & EVENT_UCI) == 0);
 }
 
 // uci_close()
@@ -223,7 +223,7 @@ void uci_send_isready_sync(uci_t * uci) {
    do {
       engine_get(uci->engine,string,StringSize);
       event = uci_parse(uci,string);
-   } while ((event & EVENT_READY) == 0);
+   } while (!engine_eof(Engine) && (event & EVENT_READY) == 0);
 }
 
 // uci_send_stop()
@@ -258,7 +258,7 @@ void uci_send_stop_sync(uci_t * uci) {
    do {
       engine_get(uci->engine,string,StringSize);
       event = uci_parse(uci,string);
-   } while ((event & EVENT_STOP) == 0);
+   } while (!engine_eof(Engine) && (event & EVENT_STOP) == 0);
 }
 
 // uci_send_ucinewgame()

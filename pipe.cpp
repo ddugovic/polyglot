@@ -1,17 +1,20 @@
 #ifdef _WIN32
 #include "pipe.h"
 #include "util.h"
+
 void PipeStruct::Open(const char *szProcFile) {
   DWORD dwMode;
   HANDLE hStdinRead, hStdinWrite, hStdoutRead, hStdoutWrite;
   SECURITY_ATTRIBUTES sa;
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
-
+  state=0;
   if (szProcFile == NULL) {
     hInput = GetStdHandle(STD_INPUT_HANDLE);
     hOutput = GetStdHandle(STD_OUTPUT_HANDLE);
     bConsole = GetConsoleMode(hInput, &dwMode);
+    state|=PIPE_ACTIVE;
+    
   } else {
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
     sa.bInheritHandle = TRUE;
@@ -26,17 +29,16 @@ void PipeStruct::Open(const char *szProcFile) {
     si.hStdInput = hStdinRead;
     si.hStdOutput = hStdoutWrite;
     si.hStdError = hStdoutWrite;
-    if(!CreateProcess(NULL, (LPSTR) szProcFile, NULL, NULL, TRUE, DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP, NULL, NULL, &si, &pi)){
-        my_fatal("PipeStruct::Open(): Could not start \"%s\"\n",szProcFile);
+    if(CreateProcess(NULL, (LPSTR) szProcFile, NULL, NULL, TRUE, DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP, NULL, NULL, &si, &pi)){
+        state|=PIPE_ACTIVE;
+        hProcess=pi.hProcess;
+        CloseHandle(pi.hThread);
+        CloseHandle(hStdinRead);
+        CloseHandle(hStdoutWrite);
+        hInput = hStdoutRead;
+        hOutput = hStdinWrite;
+        bConsole = FALSE;
     }
-	hProcess=pi.hProcess;
-    //CloseHandle(pi.hProcess);//not here,baby,but in pipe.close 
-    CloseHandle(pi.hThread);
-    CloseHandle(hStdinRead);
-    CloseHandle(hStdoutWrite);
-    hInput = hStdoutRead;
-    hOutput = hStdinWrite;
-    bConsole = FALSE;
   }
   if (bConsole) {
     SetConsoleMode(hInput, dwMode & ~(ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT));
@@ -48,30 +50,39 @@ void PipeStruct::Open(const char *szProcFile) {
 }
 
 void PipeStruct::Close(void) const {
+  CloseHandle(hOutput);
+}
+
+void PipeStruct::Kill(void) const {
   CloseHandle(hInput);
   CloseHandle(hOutput);
   DWORD lpexit;
 
-  my_log("POLYGLOT Closing child\n");
   if(GetExitCodeProcess(hProcess,&lpexit)){
 	if(lpexit==STILL_ACTIVE)
-	  my_log("POLYGLOT Process still active after \"quit\" ");
 	//must be java,hammer it down!
 	TerminateProcess(hProcess,lpexit);
   }
 	CloseHandle(hProcess);
 }
 
+bool PipeStruct::EOF_(void){   // EOF is defined
+    return state&PIPE_EOF;
+}
+
+bool PipeStruct::Active(void){
+    return state&PIPE_ACTIVE;
+}
+
 void PipeStruct::ReadInput(void) {
   DWORD dwBytes;
-  if(!ReadFile(hInput, szBuffer + nReadEnd, LINE_INPUT_MAX_CHAR - nReadEnd, &dwBytes, NULL)){
-          // TODO move this comment to a more suitable place
-      my_log("POLYGLOT *** EOF from Engine or GUI ***\n");
-      exit(EXIT_SUCCESS); // if we are here there should be data!
-  }
-  nReadEnd += dwBytes;
-  if (nBytesLeft > 0) {
-    nBytesLeft -= dwBytes;
+  if(ReadFile(hInput, szBuffer + nReadEnd, LINE_INPUT_MAX_CHAR - nReadEnd, &dwBytes, NULL)){
+      nReadEnd += dwBytes;
+      if (nBytesLeft > 0) {
+          nBytesLeft -= dwBytes;
+      }
+  }else{
+      state|=PIPE_EOF;   // if we are here there should be data!
   }
 }
 

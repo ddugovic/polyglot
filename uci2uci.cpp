@@ -6,7 +6,6 @@
 #include <cstdlib>
 
 #include "util.h"
-#include "adapter.h"
 #include "board.h"
 #include "engine.h"
 #include "fen.h"
@@ -29,12 +28,6 @@ static const int StringSize = 4096;
 static board_t UCIboard[1];
 static bool Init=true;
 static int SavedMove=MoveNone;
-
-// defines
-
-#ifdef _WIN32
-#define strcasecmp lstrcmpi
-#endif
 
 // parse_position()
 

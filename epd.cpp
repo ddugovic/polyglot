@@ -241,7 +241,7 @@ static void epd_test_file(const char file_name[]) {
 
       // parse engine output
 
-      while (engine_step()) {
+      while (!engine_eof(Engine) && engine_step()) {
           bool stop=false;
          // stop search?
 
