@@ -380,6 +380,10 @@ This is the score in centipawns that will trigger resign "counting".
 Show search information during engine pondering.  Turning this off
 might be better for interactive use in some interfaces.
 
+=item B<ScoreWhite> (default: true)
+
+Report score from white's point of view in xboard mode.
+
 =item B<KibitzMove> (default: false)
 
 Whether to kibitz when playing a move.
@@ -393,12 +397,16 @@ Whether to kibitz when the PV is changed (new iteration or new best move).
 xboard command to use for kibitzing, normally "tellall" for kibitzing
 or "tellothers" for whispering.
 
-
 =item B<KibitzDelay> (default: 5)
 
 How many seconds to wait before starting kibitzing.  This has an
 effect only if "KibitzPV" is selected, move kibitzes are always sent
 regardless of the delay.
+
+=item B<KibitzInterval> (default: 0)
+
+This is another form of throttling. PolyGlot will usually wait this
+many seconds before doing the next kibitz. 
 
 =item B<UCI> (default: false)
 

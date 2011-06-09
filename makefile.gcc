@@ -12,7 +12,7 @@ CYGL = -lmsvcrt
 
 CC = g++
 DEFS = -DNDEBUG
-OPTS = -Os -frename-registers -funit-at-a-time -fstrict-aliasing -fstrength-reduce
+OPTS = -Os -frename-registers -funit-at-a-time -fstrict-aliasing -fstrength-reduce -fomit-frame-pointer
 CFLAGS = -Wall -pipe $(DEFS) $(OPTS) $(CYGF)
 LFLAGS = -fpic -s $(CYGF)
 LIBS = $(CYGL)

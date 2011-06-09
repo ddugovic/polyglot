@@ -1,6 +1,6 @@
 Summary: A Winboard protocol to UCI protocol adapter
 Name: polyglot
-Version: 1.4b26
+Version: 1.4b27
 Release: 1
 License: GPL
 Group: Amusement/Games

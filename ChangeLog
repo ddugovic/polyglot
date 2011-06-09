@@ -1,4 +1,7 @@
-=========1.4b26===========
+=========1.4b27================
+- Option "ScoreWhite" : report score from white's point of view (suggested by E.M.).
+- Option "KibitzInterval" : try to wait this many seconds between kibitzes (suggested by E.M.)
+=========1.4b26================
 - Contraction of version number.
 - Log if SetProcessAffinityMask is not available (suggested by E.M.).
 - pipe.cpp : Make PipeStruct a proper class with private/public members.

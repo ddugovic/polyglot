@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
+#include <ctime>
 
 #include "board.h"
 #include "book.h"
@@ -93,6 +93,8 @@ static void no_mess        (int move);
 static void search_update  ();
 static void search_clear   ();
 static void update_remaining_time();
+static int  report_best_score();
+static bool kibitz_throttle (bool searching);
 static void start_protected_command();
 static void end_protected_command();
 
@@ -827,6 +829,16 @@ static void send_xboard_options(){
     
 }
 
+// report_best_score()
+
+static int report_best_score(){
+    if(!option_get_bool("ScoreWhite") || colour_is_white(Uci->board->turn)){
+        return Uci->best_score;
+    }else{
+        return -Uci->best_score;
+    }
+}
+
 // comp_move()
 
 static void comp_move(int move) {
@@ -1421,9 +1433,9 @@ static void send_pv() {
          line_to_san(Uci->best_pv,Uci->board,pv_string,StringSize);
 
 		 if(Uci->depth==-1) //hack to clear the engine output window
-         gui_send(GUI,"%d %+d %.0f "S64_FORMAT" ",0,Uci->best_score,Uci->time*100.0,Uci->node_nb);
+             gui_send(GUI,"%d %+d %.0f "S64_FORMAT" ",0,report_best_score(),Uci->time*100.0,Uci->node_nb);
 
-		 gui_send(GUI,"%d %+d %.0f "S64_FORMAT" %s",Uci->best_depth,Uci->best_score,Uci->time*100.0,Uci->node_nb,pv_string);
+		 gui_send(GUI,"%d %+d %.0f "S64_FORMAT" %s",Uci->best_depth,report_best_score(),Uci->time*100.0,Uci->node_nb,pv_string);
 
       } else if (State->state == PONDER && option_get_bool("ShowPonder")) {
 
@@ -1433,7 +1445,7 @@ static void send_pv() {
          if (move != MoveNone && move_is_legal(move,board)) {
             move_to_san(move,board,move_string,256);
             line_to_san(Uci->best_pv,Uci->board,pv_string,StringSize);
-            gui_send(GUI,"%d %+d %.0f "S64_FORMAT" (%s) %s",Uci->best_depth,Uci->best_score,Uci->time*100.0,Uci->node_nb,move_string,pv_string);
+            gui_send(GUI,"%d %+d %.0f "S64_FORMAT" (%s) %s",Uci->best_depth,report_best_score(),Uci->time*100.0,Uci->node_nb,move_string,pv_string);
          }
       }
    }
@@ -1446,8 +1458,9 @@ static void send_pv() {
       if (State->state == THINK || State->state == ANALYSE) {
 
          line_to_san(Uci->best_pv,Uci->board,pv_string,StringSize);
-         gui_send(GUI,"%s depth=%d time=%.2f node="S64_FORMAT" speed=%.0f score=%+.2f pv=\"%s\"",option_get_string("KibitzCommand"),Uci->best_depth,Uci->time,Uci->node_nb,Uci->speed,double(Uci->best_score)/100.0,pv_string);
-
+         if(kibitz_throttle(Uci->searching)){
+             gui_send(GUI,"%s depth=%d time=%.2f node="S64_FORMAT" speed=%.0f score=%+.2f pv=\"%s\"",option_get_string("KibitzCommand"),Uci->best_depth,Uci->time,Uci->node_nb,Uci->speed,double(report_best_score())/100.0,pv_string);
+         }
       } else if (State->state == PONDER) {
 
          game_get_board(Game,board);
@@ -1456,10 +1469,34 @@ static void send_pv() {
          if (move != MoveNone && move_is_legal(move,board)) {
             move_to_san(move,board,move_string,256);
             line_to_san(Uci->best_pv,Uci->board,pv_string,StringSize);
-            gui_send(GUI,"%s depth=%d time=%.2f node="S64_FORMAT" speed=%.0f score=%+.2f pv=\"(%s) %s\"",option_get_string("KibitzCommand"),Uci->best_depth,Uci->time,Uci->node_nb,Uci->speed,double(Uci->best_score)/100.0,move_string,pv_string);
+            if(kibitz_throttle(Uci->searching)){
+                gui_send(GUI,"%s depth=%d time=%.2f node="S64_FORMAT" speed=%.0f score=%+.2f pv=\"(%s) %s\"",option_get_string("KibitzCommand"),Uci->best_depth,Uci->time,Uci->node_nb,Uci->speed,double(report_best_score())/100.0,move_string,pv_string);
+            }
          }
       }
    }
+}
+
+// kibitz_throttle()
+
+static bool kibitz_throttle(bool searching){
+    time_t curr_time;
+    static time_t lastKibitzMove=0;
+    static time_t lastKibitzPV=0;
+    curr_time = time(NULL);
+    if(searching){   // KibitzPV
+        if(curr_time >= (option_get_int("KibitzInterval") + lastKibitzPV)){
+            lastKibitzPV=curr_time;
+            return true;
+        }
+    }else{       // KibitzMove
+        if(curr_time >= (option_get_int("KibitzInterval") + lastKibitzMove)){
+            lastKibitzPV=curr_time;
+            lastKibitzMove=curr_time;
+            return true;
+        }        
+    }
+    return false;
 }
 
 // learn()

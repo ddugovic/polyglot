@@ -21,5 +21,5 @@ rpm:
 	make dist
 	rpmbuild -ta polyglot-@VERSION@.tar.gz
 
-EXTRA_DIST=makefile.gcc polyglot.man polyglot.pod polyglot.spec debian/changelog debian/control debian/docs debian/README debian/compat debian/copyright debian/files debian/polyglot.substvars debian/rules
+EXTRA_DIST=makefile.gcc makefile.ms polyglot.man polyglot.pod polyglot.spec debian/changelog debian/control debian/docs debian/README debian/compat debian/copyright debian/files debian/polyglot.substvars debian/rules
 

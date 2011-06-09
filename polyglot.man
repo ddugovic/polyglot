@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2009-07-20" "" ""
+.TH POLYGLOT 6 "2009-07-26" "" ""
 .SH "NAME"
 PolyGlot \-  Winboard protocol to UCI protocol adapter
          \-  book engine for Polyglot books 
@@ -441,6 +441,9 @@ This is the score in centipawns that will trigger resign \*(L"counting\*(R".
 .IX Item "ShowPonder (default: true)"
 Show search information during engine pondering.  Turning this off
 might be better for interactive use in some interfaces.
+.IP "\fBScoreWhite\fR (default: true)" 4
+.IX Item "ScoreWhite (default: true)"
+Report score from white's point of view in xboard mode.
 .IP "\fBKibitzMove\fR (default: false)" 4
 .IX Item "KibitzMove (default: false)"
 Whether to kibitz when playing a move.
@@ -457,6 +460,10 @@ or \*(L"tellothers\*(R" for whispering.
 How many seconds to wait before starting kibitzing.  This has an
 effect only if \*(L"KibitzPV\*(R" is selected, move kibitzes are always sent
 regardless of the delay.
+.IP "\fBKibitzInterval\fR (default: 0)" 4
+.IX Item "KibitzInterval (default: 0)"
+This is another form of throttling. PolyGlot will usually wait this
+many seconds before doing the next kibitz. 
 .IP "\fB\s-1UCI\s0\fR (default: false)" 4
 .IX Item "UCI (default: false)"
 If true PolyGlot will not understand xboard commands. 

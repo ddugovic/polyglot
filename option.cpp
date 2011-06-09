@@ -53,9 +53,11 @@ option_t Option[] = {
     { "KibitzPV",         "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
     { "KibitzCommand",    "string","0","0",     "tellall"   , NULL,0,NNB,  PG|XBOARD}, 
-    { "KibitzDelay",      "check","0","10000",  "5"         , NULL,0,NNB,  PG|XBOARD}, 
+    { "KibitzDelay",      "spin","0","10000",  "5"         , NULL,0,NNB,  PG|XBOARD}, 
+    { "KibitzInterval",   "spin","0","10000",  "0"         , NULL,0,NNB,  PG|XBOARD}, 
 
     { "ShowPonder",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "ScoreWhite",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
    // work-arounds
 
