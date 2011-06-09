@@ -1,3 +1,5 @@
+=========1.4.52b================
+- Reexport SyncStop. It is apparently necessary for the Aquarium Book Adapter.
 =========1.4.51b================
 - Support for new nps command. Code provided by Harm Geert Muller. 
 =========1.4.50b================
