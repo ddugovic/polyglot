@@ -4,6 +4,9 @@
 // includes
 
 #include <windows.h>
+#include <io.h>
+#include <fcntl.h>
+#include <stdio.h>
 
 // constants
 
@@ -19,6 +22,7 @@ const int LINE_INPUT_MAX_CHAR = 10*4096;
 struct PipeStruct {
 
     HANDLE hInput, hOutput;
+    FILE *fpInput;
     HANDLE hProcess;
     HANDLE hThread;
     HANDLE hEvent;

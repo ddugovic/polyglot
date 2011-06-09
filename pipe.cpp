@@ -20,6 +20,7 @@ void PipeStruct::Open(const char *szProcFile) {
     SECURITY_ATTRIBUTES sa;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
+    int fdInput;
     state=0;
     if (szProcFile == NULL) {
         hInput = GetStdHandle(STD_INPUT_HANDLE);
@@ -67,6 +68,14 @@ void PipeStruct::Open(const char *szProcFile) {
                        dwMode & ~(ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT));
         FlushConsoleInputBuffer(hInput);
     } 
+    fdInput=_open_osfhandle((intptr_t) hInput,_O_RDONLY);
+    if(fdInput==-1){
+        my_fatal("PipeStruct::Open(): %s",my_error());
+    }
+    fpInput=fdopen(fdInput,"r");
+    if(fpInput==NULL){
+        my_fatal("PipeStruct::Open(): %s",my_error());
+    }
     nReadEnd = 0;
     lpFeedEnd = NULL;
     InitializeCriticalSection(&CriticalSection);
@@ -134,50 +143,14 @@ void PipeStruct::set_Active(void){
 
 int PipeStruct::ReadData(void){
     DWORD dwBytes;
-    int ret;
+    char * ret;
     
-    if(!bPipe){
-        fgets(lpReadBuffer,LINE_INPUT_MAX_CHAR,stdin);
-        dwBytes=strlen(lpReadBuffer);
-        if(!dwBytes){
-            set_EOF_();
-            lpReadBuffer[0]='\0';
-            return 0;
-        }
-    }else{
-            // Unfortunately we need to use polling here.
-            // Otherwise Windows returns single bytes if
-            // the engine runs at low priority.
-            // This kills performance.
-        while(TRUE){
-            ret=PeekNamedPipe(hInput,
-                              NULL,    // don't read anything yet
-                              0,       // no buffer
-                              NULL,    // no we don't read anything!
-                              &dwBytes,// now we're talking
-                              NULL);   // nono we don't read anything
-            if(!ret){
-                set_EOF_();
-                lpReadBuffer[0]='\0';
-                return 0;
-            }
-            if(dwBytes>0){
-                break;
-            }else{
-                Idle();
-            }
-            
-        }
-        ret=ReadFile(hInput,
-                     lpReadBuffer,
-                     LINE_INPUT_MAX_CHAR,
-                     &dwBytes,
-                     NULL);
-        if(!ret){
-            set_EOF_();
-            lpReadBuffer[0]='\0';
-            return 0;
-        }
+    ret=fgets(lpReadBuffer,LINE_INPUT_MAX_CHAR,fpInput);
+    dwBytes=strlen(lpReadBuffer);
+    if(!ret){
+        set_EOF_();
+        lpReadBuffer[0]='\0';
+        return 0;
     }
     lpReadBuffer[dwBytes]='\0';
     return dwBytes;
