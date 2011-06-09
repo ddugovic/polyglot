@@ -1462,10 +1462,17 @@ static void send_board(int extra_move) {
 // send_info()
 
 static void send_info() {
-    if (XB->post) {
-        gui_send(GUI,"%d %+d %.0f "S64_FORMAT" %s",Uci->best_depth>0?Uci->best_depth:1,
+    int min_depth;
+    if(option_get_bool(Option,"WbWorkArounds")){
+            // Silly bug in some versions of WinBoard.
+            // depth <=1 clears the engine output window.
+            // Why shouldn't an engine be allowed to send info at depth 1?
+        min_depth=2;
+    }else{
+        min_depth=1;
+    }
+    gui_send(GUI,"%d %+d %.0f "S64_FORMAT" %s",Uci->best_depth>min_depth?Uci->best_depth:min_depth,
                  0,0,0.0,0,Uci->info);  
-    }  
 }
 
 // send_pv()
