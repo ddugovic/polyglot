@@ -1,3 +1,15 @@
+polyglot (1.4w10UCIb16) unstable; urgency=low
+
+  * xboard option commands
+
+  * correction of handling of combo boxes in UCI protocol
+
+  * "gui-mode". It is now possible to run PG without config file
+
+  * The polyglot options are not exported, so they are now settable by the GUI
+
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Sat, 10 Jan 2009 21:00:00 +0100
+
 polyglot (1.4w10UCIb15) unstable; urgency=low
 
   * bugfix : due to refactoring time stamps in Windows would be written twice. This has been fixed. 

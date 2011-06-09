@@ -39,7 +39,7 @@
 // constants
 
 
-static const char * const Version = "1.4W10UCIb15";
+static const char * const Version = "1.4W10UCIb16";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 polyglot [configfile]\n\
@@ -119,6 +119,19 @@ int main(int argc, char * argv[]) {
       return EXIT_SUCCESS;
    }
 
+   if (argc >= 3 && my_string_equal(argv[1],"-ec")) {
+       option_set("EngineCommand",argv[2]);
+       Init=true;
+       engine_open(Engine);
+       gui_init(GUI);
+       uci_open(Uci,Engine);
+       if (my_string_equal(option_get_string("EngineName"),"<empty>")) {
+            option_set("EngineName",Uci->name);
+       }
+       adapter_loop();
+       return EXIT_SUCCESS; // we don't get here
+   }
+
    // read options
 
    if (argc == 2) option_set("OptionFile",argv[1]); // HACK for compatibility
@@ -143,36 +156,53 @@ int main(int argc, char * argv[]) {
    return EXIT_SUCCESS;  // we never get here....
 }
 
+// polyglot_set_option
+
+void polyglot_set_option(char *name, char *value){ // this must be cleaned up!
+    option_set(name,value);
+    if(option_get_bool("Book")&&(my_string_case_equal(name,"BookFile")||my_string_case_equal(name,"Book"))){
+        my_log("POLYGLOT *** SETTING BOOK ***\n");
+        my_log("POLYGLOT BOOK \"%s\"\n",option_get_string("BookFile"));
+        book_close();
+        book_clear();
+        book_open(option_get_string("BookFile"));
+        if(!book_is_open()){
+            my_log("POLYGLOT Unable to open book \"%s\"\n",option_get_string("BookFile"));
+        }
+    }else if(option_get_bool("Log")&&(my_string_case_equal(name,"LogFile") ||my_string_case_equal(name,"Log"))){
+        my_log("POLYGLOT *** SETTING LOGFILE ***\n");
+        my_log("POLYGLOT LOGFILE \"%s\"\n",option_get_string("LogFile"));
+        my_log_close();
+        my_log_open(option_get_string("LogFile"));
+    }else if(option_get_bool("UseNice") &&(my_string_case_equal(name,"NiceValue")||my_string_case_equal(name,"UseNice"))){
+        my_log("POLYGLOT Adjust Engine Piority\n");
+        engine_set_nice_value(Engine,atoi(option_get_string("NiceValue")));
+    }else if(my_string_case_equal(name,"Book") && !option_get_bool("Book")){
+        book_close();
+        book_clear();
+    }else if(my_string_case_equal(name,"UseNice") && !option_get_bool("UseNice")){
+        my_log("POLYGLOT Adjust Engine Piority\n");
+        engine_set_nice_value(Engine,0);
+    }else if(my_string_case_equal(name,"Log") && !option_get_bool("Log")){
+        my_log("POLYGLOT QUIT LOGGING\n");
+        my_log_close();
+    }
+}
+
+
 // init_book()
 
 static void init_book(){
+    const char *empty_var[]={};
     book_clear();
     if (option_get_bool("Book")){
         my_log("POLYGLOT *** SETTING BOOK ***\n");
         my_log("POLYGLOT BOOK \"%s\"\n",option_get_string("BookFile"));
-        uci_set_option(Uci,
-                       PolyglotBookFile,                     // name
-                       option_get_string("BookFile"),        // value
-                       "string",                             // type
-                       "<empty>",                            // max
-                       "<empty>",                            // min
-                       "<empty>"                             // var
-                       );
         book_open(option_get_string("BookFile"));
         if(!book_is_open()){
             my_log("POLYGLOT Unable to open book \"%s\"\n",
                    option_get_string("BookFile"));
         }
-    } else {
-        uci_set_option(Uci,
-                       PolyglotBookFile,                     // name
-                       "<empty>",                            // value
-                       "string",                             // type
-                       "<empty>",                            // max
-                       "<empty>",                            // min
-                       "<empty>"                             // var
-                       );
-        
     }
 }
 
@@ -203,7 +233,10 @@ static void parse_option() {
 
       if (my_string_case_equal(line,"[engine]")) break;
 
-      if (parse_line(line,&name,&value)) option_set(name,value);
+      if (parse_line(line,&name,&value)) {
+          option_set(name,value);
+          option_set_default(name,value);
+      }
    }
 
    if (option_get_bool("Log")) {
@@ -221,8 +254,8 @@ static void parse_option() {
    Init = true;
    uci_open(Uci,Engine);
    while (my_file_read_line(file,line,256)) {
-       
        if (line[0] == '[') my_fatal("parse_option(): unknown section %s\n",line);
+       if (line[0]=='#') continue;
        
        if (parse_line(line,&name,&value)) {
            uci_send_option(Uci,name,"%s",value);
@@ -235,6 +268,7 @@ static void parse_option() {
    if (my_string_equal(option_get_string("EngineName"),"<empty>")) {
            option_set("EngineName",Uci->name);
    }
+
    fclose(file);
 }
 
@@ -317,6 +351,7 @@ void quit() {
          engine_get(Engine,string,StringSize); // HACK: calls exit() on receiving EOF
       }
    }
+   exit(EXIT_SUCCESS);
 }
 
 // stop_search()

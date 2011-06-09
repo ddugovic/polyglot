@@ -14,6 +14,7 @@
 struct engine_t {
 #ifndef _WIN32
    io_t io[1];
+    pid_t pid;
 #else
     PipeStruct pipeEngine;
 #endif
@@ -34,6 +35,6 @@ extern void engine_send       (engine_t * engine, const char format[], ...);
 extern void engine_send_queue (engine_t * engine, const char format[], ...);
 extern bool engine_get_non_blocking(engine_t * engine, char string[], int size);
 extern void engine_get        (engine_t * engine, char string[], int size);
-
+extern void engine_set_nice_value(engine_t * engine, int value);
 
 #endif // !defined ENGINE_H

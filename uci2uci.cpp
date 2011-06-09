@@ -118,43 +118,58 @@ static void send_book_move(int move){
     gui_send(GUI,"bestmove %s",move_string);
 }
 
+// format_uci_option_line()
+
+static void format_uci_option_line(char * option_line,option_t *opt){
+    char option_string[StringSize];
+    int j;
+    strcpy(option_line,"");
+    strcat(option_line,"option name");
+    if(opt->mode&PG){
+        strcat(option_line," Polyglot");
+    }
+    sprintf(option_string," %s",opt->name);
+    strcat(option_line,option_string);
+    sprintf(option_string," type %s",opt->type);
+    strcat(option_line,option_string);
+    if(strcmp(opt->type,"button")){
+        sprintf(option_string," default %s",opt->default_);
+        strcat(option_line,option_string);
+    }
+    if(!strcmp(opt->type,"spin")){
+        sprintf(option_string," min %s",opt->min);
+        strcat(option_line,option_string);
+    }
+    if(!strcmp(opt->type,"spin")){
+        sprintf(option_string," max %s",opt->max);
+        strcat(option_line,option_string);
+    }
+    for(j=0;j<opt->var_nb;j++){
+        sprintf(option_string," var %s",opt->var[j]);
+        strcat(option_line,option_string);
+    }
+}
+
 // send_uci_options()
 
 void send_uci_options() {
-    int i;
+    int i,j;
+    option_t *p=Option;
+    const char * name;
     char option_line[StringSize]="";
-    char option_string[StringSize]="";
     gui_send(GUI,"id name %s", Uci->name);
     gui_send(GUI,"id author %s", Uci->author);
     for(i=0;i<Uci->option_nb;i++){
-        strcat(option_line,"option");
-        if(strcmp(Uci->option[i].name,"<empty>")){
-            sprintf(option_string," name %s",Uci->option[i].name);
-            strcat(option_line,option_string);
-        }
-        if(strcmp(Uci->option[i].type,"<empty>")){
-            sprintf(option_string," type %s",Uci->option[i].type);
-            strcat(option_line,option_string);
-        }
-        if(strcmp(Uci->option[i].value,"<empty>")){
-            sprintf(option_string," default %s",Uci->option[i].value);
-            strcat(option_line,option_string);
-        }
-        if(strcmp(Uci->option[i].min,"<empty>")){
-            sprintf(option_string," min %s",Uci->option[i].min);
-            strcat(option_line,option_string);
-        }
-        if(strcmp(Uci->option[i].max,"<empty>")){
-            sprintf(option_string," max %s",Uci->option[i].max);
-            strcat(option_line,option_string);
-        }
-        if(strcmp(Uci->option[i].var,"<empty>")){
-            sprintf(option_string," var %s",Uci->option[i].var);
-            strcat(option_line,option_string);
-        }
-        gui_send(GUI,"%s",option_line);
-        strcpy(option_line,"");
+        format_uci_option_line(option_line,Uci->option+i);
+         gui_send(GUI,"%s",option_line);
     }
+    while(p->name){
+        if(p->mode &UCI){
+            format_uci_option_line(option_line,p);
+            gui_send(GUI,"%s",option_line);
+        }
+        p++;
+    }   
     gui_send(GUI,"uciok");
 }
 
@@ -164,40 +179,23 @@ void send_uci_options() {
 
 static void parse_setoption(const char string[]) {
     parse_t parse[1];
-    char option[StringSize];
-    char name[StringSize];
-    char value[StringSize];
+    char *name;
+    char *pg_name;
+    char *value;
     char * string_copy;
     string_copy=my_strdup(string);
-    parse_open(parse,string_copy);
-    parse_add_keyword(parse,"setoption");
-    parse_add_keyword(parse,"name");
-    parse_add_keyword(parse,"value");
-    parse_get_word(parse,option,StringSize);
-    ASSERT(my_string_equal(option,"setoption"));
-    if(parse_get_word(parse,option,StringSize)){
-        if(my_string_equal(option,"name")){
-            parse_get_string(parse,name,StringSize);
-            if(parse_get_word(parse,option,StringSize)){
-                if(my_string_equal(option,"value")){
-                    parse_get_string(parse,value,StringSize);
-                    if(my_string_case_equal(name,PolyglotBookFile)){
-                        my_log("POLYGLOT *** SETTING BOOK ***\n");
-                        my_log("POLYGLOT BOOK \"%s\"\n",value);
-                        book_close();
-                        book_clear();
-                        book_open(value);
-                        if(!book_is_open()){
-                            my_log("POLYGLOT Unable to open book \"%s\"\n",value);
-                        }
-                    }else{
-                        engine_send(Engine,"%s",string);       
-                    }
-                }
-            }
+    if(match(string_copy,"setoption name * value *")){
+        name=Star[0];
+        value=Star[1];
+        if(match(name, "Polyglot *")){
+            pg_name=Star[0];
+            polyglot_set_option(pg_name,value);
+        }else{
+            engine_send(Engine,"%s",string);
         }
+    }else{
+        engine_send(Engine,"%s",string);
     }
-    parse_close(parse);
     free(string_copy);
 }
 

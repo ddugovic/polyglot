@@ -10,6 +10,8 @@ PolyGlot -  Winboard protocol to UCI protocol adapter
 
 polyglot [configfile]
 
+polyglot -ec engine
+
 polyglot make-book [-pgn inputfile] [-bin outputfile] [-max-ply ply] [-min-game games] [-min-score score] [-only-white] [-only-black] [-uniform]
 
 polyglot merge-book -in1 inputfile1 -in2 inputfile2 [-out outputfile]
@@ -40,6 +42,17 @@ repetition, etc ... It also supports Chess960.
 When in UCI mode PolyGlot mostly passes commands from the GUI
 to the engine and vice versa, except that it will play book moves on
 behalf of the engine when the occasion arises.
+
+The engine options are exported as UCI options in UCI
+mode and as "feature option=" commands in xboard mode. The latter form
+an extension of the xboard protocol as defined by H.G. Muller.
+
+Options which normally appear in the [PolyGlot] section of the
+config file (see below) are exported as options with their name prefixed
+by "Polyglot". This makes it easy to filter them in the GUI.
+
+NOTE: Not all options are exported, only those that make sense in the
+given mode.
 
 =head2 Book making utilities
 
@@ -78,6 +91,14 @@ is however much slower than other more dedicated programs.
 When invoked without options or with a config file as argument PolyGlot
 acts as an adapter. The config file format is documented below.  The
 default config file is "polyglot.ini".
+
+When invoked as
+
+=head2 polyglot -ec engine
+
+PolyGlot simply starts "engine" and acts as an adapter. No config file
+is used and thus it is expected that all properties will be set by the
+GUI. 
 
 When invoked as
 
@@ -309,6 +330,14 @@ regardless of the delay.
 
 If true PolyGlot will not understand xboard commands. 
 
+=item B<Chess960> (default: false)
+
+Play Chess960 (also called Fischer Random Chess or FRC),
+
+=item B<MateScore> (default: 10000)
+
+Mate score reported to GUI when in xboard mode. 
+
 =item B<Book> (default: false)
 
 Indicates whether a PolyGlot book should be used.  This has no effect
@@ -319,23 +348,12 @@ book will be used whenever PolyGlot is out of book.  Remember that
 PolyGlot is unaware of whether the engine is itself using a book or
 not.
 
-=item B<Chess960> (default: false)
-
-Play Chess960 (also called Fischer Random Chess or FRC),
-
-=item B<MateScore> (default: 10000)
-
-Mate score reported to GUI when in xboard mode. 
-
 =item B<BookFile> (default: book.bin)
 
 The name of the (binary) book file.  Note that PolyGlot will look for
 it in the directory it was launched from, not in the engine directory.
 Of course, full path can be used in which case the current directory
 does not matter.
-
-NOTE: When using PolyGlot with a UCI GUI this parameter can be set
-via the UCI option "Polyglot BookFile". 
 
 =item B<BookRandom> (default: true)
 

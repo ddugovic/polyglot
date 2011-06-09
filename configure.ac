@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([polyglot], [1.4w10UCIb15], [michel.vandenbergh@uhasselt.be])
+AC_INIT([polyglot], [1.4w10UCIb16], [michel.vandenbergh@uhasselt.be])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([adapter.cpp])
 AC_CONFIG_HEADER([config.h])

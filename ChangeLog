@@ -1,3 +1,8 @@
+=========1.4w10UCIb16===========
+- xboard options commands
+- correction of handling of combo boxes in UCI protocol
+- "gui-mode". It is now possible to run PG without config file
+- The polyglot options are not exported, so they are now settable by the GUI
 =========1.4w10UCIb15===========
 - Due to refactoring time stamps in Windows would be written twice. 
 This has been fixed. 

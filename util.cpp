@@ -145,6 +145,7 @@ void my_log_open(const char file_name[]) {
 void my_log_close() {
 
    if (LogFile != NULL) fclose(LogFile);
+   LogFile=NULL;
 }
 
 // my_log()

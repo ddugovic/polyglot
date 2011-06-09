@@ -116,6 +116,7 @@ static void stop_search    ();
 static void send_board     (int extra_move);
 static void send_pv        ();
 
+static void send_xboard_options ();
 
 static void learn          (int result);
 
@@ -267,12 +268,6 @@ static void xboard_step(char string[]) {
                     option_set("UCI","true");
                     return;
             }else{
-                if(!book_is_open() && option_get_bool("Book")){
-                    // restore old behaviour in xboard mode
-                    // missing book is fatal
-                     my_fatal("xboard_step(): can't open file \"%s\": %s\n",
-                             option_get_string("BookFile"),strerror(errno));
-                }
                  //uci_send_isready(Uci); // In UCI mode this done by the GUI
                  //Grrr...Toga can fixes the number of threads after "isready"
                  //So we delay "isready" 
@@ -478,49 +473,7 @@ static void xboard_step(char string[]) {
 
 		} else if (match(string,"protover *")) {
 
-			XB->proto_ver = atoi(Star[0]);
-			ASSERT(XB->proto_ver>=2);
-
-			gui_send(GUI,"feature done=0");
-
-			gui_send(GUI,"feature analyze=1");
-			gui_send(GUI,"feature colors=0");
-			gui_send(GUI,"feature draw=1");
-			gui_send(GUI,"feature ics=1");
-			gui_send(GUI,"feature myname=\"%s\"",option_get_string("EngineName"));
-			gui_send(GUI,"feature name=1");
-			gui_send(GUI,"feature pause=0");
-			gui_send(GUI,"feature ping=1");
-			gui_send(GUI,"feature playother=1");
-			gui_send(GUI,"feature reuse=1");
-			gui_send(GUI,"feature san=0");
-			gui_send(GUI,"feature setboard=1");
-			gui_send(GUI,"feature sigint=0");
-			gui_send(GUI,"feature sigterm=0");
-			gui_send(GUI,"feature time=1");
-			gui_send(GUI,"feature usermove=1");
-            if (XB->has_feature_memory){
-                gui_send(GUI,"feature memory=1");
-            }
-            if (XB->has_feature_smp){
-                gui_send(GUI,"feature smp=1");
-            }
-            if (XB->has_feature_egt){
-                // TODO: support for other types of table bases
-                gui_send(GUI,"feature egt=\"nalimov\"");
-            }
-
-            if (uci_option_exist(Uci,"UCI_Chess960")) {
-				gui_send(GUI,"feature variants=\"normal,fischerandom\"");
-			} else {
-				gui_send(GUI,"feature variants=\"normal\"");
-			}
-            gui_send(GUI,"feature done=1"); // moved from engine_step
-
-            
-                //if (Uci->ready) xboard_send(XBoard,"feature done=1");
-
-			// otherwise "feature done=1" will be sent when the engine is ready
+            send_xboard_options();
 
 		} else if (match(string,"quit")) {
 			my_log("POLYGLOT *** \"quit\" from GUI ***\n");
@@ -588,6 +541,22 @@ static void xboard_step(char string[]) {
 
 			gui_send(GUI,"Error (unknown command): %s",string);
 
+        } else if (match(string,"option *=*")){
+            char *name=Star[0];
+            char *value=Star[1];
+            if(match(name, "Polyglot *")){
+                char *pg_name=Star[0];
+                polyglot_set_option(pg_name,value);
+            }else{
+                start_protected_command();
+                engine_send(Engine,"setoption name %s value %s",name,value);
+                end_protected_command();
+            }
+        } else if (match(string,"option *")){
+            char *name=Star[0];
+            start_protected_command();
+            engine_send(Engine,"setoption name %s",name);
+            end_protected_command();
         } else if (XB->has_feature_smp && match(string,"cores *")){
                 int cores=atoi(Star[0]);
                 if(cores>=1){
@@ -843,6 +812,125 @@ static void engine_step(char string[]) {
 					gui_send(GUI,"resign");
 			}
 		}
+}
+
+// format_xboard_option_line
+
+void format_xboard_option_line(char * option_line, option_t *opt){
+    int j;
+    char option_string[StringSize];
+    strcpy(option_line,"");
+    strcat(option_line,"feature option=\"");
+    if(opt->mode&PG){
+        strcat(option_line,"Polyglot ");
+    }
+    sprintf(option_string,"%s",opt->name);
+    strcat(option_line,option_string);
+    sprintf(option_string," -%s",opt->type);
+    strcat(option_line,option_string);
+    if(strcmp(opt->type,"button") && strcmp(opt->type,"combo")){
+        if(strcmp(opt->type,"check")){
+            sprintf(option_string," %s",opt->default_);
+        }else{
+            sprintf(option_string," %d",
+                    strcmp(opt->default_,"true")?0:1);
+        }
+        strcat(option_line,option_string);
+    }
+    if(!strcmp(opt->type,"spin")){
+        sprintf(option_string," %s",opt->min);
+            strcat(option_line,option_string);
+    }
+    if(!strcmp(opt->type,"spin")){
+        sprintf(option_string," %s",opt->max);
+        strcat(option_line,option_string);
+    }
+    for(j=0;j<opt->var_nb;j++){
+        if(!strcmp(opt->var[j],opt->default_)){
+            sprintf(option_string," *%s",opt->var[j]);
+        }else{
+            sprintf(option_string," %s",opt->var[j]);
+        }
+        strcat(option_line,option_string);
+        if(j!=opt->var_nb-1){
+            strcat(option_line," ///");
+        }
+    }
+    strcat(option_line,"\"");
+}
+
+// send_xboard_options
+
+static void send_xboard_options(){
+    int i;
+    char option_line[StringSize]="";
+    option_t *p=Option;
+    const char * name;
+    XB->proto_ver = atoi(Star[0]);
+    ASSERT(XB->proto_ver>=2);
+    
+    gui_send(GUI,"feature done=0");
+    
+    gui_send(GUI,"feature analyze=1");
+    gui_send(GUI,"feature colors=0");
+    gui_send(GUI,"feature draw=1");
+    gui_send(GUI,"feature ics=1");
+    gui_send(GUI,"feature myname=\"%s\"",option_get_string("EngineName"));
+    gui_send(GUI,"feature name=1");
+    gui_send(GUI,"feature pause=0");
+    gui_send(GUI,"feature ping=1");
+    gui_send(GUI,"feature playother=1");
+    gui_send(GUI,"feature reuse=1");
+    gui_send(GUI,"feature san=0");
+    gui_send(GUI,"feature setboard=1");
+    gui_send(GUI,"feature sigint=0");
+    gui_send(GUI,"feature sigterm=0");
+    gui_send(GUI,"feature time=1");
+    gui_send(GUI,"feature usermove=1");
+    if (XB->has_feature_memory){
+        gui_send(GUI,"feature memory=1");
+    }else{
+        gui_send(GUI,"feature memory=0");
+    }
+    if (XB->has_feature_smp){
+        gui_send(GUI,"feature smp=1");
+    }else{
+        gui_send(GUI,"feature smp=0");
+    }
+    if (XB->has_feature_egt){
+            // TODO: support for other types of table bases
+        gui_send(GUI,"feature egt=\"nalimov\"");
+    }else{
+        gui_send(GUI,"feature egt=\"\"");
+    }
+    
+    if (uci_option_exist(Uci,"UCI_Chess960")) {
+        gui_send(GUI,"feature variants=\"normal,fischerandom\"");
+    } else {
+        gui_send(GUI,"feature variants=\"normal\"");
+    }
+    
+    for(i=0;i<Uci->option_nb;i++){
+        if(!strcmp(Uci->option[i].name,PolyglotBookFile)) continue;
+        if(my_string_case_equal(Uci->option[i].name,"UCI_AnalyseMode")) continue;
+        if(my_string_case_equal(Uci->option[i].name,"Ponder")) continue;
+        if(my_string_case_equal(Uci->option[i].name,"Hash")) continue;
+        if(my_string_case_equal(Uci->option[i].name,"NalimovPath")) continue;
+        if((name=uci_thread_option(Uci))!=NULL && my_string_case_equal(Uci->option[i].name,name)) continue;
+        format_xboard_option_line(option_line,Uci->option+i);
+
+        gui_send(GUI,"%s",option_line);
+
+    }
+    while(p->name){
+        if(p->mode &XBOARD){
+            format_xboard_option_line(option_line,p);
+            gui_send(GUI,"%s",option_line);
+        }
+        p++;
+    }       
+    gui_send(GUI,"feature done=1"); 
+    
 }
 
 // comp_move()

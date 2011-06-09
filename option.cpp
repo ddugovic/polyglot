@@ -13,68 +13,59 @@
 
 static const bool UseDebug = false;
 
-// types
-
-struct option_t {
-   const char * var;
-   const char * val;
-};
 
 // variables
 
-static option_t Option[] = {
+option_t Option[] = {
 
-   { "OptionFile",    NULL, }, // string
+    { "OptionFile",       "string","0","0",     "polyglot.ini", NULL,0,{},  PG}, 
 
    // options
 
-   { "EngineName",    NULL, }, // string
-   { "EngineDir",     NULL, }, // string
-   { "EngineCommand", NULL, }, // string
+    { "EngineName",       "string","0","0",     "<empty>"   , NULL,0,{},  PG}, 
+    { "EngineDir",        "string","0","0",     "."         , NULL,0,{},  PG}, 
+    { "EngineCommand",    "string","0","0",     "<empty>"   , NULL,0,{},  PG}, 
 
-   { "Log",           NULL, }, // true/false
-   { "LogFile",       NULL, }, // string
+    { "Log",              "check","0","0",     "false"      , NULL,0,{},  PG|XBOARD|UCI}, 
+    { "LogFile",          "string","0","0",     "polyglot.log", NULL,0,{},  PG|XBOARD|UCI}, 
 
-   { "UCI",           NULL, }, // true/false
+    { "UCI",              "string","0","0",     "false"     , NULL,0,{},  PG}, 
 
-   { "UseNice",       NULL, }, // true/false
+    { "UseNice",          "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD|UCI}, 
+    { "NiceValue",        "spin", "0","20",     "5"         , NULL,0,{},  PG|XBOARD|UCI}, 
 
-   { "NiceValue",     NULL, }, // true/false
+    { "Chess960",         "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
 
-   { "Chess960",      NULL, }, // true/false
+    { "Resign",           "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
+    { "ResignMoves",      "spin","0","10000",    "3"        , NULL,0,{},  PG|XBOARD}, 
+    { "ResignScore",      "spin","0","10000",   "600"       , NULL,0,{},  PG|XBOARD}, 
 
-   { "Resign",        NULL, }, // true/false
-   { "ResignMoves",   NULL, }, // move number
-   { "ResignScore",   NULL, }, // centipawns
+    { "MateScore",        "spin","0","1000000", "10000"     , NULL,0,{},  PG|XBOARD}, 
 
-   { "MateScore",     NULL, }, // centipawns
+    { "Book",             "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD|UCI}, 
+    { "BookFile",         "string","0","0",     "book.bin"  , NULL,0,{},  PG|XBOARD|UCI}, 
 
-   { "Book",          NULL, }, // true/false
-   { "BookFile",      NULL, }, // string
+    { "BookRandom",       "check","0","0",      "true"      , NULL,0,{},  PG|XBOARD|UCI}, 
+    { "BookLearn",        "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
 
-   { "BookRandom",    NULL, }, // true/false
-   { "BookLearn",     NULL, }, // true/false
+    { "KibitzMove",       "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
+    { "KibitzPV",         "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
 
-   { "KibitzMove",    NULL, }, // true/false
-   { "KibitzPV",      NULL, }, // true/false
+    { "KibitzCommand",    "string","0","0",     "tellall"   , NULL,0,{},  PG|XBOARD}, 
+    { "KibitzDelay",      "check","0","10000",  "5"         , NULL,0,{},  PG|XBOARD}, 
 
-   { "KibitzCommand", NULL, }, // string
-   { "KibitzDelay",   NULL, }, // seconds
-
-   { "ShowPonder",    NULL, }, // true/false
+    { "ShowPonder",       "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
 
    // work-arounds
 
-   { "UCIVersion",    NULL, }, // 1-
-   { "CanPonder",     NULL, }, // true/false
-   { "SyncStop",      NULL, }, // true/false
-   { "Affinity",	  NULL, }, // -1 else 0-32 //won't do much on *nix systems
-   { "RepeatPV",	  NULL, },
-   { "PromoteWorkAround", NULL, }, // true/false
+    { "UCIVersion",       "spin","1","2",       "2"         , NULL,0,{},  PG|XBOARD}, 
+    { "CanPonder",        "check","1","2",      "false"     , NULL,0,{},  PG|XBOARD}, 
+    { "SyncStop",         "check","1","2",      "false"     , NULL,0,{},  PG|XBOARD}, 
+    { "Affinity",	      "spin","-1","32",     "-1"        , NULL,0,{},  PG}, 
+    { "RepeatPV",	      "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD},
+    { "PromoteWorkAround","check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
 
-   // { "",              NULL, },
-
-   { NULL,            NULL, },
+    { NULL,               NULL,"0","0",         NULL        , NULL,0,{},  0},
 };
 
 // prototypes
@@ -87,102 +78,94 @@ static option_t * option_find (const char var[]);
 
 void option_init() {
 
-   option_set("OptionFile","polyglot.ini");
+    option_t *p=Option;
+    const char * name;
 
-   // options
-
-   option_set("EngineName","<empty>");
-   option_set("EngineDir",".");
-   option_set("EngineCommand","<empty>");
-
-   option_set("Log","false");
-   option_set("LogFile","polyglot.log");
-
-   option_set("UCI","false");
-
-   option_set("UseNice","false");
-   option_set("NiceValue","5");
-   
-   option_set("Chess960","false");
-
-   option_set("Resign","false");
-   option_set("ResignMoves","3");
-   option_set("ResignScore","600");
-
-   option_set("MateScore","10000");
-
-   option_set("Book","false");
-   option_set("BookFile","book.bin");
-
-   option_set("BookRandom","true");
-   option_set("BookLearn","false");
-
-   option_set("KibitzMove","false");
-   option_set("KibitzPV","false");
-
-   option_set("KibitzCommand","tellall");
-   option_set("KibitzDelay","5");
-
-   option_set("ShowPonder","true");
-
-   // work-arounds
-
-   option_set("UCIVersion","2");
-   option_set("CanPonder","false");
-   option_set("SyncStop","false");
-   option_set("Affinity","-1");
-   option_set("PromoteWorkAround","false");
-   option_set("RepeatPV","true");
-   // option_set("","");
+    while(name=(p++)->name){
+        option_set(name,option_get_default(name));
+    }
 }
+
 
 // option_set()
 
-bool option_set(const char var[], const char val[]) {
+bool option_set(const char name[], const char value[]) {
 
    option_t * opt;
+   ASSERT(name!=NULL);
+   ASSERT(value!=NULL);
 
-   ASSERT(var!=NULL);
-   ASSERT(val!=NULL);
-
-   opt = option_find(var);
+   opt = option_find(name);
    if (opt == NULL) return false;
 
-   my_string_set(&opt->val,val);
+   my_string_set(&opt->value,value);
 
-   if (UseDebug) my_log("POLYGLOT OPTION SET \"%s\" -> \"%s\"\n",opt->var,opt->val);
+   if (UseDebug) my_log("POLYGLOT OPTION SET \"%s\" -> \"%s\"\n",opt->name,opt->value);
+
+   return true;
+}
+// option_set()
+
+bool option_set_default(const char name[], const char value[]) {
+
+   option_t * opt;
+   ASSERT(name!=NULL);
+   ASSERT(value!=NULL);
+
+   opt = option_find(name);
+   if (opt == NULL) return false;
+
+   opt->default_=my_strdup(value);
+
+   if (UseDebug) my_log("POLYGLOT OPTION DEFAULT SET \"%s\" -> \"%s\"\n",opt->name,opt->default_);
 
    return true;
 }
 
 // option_get()
 
-const char * option_get(const char var[]) {
+const char * option_get(const char name[]) {
 
    option_t * opt;
 
-   ASSERT(var!=NULL);
+   ASSERT(name!=NULL);
 
-   opt = option_find(var);
-   if (opt == NULL) my_fatal("option_get(): unknown option \"%s\"\n",var);
+   opt = option_find(name);
+   if (opt == NULL) my_fatal("option_get(): unknown option \"%s\"\n",name);
 
-   if (UseDebug) my_log("POLYGLOT OPTION GET \"%s\" -> \"%s\"\n",opt->var,opt->val);
+   if (UseDebug) my_log("POLYGLOT OPTION GET \"%s\" -> \"%s\"\n",opt->name,opt->value);
 
-   return opt->val;
+   return opt->value;
+}
+
+// option_get_default()
+
+const char * option_get_default(const char name[]) {
+
+   option_t * opt;
+
+   ASSERT(name!=NULL);
+
+   opt = option_find(name);
+   if (opt == NULL) my_fatal("option_get(): unknown option \"%s\"\n",name);
+
+   if (UseDebug) my_log("POLYGLOT OPTION GET \"%s\" -> \"%s\"\n",opt->name,opt->value);
+
+   return opt->default_;
 }
 
 // option_get_bool()
 
-bool option_get_bool(const char var[]) {
+bool option_get_bool(const char name[]) {
 
-   const char * val;
+   const char * value;
 
-   val = option_get(var);
+   value = option_get(name);
 
    if (false) {
-   } else if (my_string_case_equal(val,"true") || my_string_case_equal(val,"yes") || my_string_equal(val,"1")) {
+   } else if (my_string_case_equal(value,"true") || my_string_case_equal(value,"yes") || my_string_equal(value,"1")) {
       return true;
-   } else if (my_string_case_equal(val,"false") || my_string_case_equal(val,"no") || my_string_equal(val,"0")) {
+   } else if (my_string_case_equal(value,"false") || my_string_case_equal(value,"no") || my_string_equal(value,"0")) {
       return false;
    }
 
@@ -193,47 +176,48 @@ bool option_get_bool(const char var[]) {
 
 // option_get_double()
 
-double option_get_double(const char var[]) {
+double option_get_double(const char name[]) {
 
-   const char * val;
+   const char * value;
 
-   val = option_get(var);
+   value = option_get(name);
 
-   return atof(val);
+   return atof(value);
 }
 
 // option_get_int()
 
-int option_get_int(const char var[]) {
+int option_get_int(const char name[]) {
 
-   const char * val;
+   const char * value;
 
-   val = option_get(var);
+   value = option_get(name);
 
-   return atoi(val);
+   return atoi(value);
 }
 
 // option_get_string()
 
-const char * option_get_string(const char var[]) {
+const char * option_get_string(const char name[]) {
 
-   const char * val;
+   const char * value;
 
-   val = option_get(var);
+   value = option_get(name);
 
-   return val;
+   return value;
 }
 
 // option_find()
 
-static option_t * option_find(const char var[]) {
+static option_t * option_find(const char name[]) {
 
    option_t * opt;
 
-   ASSERT(var!=NULL);
+   ASSERT(name!=NULL);
 
-   for (opt = &Option[0]; opt->var != NULL; opt++) {
-      if (my_string_case_equal(opt->var,var)) return opt;
+
+   for (opt = &Option[0]; opt->name != NULL; opt++) {
+      if (my_string_case_equal(opt->name,name)) return opt;
    }
 
    return NULL;

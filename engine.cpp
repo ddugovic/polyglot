@@ -11,6 +11,7 @@
 #include <cstring>
 
 #include <sys/types.h>
+#include <sys/resource.h>
 #include <unistd.h>
 
 #include "engine.h"
@@ -123,10 +124,9 @@ void engine_open(engine_t * engine) {
 
       // set a low priority
 
-      if (option_get_bool("UseNice"))
-      {
+      if (option_get_bool("UseNice")) {
           my_log("POLYGLOT Adjust Engine Piority");
-          nice(+option_get_int("NiceValue"));
+          nice(option_get_int("NiceValue"));
       }
 
       // change the current directory
@@ -159,10 +159,18 @@ void engine_open(engine_t * engine) {
       engine->io->in_fd = from_engine[0];
       engine->io->out_fd = to_engine[1];
       engine->io->name = "Engine";
+      engine->pid=pid;
 
       io_init(engine->io);
    }
 }
+
+// engine_set_nice_value()
+
+void engine_set_nice_value(engine_t * engine, int value){
+    setpriority(PRIO_PROCESS,engine->pid,value);
+}
+
 
 // engine_close()
 
@@ -307,6 +315,12 @@ void set_affinity(engine_t *engine, int affin){
     SetProcessAffinityMask((engine->pipeEngine).hProcess,affin);
 }
 
+// Eric Mullins!
+
+void engine_set_nice_value(engine_t *engine, int value){
+    SetPriorityClass((engine->pipeEngine).hProcess,
+                     GetWin32Priority(value));
+}
 
 
 void engine_send_queue(engine_t * engine,const char *szFormat, ...) {
@@ -340,8 +354,7 @@ void engine_open(engine_t * engine){
         // set a low priority
     if (option_get_bool("UseNice")){
           my_log("POLYGLOT Adjust Engine Piority\n");
-          SetPriorityClass((engine->pipeEngine).hProcess,
-                           GetWin32Priority(option_get_int("NiceValue")));
+          engine_set_nice_value(engine, option_get_int("NiceValue"));
     }
     
 }

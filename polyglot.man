@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2009-01-10" "" ""
+.TH POLYGLOT 6 "2009-01-13" "" ""
 .SH "NAME"
 PolyGlot \-  Winboard protocol to UCI protocol adapter
          \-  book engine for Polyglot books 
@@ -139,6 +139,8 @@ PolyGlot \-  Winboard protocol to UCI protocol adapter
 .SH "SYNOPSIS"
 .IX Header "SYNOPSIS"
 polyglot [configfile]
+.PP
+polyglot \-ec engine
 .PP
 polyglot make-book [\-pgn inputfile] [\-bin outputfile] [\-max\-ply ply] [\-min\-game games] [\-min\-score score] [\-only\-white] [\-only\-black] [\-uniform]
 .PP
@@ -169,6 +171,17 @@ repetition, etc ... It also supports Chess960.
 When in \s-1UCI\s0 mode PolyGlot mostly passes commands from the \s-1GUI\s0
 to the engine and vice versa, except that it will play book moves on
 behalf of the engine when the occasion arises.
+.PP
+The engine options are exported as \s-1UCI\s0 options in \s-1UCI\s0
+mode and as \*(L"feature option=\*(R" commands in xboard mode. The latter form
+an extension of the xboard protocol as defined by H.G. Muller.
+.PP
+Options which normally appear in the [PolyGlot] section of the
+config file (see below) are exported as options with their name prefixed
+by \*(L"Polyglot\*(R". This makes it easy to filter them in the \s-1GUI\s0.
+.PP
+\&\s-1NOTE:\s0 Not all options are exported, only those that make sense in the
+given mode.
 .Sh "Book making utilities"
 .IX Subsection "Book making utilities"
 PolyGlot supports the \*(L"PolyGlot opening book format\*(R". This is the
@@ -203,6 +216,13 @@ is however much slower than other more dedicated programs.
 When invoked without options or with a config file as argument PolyGlot
 acts as an adapter. The config file format is documented below.  The
 default config file is \*(L"polyglot.ini\*(R".
+.PP
+When invoked as
+.Sh "polyglot \-ec engine"
+.IX Subsection "polyglot -ec engine"
+PolyGlot simply starts \*(L"engine\*(R" and acts as an adapter. No config file
+is used and thus it is expected that all properties will be set by the
+\&\s-1GUI\s0. 
 .PP
 When invoked as
 .Sh "polyglot make-book"
@@ -381,6 +401,12 @@ regardless of the delay.
 .IP "\fB\s-1UCI\s0\fR (default: false)" 4
 .IX Item "UCI (default: false)"
 If true PolyGlot will not understand xboard commands. 
+.IP "\fBChess960\fR (default: false)" 4
+.IX Item "Chess960 (default: false)"
+Play Chess960 (also called Fischer Random Chess or \s-1FRC\s0),
+.IP "\fBMateScore\fR (default: 10000)" 4
+.IX Item "MateScore (default: 10000)"
+Mate score reported to \s-1GUI\s0 when in xboard mode. 
 .IP "\fBBook\fR (default: false)" 4
 .IX Item "Book (default: false)"
 Indicates whether a PolyGlot book should be used.  This has no effect
@@ -390,21 +416,12 @@ use both a PolyGlot book and an engine book.  In that case, the engine
 book will be used whenever PolyGlot is out of book.  Remember that
 PolyGlot is unaware of whether the engine is itself using a book or
 not.
-.IP "\fBChess960\fR (default: false)" 4
-.IX Item "Chess960 (default: false)"
-Play Chess960 (also called Fischer Random Chess or \s-1FRC\s0),
-.IP "\fBMateScore\fR (default: 10000)" 4
-.IX Item "MateScore (default: 10000)"
-Mate score reported to \s-1GUI\s0 when in xboard mode. 
 .IP "\fBBookFile\fR (default: book.bin)" 4
 .IX Item "BookFile (default: book.bin)"
 The name of the (binary) book file.  Note that PolyGlot will look for
 it in the directory it was launched from, not in the engine directory.
 Of course, full path can be used in which case the current directory
 does not matter.
-.Sp
-\&\s-1NOTE:\s0 When using PolyGlot with a \s-1UCI\s0 \s-1GUI\s0 this parameter can be set
-via the \s-1UCI\s0 option \*(L"Polyglot BookFile\*(R". 
 .IP "\fBBookRandom\fR (default: true)" 4
 .IX Item "BookRandom (default: true)"
 Select moves according to their weights in the book. If false the move

@@ -24,8 +24,7 @@ void gui_init(gui_t *gui){
     #ifdef _WIN32
    (gui->pipeStdin).Open();
 #else
-   // xboard
-
+   
    gui->io->in_fd = STDIN_FILENO;
    gui->io->out_fd = STDOUT_FILENO;
    gui->io->name = "GUI";
@@ -41,7 +40,7 @@ void gui_init(gui_t *gui){
 
 bool gui_get_non_blocking(gui_t * gui, char string[], int size) {
 
-   ASSERT(xboard!=NULL);
+   ASSERT(gui!=NULL);
    ASSERT(string!=NULL);
    ASSERT(size>=256);
 #ifndef _WIN32
@@ -84,7 +83,7 @@ void gui_send(gui_t * gui, const char format[], ...) {
    va_list arg_list;
    char string[StringSize];
 
-   ASSERT(xboard!=NULL);
+   ASSERT(gui!=NULL);
    ASSERT(format!=NULL);
 
    // format

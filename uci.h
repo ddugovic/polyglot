@@ -10,22 +10,12 @@
 #include "engine.h"
 #include "line.h"
 #include "move.h"
+#include "option.h"
 #include "util.h"
 
 // constants
 
 const int OptionNb = 256;
-
-// types
-
-struct option_t {
-    const char * name;
-    const char * value;
-    const char * type;
-    const char * max;
-    const char * min;
-    const char * var;
-};
 
 struct uci_t {
 
@@ -97,6 +87,7 @@ extern void uci_send_stop_sync    (uci_t * uci);
 extern void uci_send_ucinewgame   (uci_t * uci);
 extern void uci_set_threads       (uci_t * uci, int n);
 extern bool uci_thread_option_exist(uci_t * uci);
+extern const char * uci_thread_option(uci_t * uci);
 extern int uci_get_option          (uci_t * uci, const char * name);
 
 extern bool uci_option_exist      (uci_t * uci, const char option[]);
@@ -110,11 +101,12 @@ extern int  uci_parse           (uci_t * uci, const char string[]);
 
 void uci_set_option(uci_t * uci,
                     const char * name,
-                    const char * value,
+                    const char * default_,
                     const char * type,
                     const char * max,
                     const char * min,
-                    const char * var);
+                    int var_nb,
+                    const char * var[]);
 
 #endif // !defined UCI_H
 
