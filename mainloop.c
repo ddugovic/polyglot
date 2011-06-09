@@ -1,9 +1,5 @@
 // mainloop.c
 
-// constants
-
-#define StringSize ((int)4096)
-
 // includes
 
 #include <errno.h>

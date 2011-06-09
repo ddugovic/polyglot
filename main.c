@@ -39,7 +39,7 @@
 // constants
 
 
-static const char * const Version = "1.4.61b";
+static const char * const Version = "1.4.63b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log true/false] [-lf logfile] [-pg <name>=<value>]* [-uci <name>=<value>]*\n\
@@ -53,7 +53,6 @@ SYNTAX\n\
 
 static const int SearchDepth = 63;
 static const double SearchTime = 3600.0;
-static const int StringSize = 4096;
 
 // variables
 

@@ -15,7 +15,6 @@
 // variables
 
 engine_t Engine[1];
-#define StringSize ((int)4096)
 
 // functions
 

@@ -8,10 +8,6 @@
 #include "gui.h"
 #include "main.h"
 
-// constants
-
-static const int StringSize = 4096;
-
 // variables
 
 gui_t GUI[1];

@@ -18,8 +18,6 @@
 static const bool Strict = FALSE; // FALSE
 static const bool UseDebug = FALSE; // FALSE
 
-#define StringSize ((int)1024)
-
 // functions
 
 // line_is_ok()

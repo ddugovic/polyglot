@@ -69,6 +69,7 @@
 #endif
 
 #define FormatBufferSize 4096
+#define StringSize       4096
 
 #ifdef _MSC_VER
 #define vsnprintf _vsnprintf

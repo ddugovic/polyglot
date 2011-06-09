@@ -17,7 +17,6 @@
 // constants
 
 static const bool UseDebug = FALSE;
-static const int  StringSize = 4096;
 
 // variables
 

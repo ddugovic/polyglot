@@ -21,7 +21,6 @@
 // constants
 
 #define COUNT_MAX ((int)16384)
-#define StringSize ((int)4096)
 
 static const int NIL = -1;
 

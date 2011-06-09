@@ -24,10 +24,6 @@
 #include "uci.h"
 #include "util.h"
 
-// constants
-
-#define StringSize ((int)4096)
-
 // variables
 
 static int Depth;

@@ -7,10 +7,6 @@
 #include "util.h"
 #include "errno.h"
 
-// macros
-
-#define StringSize ((int) 4096)
-
 // types
 
 typedef enum {

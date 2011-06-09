@@ -24,8 +24,6 @@
 
 static const bool UseDebug = FALSE;
 
-#define StringSize ((int)4096)
-
 // variables
 
 uci_t Uci[1];
@@ -359,7 +357,7 @@ int uci_parse(uci_t * uci, const char string[]) {
             uci->searching = FALSE;
             uci->pending_nb--;
 
-            event = parse_bestmove(uci,argument); // updates uci->best_move and uci->ponder_move
+            event = parse_bestmove(uci,argument); // updates uci->best_move, uci->ponder_move 
 
          } else {
 
@@ -474,6 +472,7 @@ static int parse_bestmove(uci_t * uci, const char string[]) {
          move_do(board,uci->best_move);
 
          uci->ponder_move = move_from_can(argument,board);
+
          // if (uci->ponder_move == MoveNone) my_fatal("parse_bestmove(): not a move \"%s\"\n",argument);
 
          ASSERT(uci->ponder_move!=MoveNone);
@@ -671,7 +670,6 @@ static int parse_info(uci_t * uci, const char string[]) {
       } else if (my_string_equal(option,"pv")) {
 
          ASSERT(!my_string_empty(argument));
-
          line_from_can(uci->pv,uci->board,argument,LineSize);
          event |= EVENT_PV;
 

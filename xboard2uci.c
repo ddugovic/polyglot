@@ -44,6 +44,7 @@ typedef struct {
    int state;
    bool computer[ColourNb];
    int exp_move;
+   int hint_move;
    int resign_nb;
    my_timer_t timer[1];
 } state_t;
@@ -51,7 +52,8 @@ typedef struct {
 typedef struct {
     bool has_feature_memory;
     bool has_feature_smp;
-    bool has_feature_egt;
+    bool has_feature_egt_nalimov;
+    bool has_feature_egt_gaviota;
     bool analyse;
     bool computer;
     const char * name;
@@ -135,6 +137,7 @@ void xboard2uci_init() {
    State->computer[Black] = TRUE;
 
    State->exp_move = MoveNone;
+   State->hint_move = MoveNone;
    State->resign_nb = 0;
    my_timer_reset(State->timer);
 
@@ -142,7 +145,9 @@ void xboard2uci_init() {
    XB->has_feature_memory= (option_find(Uci->option,"Hash")!=NULL);
    XB->has_feature_smp = (uci_thread_option(Uci)!=NULL);
    // TODO: support for other types of table bases
-   XB->has_feature_egt = (option_find(Uci->option,"NalimovPath")!=NULL);
+   // This is a quick hack. 
+   XB->has_feature_egt_nalimov = (option_find(Uci->option,"NalimovPath")!=NULL);
+   XB->has_feature_egt_gaviota = (option_find(Uci->option,"GaviotaTbPath")!=NULL);
    XB->analyse = FALSE;
    XB->computer = FALSE;
    XB->name = NULL;
@@ -271,16 +276,20 @@ void xboard2uci_gui_step(char string[]) {
 			mess();
 
 		} else if (match(string,"hint")) {
-
+		    
+		        move=MoveNone;
+			game_get_board(Game,board);
 			if (option_get_bool(Option,"Book")) {
 
-				game_get_board(Game,board);
 				move = book_move(board,FALSE);
-
-				if (move != MoveNone && move_is_legal(move,board)) {
-					move_to_san(move,board,move_string,256);
-					gui_send(GUI,"Hint: %s",move_string);
-				}
+			}
+			if(move==MoveNone && State->hint_move!=MoveNone){
+			    move=State->hint_move;
+			    
+			}
+			if (move != MoveNone && move_is_legal(move,board)) {
+			    move_to_san(move,board,move_string,256);
+			    gui_send(GUI,"Hint: %s",move_string);
 			}
 
 		} else if (match(string,"ics *")) {
@@ -500,37 +509,48 @@ void xboard2uci_gui_step(char string[]) {
                    // refuse
                     gui_send(GUI,"Error (unknown command): %s",string);
                 }
-        } else if (XB->has_feature_egt && match(string,"egtpath * *")){
+        } else if (match(string,"egtpath * *")){
                 char *type=Star[0];
                 char *path=Star[1];
-                if(!my_string_case_equal(type,"nalimov")){
-                   // refuse
-                    gui_send(GUI,"Error (unsupported table base format): %s",string);
-                }else if(my_string_empty(path)){
+                if(my_string_empty(path)){
                     // refuse
                     gui_send(GUI,"Error (unknown command): %s",string);
                 }else{
-                    // updating NalimovPath
-                    my_log("POLYGLOT setting the Nalimov path to %s\n",path);
-                    start_protected_command();
-                    uci_send_option(Uci,"NalimovPath","%s",path);
-                    end_protected_command();
+		    if(my_string_case_equal(type,"nalimov") && XB->has_feature_egt_nalimov){
+			// updating NalimovPath
+			my_log("POLYGLOT setting the Nalimov path to %s\n",path);
+			start_protected_command();
+			uci_send_option(Uci,"NalimovPath","%s",path);
+			end_protected_command();
+		    }else if(my_string_case_equal(type,"gaviota") && XB->has_feature_egt_gaviota){
+			// updating GaviotaPath
+			my_log("POLYGLOT setting the Gaviota path to %s\n",path);
+			start_protected_command();
+			uci_send_option(Uci,"GaviotaTbPath","%s",path);
+			end_protected_command();
+		    }else{
+			// refuse
+			gui_send(GUI,"Error (unsupported table base format): %s",string);
+		    }
                 }
         } else if (XB->has_feature_memory && match(string,"memory *")){
             int memory = atoi(Star[0]);
-            int nalimov_cache;
+            int egt_cache;
             int real_memory;
             if(memory>=1){
                 // updating the available memory
                 option_t *opt;
                 my_log("POLYGLOT setting the amount of memory to %dMb\n",memory);
-                if((opt=option_find(Uci->option,"NalimovCache"))){
-                    nalimov_cache=atoi(opt->value);
-                }else{
-                    nalimov_cache=0;
+                if(XB->has_feature_egt_nalimov && (opt=option_find(Uci->option,"NalimovCache"))){
+                    egt_cache=atoi(opt->value);
+                }else if(XB->has_feature_egt_gaviota && 
+			 (opt=option_find(Uci->option,"GaviotaTbCache"))){
+		    egt_cache=atoi(opt->value);
+		}else{
+                    egt_cache=0;
                 }
-                my_log("POLYGLOT Nalimov Cache is %dMb\n",nalimov_cache);
-                real_memory=memory-nalimov_cache;
+                my_log("POLYGLOT EGTB Cache is %dMb\n",egt_cache);
+                real_memory=memory-egt_cache;
                 if(real_memory>0){
                     start_protected_command();
                     uci_send_option(Uci,"Hash", "%d", real_memory);
@@ -725,9 +745,14 @@ void xboard2uci_engine_step(char string[]) {
 
 			if (XB->my_time < 0.0) XB->my_time = 0.0;
 
+			// make sure to remember the ponder move
+
+			State->hint_move=Uci->ponder_move;
+
 			// play the engine move
 
 			comp_move(Uci->best_move);
+
 		}
 
 		if ((event & EVENT_PV) != 0) {
@@ -824,8 +849,10 @@ void format_xboard_option_line(char * option_line, option_t *opt){
 // send_xboard_options()
 
 static void send_xboard_options(){
-
-   
+    
+    char egtfeature[StringSize];
+    int tbs=0;
+    
     gui_send(GUI,"feature done=0");
     
     gui_send(GUI,"feature analyze=1");
@@ -857,12 +884,21 @@ static void send_xboard_options(){
     }else{
         gui_send(GUI,"feature smp=0");
     }
-    if (XB->has_feature_egt){
-            // TODO: support for other types of table bases
-        gui_send(GUI,"feature egt=\"nalimov\"");
-    }else{
-        gui_send(GUI,"feature egt=\"\"");
+    egtfeature[0]='\0';
+    strncat(egtfeature,"feature egt=\"",StringSize);
+    if (XB->has_feature_egt_nalimov){
+	tbs++;
+	strncat(egtfeature,"nalimov",StringSize-strlen(egtfeature));
     }
+    if (XB->has_feature_egt_gaviota){
+	if(tbs>0){
+	    strncat(egtfeature,",",StringSize-strlen(egtfeature));
+	}
+	strncat(egtfeature,"gaviota",StringSize-strlen(egtfeature));
+    }
+    strncat(egtfeature,"\"",StringSize-strlen(egtfeature));
+    egtfeature[StringSize-1]='\0';
+    gui_send(GUI,egtfeature);
     
     if (option_find(Uci->option,"UCI_Chess960")) {
         gui_send(GUI,"feature variants=\"normal,fischerandom\"");
@@ -891,6 +927,7 @@ void xboard2uci_send_options(){
     if(my_string_case_equal(opt->name,"Ponder")) continue;
     if(my_string_case_equal(opt->name,"Hash")) continue;
     if(my_string_case_equal(opt->name,"NalimovPath")) continue;
+    if(my_string_case_equal(opt->name,"GaviotaTbPath")) continue;
     if((name=uci_thread_option(Uci))!=NULL &&
        my_string_case_equal(opt->name,name)) continue;
     format_xboard_option_line(option_line,opt);

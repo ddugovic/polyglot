@@ -22,8 +22,6 @@
 static const bool UseDebug = FALSE;
 static const bool UseCR = FALSE;
 
-static const int StringSize = 4096;
-
 static const char LF = '\n';
 static const char CR = '\r';
 

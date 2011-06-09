@@ -1,3 +1,8 @@
+========1.4.63b=================
+- Give ponder move as hint.
+- Support for egtpath gaviota (this is a bit hacky right now).
+========1.4.62b=================
+- StringSize was not everywhere the same in Polyglot. This could lead to a buffer overflow in case of very long PV's. 
 ========1.4.61b=================
 - uci_isready replaced by uci_isready_sync. Polyglot should not send commands to the engine while it is syncing.
 ========1.4.60b=================

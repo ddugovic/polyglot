@@ -9,10 +9,6 @@
 #include <sys/wait.h>
 #include "pipex.h"
 
-// constants
-
-static const unsigned int StringSize = 4096;
-
 // prototypes
 
 static void my_close(int fd);

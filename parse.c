@@ -8,10 +8,6 @@
 #include "parse.h"
 #include "util.h"
 
-// constants
-
-#define StringSize ((int)256)
-
 // variables
 
 char * Star[STAR_NUMBER];
