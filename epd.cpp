@@ -282,7 +282,7 @@ static void epd_test_file(const char file_name[]) {
       if (correct) {
          depth_tot += double(FirstDepth);
          time_tot += FirstTime;
-         node_tot += double(FirstNodeNb);
+         node_tot += double(sint64(FirstNodeNb));
       }
 
       printf("%2d: %-15s %s %4d",tot,id,correct?"OK":"--",hit);

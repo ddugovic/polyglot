@@ -321,6 +321,19 @@ engine_t Engine[1];
 
 // functions
 
+void set_affinity(engine_t *engine, int affin){
+	if(affin==-1) return;
+    {   typedef void (WINAPI *SPAM)(HANDLE, int);
+	SPAM pSPAM;
+
+	pSPAM = (SPAM) GetProcAddress(
+	    GetModuleHandle(TEXT("kernel32.dll")), 
+	    "SetProcessAffinityMask");
+	if(NULL != pSPAM) // [HGM] avoid crash on Win95 by first checking if API call exists
+	    pSPAM((engine->io).hProcess,affin);
+    }
+}
+
 DWORD GetWin32Priority(int nice)
 {
 /*
@@ -338,20 +351,10 @@ IDLE_PRIORITY_CLASS         0x00000040
 	return 0x00000040;
 }
 
-
-
-void set_affinity(engine_t *engine, int affin){
-	if(affin==-1) return;
-    SetProcessAffinityMask((engine->io).hProcess,affin);
-}
-
-// Eric Mullins!
-
 void engine_set_nice_value(engine_t *engine, int value){
     SetPriorityClass((engine->io).hProcess,
                      GetWin32Priority(value));
 }
-
 
 void engine_send_queue(engine_t * engine,const char *szFormat, ...) {
     nQueuePtr += vsprintf(szQueueString + nQueuePtr, szFormat, (va_list) (&szFormat + 1));
@@ -374,7 +377,6 @@ void engine_close(engine_t * engine){
     }
     (engine->io).Kill();
 }
-
 
 void engine_open(engine_t * engine){
     int affinity;

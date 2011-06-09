@@ -1,3 +1,8 @@
+=========1.4w10UCIb24===========
+- Portability fixes for WIN9X (Eric Mullins).
+- Portability fixes for MSVC++ (Eric Mullins).
+- Default setting of RepeatPV is now true.
+- Do not read data if input buffer is full (Windows).
 =========1.4w10UCIb22===========
 - Polyglot now completely poll free...
 =========1.4w10UCIb21===========

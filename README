@@ -427,9 +427,11 @@ CONFIG FILE FORMAT
        RepeatPV (default: true)
            When true, PolyGlot repeats the last pv string (which also contains
            score,depth and time usage) it got from the engine. Some engines
-           however do not send a new pv string just before sending the move
-           and the now old pv string might confuse debugtools that parse the
-           winboard debug files.
+           however do not send a new pv string just before sending the move.
+           In that case the output of PolyGlot would be inconsistent.  When
+           RepeatPV is false PolyGlot does not repeat the last pv string.  Due
+           to the way kibitzing is implemented, KibitzMove is disabled in that
+           case.
 
        [Engine] section
 
@@ -503,4 +505,4 @@ SEE ALSO
 
 
 
-                                  2009-01-16                       POLYGLOT(6)
+                                  2009-07-20                       POLYGLOT(6)

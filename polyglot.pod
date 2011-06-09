@@ -506,10 +506,10 @@ incorrect form (and of course promotes into a queen).
 
 When true, PolyGlot repeats the last pv string (which also contains
 score,depth and time usage) it got from the engine. Some engines
-however do not send a new pv string just before sending the move and
-the now old pv string might confuse debugtools that parse the winboard
-debug files.
-
+however do not send a new pv string just before sending the move.
+In that case the output of PolyGlot would be inconsistent. 
+When RepeatPV is false PolyGlot does not repeat the last pv string.
+Due to the way kibitzing is implemented, KibitzMove is disabled in that case. 
 
 =back
 

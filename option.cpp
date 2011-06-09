@@ -16,56 +16,57 @@ static const bool UseDebug = false;
 
 // variables
 
+#define NNB { NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL }
 option_t Option[] = {
 
-    { "OptionFile",       "string","0","0",     "polyglot.ini", NULL,0,{},  PG}, 
+    { "OptionFile",       "string","0","0",     "polyglot.ini", NULL,0,NNB,  PG}, 
 
    // options
 
-    { "EngineName",       "string","0","0",     "<empty>"   , NULL,0,{},  PG}, 
-    { "EngineDir",        "string","0","0",     "."         , NULL,0,{},  PG}, 
-    { "EngineCommand",    "string","0","0",     "<empty>"   , NULL,0,{},  PG}, 
+    { "EngineName",       "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
+    { "EngineDir",        "string","0","0",     "."         , NULL,0,NNB,  PG}, 
+    { "EngineCommand",    "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
 
-    { "Log",              "check","0","0",     "false"      , NULL,0,{},  PG|XBOARD|UCI}, 
-    { "LogFile",          "string","0","0",     "polyglot.log", NULL,0,{},  PG|XBOARD|UCI}, 
+    { "Log",              "check","0","0",     "false"      , NULL,0,NNB,  PG|XBOARD|UCI}, 
+    { "LogFile",          "string","0","0",     "polyglot.log", NULL,0,NNB,  PG|XBOARD|UCI}, 
 
-    { "UCI",              "string","0","0",     "false"     , NULL,0,{},  PG}, 
+    { "UCI",              "string","0","0",     "false"     , NULL,0,NNB,  PG}, 
 
-    { "UseNice",          "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD|UCI}, 
-    { "NiceValue",        "spin", "0","20",     "5"         , NULL,0,{},  PG|XBOARD|UCI}, 
+    { "UseNice",          "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI}, 
+    { "NiceValue",        "spin", "0","20",     "5"         , NULL,0,NNB,  PG|XBOARD|UCI}, 
 
-    { "Chess960",         "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
+    { "Chess960",         "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "Resign",           "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
-    { "ResignMoves",      "spin","0","10000",    "3"        , NULL,0,{},  PG|XBOARD}, 
-    { "ResignScore",      "spin","0","10000",   "600"       , NULL,0,{},  PG|XBOARD}, 
+    { "Resign",           "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "ResignMoves",      "spin","0","10000",    "3"        , NULL,0,NNB,  PG|XBOARD}, 
+    { "ResignScore",      "spin","0","10000",   "600"       , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "MateScore",        "spin","0","1000000", "10000"     , NULL,0,{},  PG|XBOARD}, 
+    { "MateScore",        "spin","0","1000000", "10000"     , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "Book",             "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD|UCI}, 
-    { "BookFile",         "string","0","0",     "book.bin"  , NULL,0,{},  PG|XBOARD|UCI}, 
+    { "Book",             "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI}, 
+    { "BookFile",         "string","0","0",     "book.bin"  , NULL,0,NNB,  PG|XBOARD|UCI}, 
 
-    { "BookRandom",       "check","0","0",      "true"      , NULL,0,{},  PG|XBOARD|UCI}, 
-    { "BookLearn",        "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
+    { "BookRandom",       "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD|UCI}, 
+    { "BookLearn",        "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "KibitzMove",       "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
-    { "KibitzPV",         "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
+    { "KibitzMove",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "KibitzPV",         "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "KibitzCommand",    "string","0","0",     "tellall"   , NULL,0,{},  PG|XBOARD}, 
-    { "KibitzDelay",      "check","0","10000",  "5"         , NULL,0,{},  PG|XBOARD}, 
+    { "KibitzCommand",    "string","0","0",     "tellall"   , NULL,0,NNB,  PG|XBOARD}, 
+    { "KibitzDelay",      "check","0","10000",  "5"         , NULL,0,NNB,  PG|XBOARD}, 
 
-    { "ShowPonder",       "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
+    { "ShowPonder",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
    // work-arounds
 
-    { "UCIVersion",       "spin","1","2",       "2"         , NULL,0,{},  PG|XBOARD}, 
-    { "CanPonder",        "check","1","2",      "false"     , NULL,0,{},  PG|XBOARD}, 
-    { "SyncStop",         "check","1","2",      "false"     , NULL,0,{},  PG|XBOARD}, 
-    { "Affinity",	      "spin","-1","32",     "-1"        , NULL,0,{},  PG}, 
-    { "RepeatPV",	      "check","0","0",      "false"     , NULL,0,{},  PG|XBOARD},
-    { "PromoteWorkAround","check","0","0",      "false"     , NULL,0,{},  PG|XBOARD}, 
+    { "UCIVersion",       "spin","1","2",       "2"         , NULL,0,NNB,  PG|XBOARD}, 
+    { "CanPonder",        "check","1","2",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "SyncStop",         "check","1","2",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+    { "Affinity",	      "spin","-1","32",     "-1"        , NULL,0,NNB,  PG}, 
+    { "RepeatPV",	      "check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD},
+    { "PromoteWorkAround","check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
-    { NULL,               NULL,"0","0",         NULL        , NULL,0,{},  0},
+    { NULL,               NULL,"0","0",         NULL        , NULL,0,NNB,  0},
 };
 
 // prototypes

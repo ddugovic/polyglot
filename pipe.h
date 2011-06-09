@@ -10,7 +10,9 @@
 
 // constants
 
-const int LINE_INPUT_MAX_CHAR = 10*4096;
+// This should be bigger than the maximum length of an engine output or GUI
+// input line.
+const int LINE_INPUT_MAX_CHAR = 40960;
 
 // defines
 

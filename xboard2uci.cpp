@@ -839,7 +839,7 @@ static void comp_move(int move) {
    ASSERT(State->state==THINK);
    ASSERT(!XB->analyse);
 
-   if(option_get_bool("RepeatPV")==true)
+   if(option_get_bool("RepeatPV"))
 	   send_pv(); // to update time and nodes
 
    // send the move

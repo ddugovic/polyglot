@@ -4,10 +4,15 @@
 
 // functions
 
-DWORD WINAPI ThreadProc(LPVOID lpParam){
+DWORD WINAPI ThreadProc(LPVOID lpParam){ 
     PipeStruct *p=(PipeStruct *) lpParam;
     while(!p->EOF_()){
-        p->ReadInput();
+        if(p->nReadEnd<LINE_INPUT_MAX_CHAR-1){
+            p->ReadInput();
+        }else{
+                // wait until there is room in buffer
+            Sleep(10);
+        }
     }
     return 0;
 }
@@ -15,7 +20,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParam){
 
 
 void PipeStruct::Open(const char *szProcFile) {
-    DWORD dwMode;
+    DWORD dwMode, dwThreadId;
     HANDLE hStdinRead, hStdinWrite, hStdoutRead, hStdoutWrite;
     SECURITY_ATTRIBUTES sa;
     STARTUPINFO si;
@@ -68,7 +73,7 @@ void PipeStruct::Open(const char *szProcFile) {
                        dwMode & ~(ENABLE_MOUSE_INPUT | ENABLE_WINDOW_INPUT));
         FlushConsoleInputBuffer(hInput);
     } 
-    fdInput=_open_osfhandle((intptr_t) hInput,_O_RDONLY);
+    fdInput=_open_osfhandle((long) hInput,_O_RDONLY);
     if(fdInput==-1){
         my_fatal("PipeStruct::Open(): %s",my_error());
     }
@@ -84,14 +89,19 @@ void PipeStruct::Open(const char *szProcFile) {
                        FALSE,          // not signaled
                        NULL            // nameless
                        );
+    if(!hEvent){
+        my_fatal("PipeStruct::Open(): %s",my_error());
+    }
     hThread=CreateThread(NULL,         // default security
                          0,            // default stacksize
                          ThreadProc,   // worker function
                          this,         // tell worker about ourselves
                          0,            // run immediately
-                         NULL          // nameless
+                         &dwThreadId   // dropped, but needed for the call to work in Win9x
                          );          
-    
+    if(!hThread){
+        my_fatal("PipeStruct::Open(): %s",my_error());
+    }
     set_Active();
 }
 
@@ -144,14 +154,16 @@ void PipeStruct::set_Active(void){
 int PipeStruct::ReadData(void){
     DWORD dwBytes;
     char * ret;
-    
-    ret=fgets(lpReadBuffer,LINE_INPUT_MAX_CHAR,fpInput);
-    dwBytes=strlen(lpReadBuffer);
+        // No protection. Access to nReadEnd is atomic.
+        // It is not a problem that nReadEnd becomes smaller after the call.
+        // This just means we have read less than we could have. 
+    ret=fgets(lpReadBuffer,LINE_INPUT_MAX_CHAR-nReadEnd,fpInput);
     if(!ret){
         set_EOF_();
         lpReadBuffer[0]='\0';
         return 0;
     }
+    dwBytes=strlen(lpReadBuffer);
     lpReadBuffer[dwBytes]='\0';
     return dwBytes;
 }
@@ -160,19 +172,23 @@ void PipeStruct::ReadInput(void) {
   DWORD dwBytes;
   int ret;
   BOOL bSetEvent=FALSE;
+      // ReadData is outside the critical section otherwise everything
+      // would block during the blocking read
   ret=ReadData();
   EnterCriticalSection(&CriticalSection);
   if(!EOF_()){
       if(ret+nReadEnd>=LINE_INPUT_MAX_CHAR){
-          my_fatal("PipeStruct::ReadInput(): buffer overflow\n");
+          my_fatal("PipeStruct::ReadInput(): Internal error: buffer overflow\n");
       }
-      memcpy(lpBuffer+nReadEnd,lpReadBuffer,ret);
+      memcpy(lpBuffer+nReadEnd,lpReadBuffer,ret+1);
       nReadEnd += ret;
       if(!lpFeedEnd){
           lpFeedEnd = (char *) memchr(lpBuffer, '\n', nReadEnd);
       }
       if(lpFeedEnd){
           bSetEvent=TRUE;
+      }else if(nReadEnd>=LINE_INPUT_MAX_CHAR-1){
+          my_fatal("PipeStruct::ReadInput(): LINE_INPUT_MAX_CHAR is equal to %d which is too small to contain a full line of engine output or GUI input.\n",LINE_INPUT_MAX_CHAR);
       }
   }
   LeaveCriticalSection(&CriticalSection);
