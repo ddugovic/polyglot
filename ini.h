@@ -38,6 +38,7 @@ typedef enum {
 
 extern void         ini_init              (ini_t *ini);
 extern void         ini_clear             (ini_t *ini);
+extern void         ini_copy              (ini_t *dst, ini_t *src);
 extern int          ini_parse             (ini_t *ini, const char *filename);
 extern void         ini_disp              (ini_t *ini);
 extern void         ini_insert            (ini_t *ini, ini_entry_t *entry);

@@ -271,7 +271,7 @@ bool uci_send_option(uci_t * uci, const char option[], const char format[], ...)
    opt=option_find(uci->option,option);
    if(opt){
        found=TRUE;
-       if(!my_string_case_equal(opt->type,"button")){
+       if(!IS_BUTTON(opt)){
            if(!my_string_equal(opt->value,value)){
                engine_send(uci->engine,"setoption name %s value %s",
                            opt->name,value);

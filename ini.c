@@ -209,6 +209,19 @@ void ini_clear(ini_t *ini){
     ini->index=0;
 }
 
+// ini_copy()
+
+void ini_copy(ini_t *dst, ini_t *src){
+  int i;
+  dst->index=src->index;
+  dst->iter=src->iter;
+  for(i=0;i<src->index;i++){
+    my_string_set(&dst->entries[i].section,src->entries[i].section);
+    my_string_set(&dst->entries[i].name,src->entries[i].name);
+    my_string_set(&dst->entries[i].value,src->entries[i].value);
+  }
+}
+
 // ini_find()
 
 ini_entry_t *ini_find(ini_t *ini, const char *section, const char* name){
@@ -309,7 +322,6 @@ int ini_parse(ini_t *ini, const char *filename){
 
 void ini_disp(ini_t *ini){
     int i;
-    my_log("POLYGLOT Current options\n");
     for(i=0;i<ini->index;i++){
         my_log("POLYGLOT [%s] %s=\"%s\"\n",
                (ini->entries)[i].section,
@@ -334,5 +346,4 @@ ini_entry_t * ini_next(ini_t *ini){
     return &ini->entries[ini->iter++];
 }
 
-// ini_create_pg()
 

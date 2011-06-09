@@ -17,6 +17,13 @@
 #define PG       (1<<2)
 #define OptionNb 256
 
+#define IS_BUTTON(opt) (my_string_case_equal(opt->type,"button") ||      \
+                        my_string_case_equal(opt->type,"save")   ||      \
+                        my_string_case_equal(opt->type,"reset"))         \
+
+#define IS_SPIN(opt)   (my_string_case_equal(opt->type,"spin") ||        \
+                        my_string_case_equal(opt->type,"slider"))        \
+
 // types
 
 typedef struct {   // TODO: put back in more logical order

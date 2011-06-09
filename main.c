@@ -36,7 +36,7 @@
 // constants
 
 
-static const char * const Version = "1.4.42b";
+static const char * const Version = "1.4.44b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log] [-lf logfile] [-hash value] [-bk book] [-pg <name>=<value>]* [-uci <name>=<value>]*\n\
@@ -82,7 +82,7 @@ static void write_ini(const char *filename,
     FILE *f;
     f=fopen(filename,"w");
     if(!f){
-        my_fatal("ini_create_pg(): Cannot open %s for writing.\n",filename);
+        my_fatal("write_ini(): Cannot open %s for writing.\n",filename);
     }
     fprintf(f,"; You may edit this file to set options for the\n"
               "; UCI engine whose PolyGlot name is %s.\n"
@@ -93,7 +93,7 @@ static void write_ini(const char *filename,
     option_start_iter(pg_options);
     while((opt=option_next(pg_options))){
         if(!my_string_equal(opt->value,opt->default_)&&
-           !my_string_case_equal(opt->type,"button") &&
+           !IS_BUTTON(opt) &&
            (opt->mode & XBOARD)){
             snprintf(tmp,sizeof(tmp),"%s=%s\n",opt->name,opt->value);
             tmp[sizeof(tmp)-1]='\0';
@@ -104,11 +104,52 @@ static void write_ini(const char *filename,
     option_start_iter(uci_options);
     while((opt=option_next(uci_options))){
         if(!my_string_equal(opt->value,opt->default_)&&
-           !my_string_case_equal(opt->type,"button")){
+           !IS_BUTTON(opt)){
             snprintf(tmp,sizeof(tmp),"%s=%s\n",opt->name,opt->value);
             tmp[sizeof(tmp)-1]='\0';
             fprintf(f,"%s",tmp);
         }
+    }
+    fclose(f);
+}
+
+// write_ini_ex()
+
+static void write_ini_ex(const char *filename,
+			 ini_t *ini){
+    ini_entry_t *entry;
+    char tmp[StringSize];
+    FILE *f;
+    f=fopen(filename,"w");
+    if(!f){
+        my_fatal("write_ini_ex(): Cannot open %s for writing.\n",filename);
+    }
+    fprintf(f,"; You may edit this file to set options for the\n"
+              "; UCI engine whose PolyGlot name is %s.\n"
+              "; You may also safely delete this file\n"
+              "; to restore the default options.\n",
+            option_get_string(Option,"EngineName"));
+    fprintf(f,"[PolyGlot]\n");
+    ini_start_iter(ini);
+    while((entry=ini_next(ini))){
+      if(my_string_case_equal(entry->section,"polyglot")){
+	snprintf(tmp,sizeof(tmp),"%s=%s\n",
+		 entry->name,
+		 entry->value);
+	tmp[sizeof(tmp)-1]='\0';
+	fprintf(f,"%s",tmp);
+      }
+    }
+    fprintf(f,"[Engine]\n");
+    ini_start_iter(ini);
+    while((entry=ini_next(ini))){
+      if(my_string_case_equal(entry->section,"engine")){
+	snprintf(tmp,sizeof(tmp),"%s=%s\n",
+		 entry->name,
+		 entry->value);
+	tmp[sizeof(tmp)-1]='\0';
+	fprintf(f,"%s",tmp);
+      }
     }
     fclose(f);
 }
@@ -121,7 +162,7 @@ int main(int argc, char * argv[]) {
     ini_entry_t *entry;
     char *arg;
     int arg_index;
-    bool NoIni;
+    bool NoIni, Persist;
  
     if(!DEBUG){
         printf("PolyGlot %s by Fabien Letouzey.\n",Version);
@@ -299,8 +340,8 @@ int main(int argc, char * argv[]) {
         my_log("POLYGLOT *** Switching to UCI mode ***\n");
     }
 
-        // initialize uci parsing and send uci command. Parse options and wait
-        // for uciok
+        // initialize uci parsing and send uci command. 
+        // Parse options and wait for uciok
     
     uci_open(Uci,Engine);
 
@@ -320,16 +361,34 @@ int main(int argc, char * argv[]) {
         option_set(Option,"PersistFile",tmp);
     }
 
-        // if "Persist" is true, load the persist file!
-    
-    if(option_get_bool(Option,"Persist")){
-        my_log("POLYGLOT PersistFile=%s\n",option_get_string(Option,"PersistFile"));
-        if(ini_parse(ini_save,option_get_string(Option,"PersistFile"))){
-            my_log("POLYGLOT Unable to open PersistFile\n"); 
-        }
+    // Load the persist file
+
+    my_log("POLYGLOT PersistFile=%s\n",option_get_string(Option,"PersistFile"));   
+    if(ini_parse(ini_save,option_get_string(Option,"PersistFile"))){
+      my_log("POLYGLOT Unable to open PersistFile\n"); 
     }
-    
-        // parse the command line and merge remaining options
+
+    // Do we want to use the persist file?
+
+    entry=ini_find(ini_save,"polyglot","Persist");
+    if(!entry){
+      Persist=option_get_bool(Option,"Persist");
+    }else{
+      Persist=(my_string_case_equal(entry->value,"false") || 
+	       my_string_equal(entry->value,"0"))?FALSE:TRUE;
+    }
+
+    // if "Persist" now happens to be false, forget about the
+    // persist file    
+
+    if(!Persist){
+      my_log("POLYGLOT Ignoring PersistFile");
+      ini_clear(ini_save);
+    }
+
+    option_set(Option,"Persist",Persist?"true":"false");
+
+    // parse the command line and merge remaining options
 
     arg_index=1;
     while((arg=argv[arg_index])){
@@ -380,7 +439,7 @@ int main(int argc, char * argv[]) {
 
         // remind the reader once again about options
 
-    my_log("POLYGLOG Options from save file and command line\n");
+    my_log("POLYGLOG Options from PersistFile and command line\n");
     ini_disp(ini_save);
 
         // extract PG options; this time do not set the default
@@ -452,7 +511,24 @@ int main(int argc, char * argv[]) {
 // polyglot_set_option()
 
 void polyglot_set_option(const char *name, const char *value){ // this must be cleaned up!
+    option_t *opt;
     my_log("POLYGLOT Setting PolyGlot option %s=\"%s\"\n",name,value);
+    if(my_string_case_equal(name,"Defaults")){
+      option_start_iter(Uci->option);
+      while((opt=option_next(Uci->option))){
+	if(!IS_BUTTON(opt)){
+	// also sets opt->value
+	  uci_send_option(Uci,opt->name,opt->default_);
+	}
+      }
+      option_start_iter(Option);
+      while((opt=option_next(Option))){
+	if(!IS_BUTTON(opt)){
+	  polyglot_set_option(opt->name,opt->default_);
+	}
+      }
+      xboard2uci_send_options();
+    }
     option_set(Option,name,value);
     if(option_get_bool(Option,"Book")&&(my_string_case_equal(name,"BookFile")||my_string_case_equal(name,"Book"))){
         my_log("POLYGLOT *** SETTING BOOK ***\n");
@@ -464,7 +540,7 @@ void polyglot_set_option(const char *name, const char *value){ // this must be c
             my_log("POLYGLOT Unable to open book \"%s\"\n",option_get_string(Option,"BookFile"));
         }
     }else if(option_get_bool(Option,"Log")&&(my_string_case_equal(name,"LogFile") ||my_string_case_equal(name,"Log"))){
-        my_log("POLYGLOT *** SETTING LOGFILE ***\n");
+        my_log("POLYGLOT *** SWITCHING LOGFILE ***\n");
         my_log("POLYGLOT LOGFILE \"%s\"\n",option_get_string(Option,"LogFile"));
         my_log_close();
         my_log_open(option_get_string(Option,"LogFile"));
@@ -504,6 +580,10 @@ static void init_book(){
 
 void quit() {
 
+    ini_t empty[1];
+
+    ini_init(empty);
+
     my_log("POLYGLOT *** QUIT ***\n");
     
     if (Init) {
@@ -514,9 +594,17 @@ void quit() {
         engine_close(Engine);
         
     }
+    //    printf("def=%s val=%s\n",option_get_default(Option,"Persist"),option_get_string(Option,"Persist"));
     if(option_get_bool(Option,"Persist")){
         write_ini(option_get_string(Option,"PersistFile"),
                   Option,Uci->option);
+    }else if(!my_string_case_equal(option_get_default(Option,"Persist"),
+				  option_get_string(Option,"Persist"))){
+      // Hack
+      ini_insert_ex(empty,"PolyGlot","Persist","false");
+      write_ini_ex(option_get_string(Option,"PersistFile"),empty);
+    }else{
+      write_ini_ex(option_get_string(Option,"PersistFile"),empty);
     }
     my_log("POLYGLOT Calling exit\n");
     exit(EXIT_SUCCESS);

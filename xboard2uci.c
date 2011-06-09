@@ -27,6 +27,7 @@
 #include "uci.h"
 #include "uci2uci.h"
 #include "util.h"
+#include "xboard2uci.h"
 
 // defines
 
@@ -468,12 +469,17 @@ void xboard2uci_gui_step(char string[]) {
             }
         } else if (match(string,"option *")){
             char *name=Star[0];
-            start_protected_command();
+             if(match(name, "Polyglot *")){
+                char *pg_name=Star[0];
+                polyglot_set_option(pg_name,"<empty>");
+	     }else{           
+	       start_protected_command();
                 // value is ignored
-            if(!uci_send_option(Uci, name, "%s", "<empty>")){
-               gui_send(GUI,"Error (unknown option): %s",name); 
-            }; 
-            end_protected_command();
+	       if(!uci_send_option(Uci, name, "%s", "<empty>")){
+		 gui_send(GUI,"Error (unknown option): %s",name); 
+	       }; 
+	       end_protected_command();
+	     }
         } else if (XB->has_feature_smp && match(string,"cores *")){
                 int cores=atoi(Star[0]);
                 if(cores>=1){
@@ -768,7 +774,7 @@ void format_xboard_option_line(char * option_line, option_t *opt){
     strcat(option_line,option_string);
     sprintf(option_string," -%s",opt->type);
     strcat(option_line,option_string);
-    if(strcmp(opt->type,"button") && strcmp(opt->type,"combo")){
+    if(!IS_BUTTON(opt) && strcmp(opt->type,"combo")){
         if(strcmp(opt->type,"check")){
             sprintf(option_string," %s",opt->value);
         }else{
@@ -779,11 +785,11 @@ void format_xboard_option_line(char * option_line, option_t *opt){
         }
         strcat(option_line,option_string);
     }
-    if(!strcmp(opt->type,"spin")){
+    if(IS_SPIN(opt)){
         sprintf(option_string," %s",opt->min);
             strcat(option_line,option_string);
     }
-    if(!strcmp(opt->type,"spin")){
+    if(IS_SPIN(opt)){
         sprintf(option_string," %s",opt->max);
         strcat(option_line,option_string);
     }
@@ -811,10 +817,7 @@ void format_xboard_option_line(char * option_line, option_t *opt){
 
 static void send_xboard_options(){
 
-    char option_line[StringSize]="";
-    const char * name;
-    option_t *opt;
-    
+   
     gui_send(GUI,"feature done=0");
     
     gui_send(GUI,"feature analyze=1");
@@ -857,41 +860,44 @@ static void send_xboard_options(){
         gui_send(GUI,"feature variants=\"normal\"");
     }
 
-    option_start_iter(Uci->option);
-    while((opt=option_next(Uci->option))){
-        if(my_string_case_equal(opt->name,"UCI_AnalyseMode")) continue;
-        if(my_string_case_equal(opt->name,"UCI_Opponent")) continue;
-        if(my_string_case_equal(opt->name,"UCI_Chess960")) continue;
-        if(my_string_case_equal(opt->name,"UCI_ShowCurrLine")) continue;
-        if(my_string_case_equal(opt->name,"UCI_ShowRefutations")) continue;
-        if(my_string_case_equal(opt->name,"UCI_ShredderbasesPath")) continue;
-        if(my_string_case_equal(opt->name,"UCI_SetPositionValue")) continue;
-        if(my_string_case_equal(opt->name,"UCI_DrawOffers")) continue;
-        if(my_string_case_equal(opt->name,"Ponder")) continue;
-        if(my_string_case_equal(opt->name,"Hash")) continue;
-        if(my_string_case_equal(opt->name,"NalimovPath")) continue;
-        if((name=uci_thread_option(Uci))!=NULL &&
-           my_string_case_equal(opt->name,name)) continue;
-        format_xboard_option_line(option_line,opt);
-        
-        gui_send(GUI,"%s",option_line);
-    }
+    xboard2uci_send_options();
+}
 
-
-    option_start_iter(Option);
-    while((opt=option_next(Option))){
-        if(opt->mode &XBOARD){
-            if(my_string_case_equal(opt->name,"Persist") &&
-               my_string_case_equal(option_get_default(Option,opt->name),
-                                    "false")){
-                continue;
-            }
-            format_xboard_option_line(option_line,opt);
-            gui_send(GUI,"%s",option_line);
-        }
-    }       
-    gui_send(GUI,"feature done=1"); 
+void xboard2uci_send_options(){
+  char option_line[StringSize]="";
+  const char * name;
+  option_t *opt;
+  
+  option_start_iter(Uci->option);
+  while((opt=option_next(Uci->option))){
+    if(my_string_case_equal(opt->name,"UCI_AnalyseMode")) continue;
+    if(my_string_case_equal(opt->name,"UCI_Opponent")) continue;
+    if(my_string_case_equal(opt->name,"UCI_Chess960")) continue;
+    if(my_string_case_equal(opt->name,"UCI_ShowCurrLine")) continue;
+    if(my_string_case_equal(opt->name,"UCI_ShowRefutations")) continue;
+    if(my_string_case_equal(opt->name,"UCI_ShredderbasesPath")) continue;
+    if(my_string_case_equal(opt->name,"UCI_SetPositionValue")) continue;
+    if(my_string_case_equal(opt->name,"UCI_DrawOffers")) continue;
+    if(my_string_case_equal(opt->name,"Ponder")) continue;
+    if(my_string_case_equal(opt->name,"Hash")) continue;
+    if(my_string_case_equal(opt->name,"NalimovPath")) continue;
+    if((name=uci_thread_option(Uci))!=NULL &&
+       my_string_case_equal(opt->name,name)) continue;
+    format_xboard_option_line(option_line,opt);
     
+    gui_send(GUI,"%s",option_line);
+  }
+  
+  
+  option_start_iter(Option);
+  while((opt=option_next(Option))){
+    if(opt->mode &XBOARD){
+      format_xboard_option_line(option_line,opt);
+      gui_send(GUI,"%s",option_line);
+    }
+  }       
+  gui_send(GUI,"feature done=1"); 
+  
 }
 
 // report_best_score()

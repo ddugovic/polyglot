@@ -1,3 +1,7 @@
+=========1.4.44b================
+- "Implementation" of new buttons and controls.
+- The "Persist" option is now persistent. That is if you turn of "Persist" then as a special case PG will remember this.
+- There is now a "reset" button which restores the default options. The code is commented out since WB does not support it yet.
 =========1.4.42b================
 - SaveSettingsOnExit/SaveFile renamed as Persist/PersistFile.
 - Many bug fixes in the persistence feature.

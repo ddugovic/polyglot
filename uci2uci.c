@@ -130,15 +130,15 @@ static void format_uci_option_line(char * option_line,option_t *opt){
     strcat(option_line,option_string);
     sprintf(option_string," type %s",opt->type);
     strcat(option_line,option_string);
-    if(strcmp(opt->type,"button")){
+    if(!IS_BUTTON(opt)){
         sprintf(option_string," default %s",opt->default_);
         strcat(option_line,option_string);
     }
-    if(!strcmp(opt->type,"spin")){
+    if(IS_SPIN(opt)){
         sprintf(option_string," min %s",opt->min);
         strcat(option_line,option_string);
     }
-    if(!strcmp(opt->type,"spin")){
+    if(IS_SPIN(opt)){
         sprintf(option_string," max %s",opt->max);
         strcat(option_line,option_string);
     }

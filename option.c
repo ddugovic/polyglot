@@ -78,6 +78,11 @@ option_t DefaultOptions[] = {
 
     { "WbWorkArounds",    "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD}, 
     { "WbWorkArounds2",   "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
+
+    // Buttons
+
+//    { "Defaults",         "reset","0","0",     "false"     , NULL,0,NNB,  PG|XBOARD},
+
     { NULL,               NULL,"0","0",         NULL        , NULL,0,NNB,  0},
 
 };
@@ -167,6 +172,11 @@ bool option_set(option_list_t *option,
    opt = option_find(option,name);
    if (opt == NULL) return FALSE;
 
+   if(my_string_case_equal(opt->type,"check")){
+      value=(my_string_equal(value,"1")||
+	     my_string_case_equal(value,"true"))?"true":"false";
+   }
+
    my_string_set(&opt->value,value);
 
    if (UseDebug) my_log("POLYGLOT OPTION SET \"%s\" -> \"%s\"\n",opt->name,opt->value);
@@ -186,6 +196,11 @@ bool option_set_default(option_list_t *option,
 
    opt = option_find(option,name);
    if (opt == NULL) return FALSE;
+
+   if(my_string_case_equal(opt->type,"check")){
+      value=(my_string_equal(value,"1")||
+	     my_string_case_equal(value,"true"))?"true":"false";
+   }
 
    my_string_set(&opt->default_,value);
 
