@@ -23,7 +23,7 @@ SYNOPSIS
 
        polyglot info-book [-bin inputfile] [-exact]
 
-       polyglot dumb-book [-bin inputfile] -color color [-out outputfile]
+       polyglot dump-book [-bin inputfile] -color color [-out outputfile]
 
        polyglot [configfile] epd-test [-epd inputfile] [-min-depth depth]
        [-max-depth depth] [-max-time time] [-depth-delta delta]
@@ -512,4 +512,4 @@ SEE ALSO
 
 
 
-                                  2009-07-26                       POLYGLOT(6)
+                                  2009-08-03                       POLYGLOT(6)

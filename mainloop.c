@@ -52,7 +52,7 @@ static void mainloop_gui_step(char * string){
         uci2uci_gui_step(string); 
     }else if(my_string_equal(string,"uci")){ // mode auto detection
         my_log("POLYGLOT *** Switching to UCI mode ***\n");
-        option_set("UCI","TRUE");
+        option_set("UCI","true");
         uci2uci_gui_step(string);
     }else{
         xboard2uci_gui_step(string);

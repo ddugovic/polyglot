@@ -302,7 +302,7 @@ void xboard2uci_gui_step(char string[]) {
             uci_send_isready(Uci);
 			my_log("POLYGLOT NEW GAME\n");
 
-			option_set("Chess960","FALSE");
+			option_set("Chess960","false");
 
 			game_clear(Game);
 
@@ -574,9 +574,9 @@ void xboard2uci_gui_step(char string[]) {
 		} else if (match(string,"variant *")) {
 
 			if (my_string_equal(Star[0],"fischerandom")) {
-				option_set("Chess960","TRUE");
+				option_set("Chess960","true");
 			} else {
-				option_set("Chess960","FALSE");
+				option_set("Chess960","false");
 			}
 
 		} else if (match(string,"white")) {
@@ -732,7 +732,7 @@ void format_xboard_option_line(char * option_line, option_t *opt){
             sprintf(option_string," %s",opt->default_);
         }else{
             sprintf(option_string," %d",
-                    strcmp(opt->default_,"TRUE")?0:1);
+                    my_string_case_equal(opt->default_,"true")?1:0);
         }
         strcat(option_line,option_string);
     }
@@ -1181,14 +1181,14 @@ static void search_update() {
 
       // options
 
-      uci_send_option(Uci,"UCI_Chess960","%s",option_get_bool("Chess960")?"TRUE":"FALSE");
+      uci_send_option(Uci,"UCI_Chess960","%s",option_get_bool("Chess960")?"true":"false");
 
       if (option_get_int("UCIVersion") >= 2) {
          uci_send_option(Uci,"UCI_Opponent","none none %s %s",(XB->computer)?"computer":"human",XB->name);
-         uci_send_option(Uci,"UCI_AnalyseMode","%s",(XB->analyse)?"TRUE":"FALSE");
+         uci_send_option(Uci,"UCI_AnalyseMode","%s",(XB->analyse)?"true":"false");
       }
 
-      uci_send_option(Uci,"Ponder","%s",ponder()?"TRUE":"FALSE");
+      uci_send_option(Uci,"Ponder","%s",ponder()?"true":"false");
 
       // position
 

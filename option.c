@@ -65,7 +65,7 @@ option_t Option[] = {
     { "CanPonder",        "check","1","2",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
     { "SyncStop",         "check","1","2",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
     { "Affinity",	      "spin","-1","32",     "-1"        , NULL,0,NNB,  PG}, 
-    { "RepeatPV",	      "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
+    { "RepeatPV",	      "check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD},
     { "PromoteWorkAround","check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD}, 
 
     { NULL,               NULL,"0","0",         NULL        , NULL,0,NNB,  0},

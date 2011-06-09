@@ -18,7 +18,7 @@ polyglot merge-book -in1 inputfile1 -in2 inputfile2 [-out outputfile]
 
 polyglot info-book [-bin inputfile] [-exact]
 
-polyglot dumb-book [-bin inputfile] -color color [-out outputfile]
+polyglot dump-book [-bin inputfile] -color color [-out outputfile]
 
 polyglot [configfile] epd-test [-epd inputfile] [-min-depth depth] [-max-depth depth] [-max-time time] [-depth-delta delta] 
 

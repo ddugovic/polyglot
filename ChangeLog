@@ -1,3 +1,5 @@
+=========1.4.32b================
+- Bugfix: the default setting for RepeatPV had become false again...
 =========1.4.31b================
 - Bugfix: improper handling of vararg function.
 =========1.4.30b================
