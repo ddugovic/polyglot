@@ -1,3 +1,6 @@
+=========1.4w10UCIb21===========
+- Crash bug in memory command fixed
+- Small optimizations
 =========1.4w10UCIb20===========
 - More refactoring.
 - No more polling for GUI input

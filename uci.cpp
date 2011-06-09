@@ -805,6 +805,7 @@ static void parse_option(uci_t * uci, const char string[]) {
    uci->option_nb++;
 
    opt->value=NULL;
+   my_string_set(&opt->value,"<empty>");
    opt->mode=0;
 
    opt->name = NULL;
@@ -847,6 +848,7 @@ static void parse_option(uci_t * uci, const char string[]) {
 
          if (!my_string_empty(argument)) {
             my_string_set(&opt->default_,argument);
+            my_string_set(&opt->value,argument);
          }
 
       } else if (my_string_equal(option,"max")) {

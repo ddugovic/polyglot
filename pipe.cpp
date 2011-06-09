@@ -68,6 +68,7 @@ void PipeStruct::Open(const char *szProcFile) {
         FlushConsoleInputBuffer(hInput);
     } 
     nReadEnd = 0;
+    lpFeedEnd = NULL;
     InitializeCriticalSection(&CriticalSection);
     hEvent=CreateEvent(NULL,           // default security
                        FALSE,          // auto reset
@@ -131,72 +132,62 @@ void PipeStruct::set_Active(void){
     LeaveCriticalSection(&CriticalSection);
 }
 
-
-
-int PipeStruct::ReadLine(void){
+int PipeStruct::ReadData(void){
     DWORD dwBytes;
     int ret;
-    int start=0;
-    int start1;    
     
     if(!bPipe){
         fgets(lpReadBuffer,LINE_INPUT_MAX_CHAR,stdin);
-        start=strlen(lpReadBuffer);
-        if(!start){
+        dwBytes=strlen(lpReadBuffer);
+        if(!dwBytes){
             set_EOF_();
             lpReadBuffer[0]='\0';
+            return 0;
         }
-        return start;
     }else{
+            // Unfortunately we need to use polling here.
+            // Otherwise Windows returns single bytes if
+            // the engine runs at low priority.
+            // This kills performance.
         while(TRUE){
-                // Unfortunately we need to use polling here.
-                // Otherwise Windows returns single bytes if
-                // the engine runs at low priority.
-                // This kills performance.
-            while(TRUE){
-                ret=PeekNamedPipe(hInput,
-                                  NULL,    // don't read anything yet
-                                  0,       // no buffer
-                                  NULL,    // no we don't read anything!
-                                  &dwBytes,// now we're talking
-                                  NULL);   // nono we don't read anything
-                if(!ret){
-                    set_EOF_();
-                    lpReadBuffer[0]='\0';
-                    return 0;
-                }
-                if(dwBytes>0){
-                    break;
-                }else{
-                    Idle();
-                }
-                
-            }
-            ret=ReadFile(hInput,
-                         lpReadBuffer+start,
-                         LINE_INPUT_MAX_CHAR-start,
-                         &dwBytes,
-                         NULL);
+            ret=PeekNamedPipe(hInput,
+                              NULL,    // don't read anything yet
+                              0,       // no buffer
+                              NULL,    // no we don't read anything!
+                              &dwBytes,// now we're talking
+                              NULL);   // nono we don't read anything
             if(!ret){
                 set_EOF_();
                 lpReadBuffer[0]='\0';
                 return 0;
-            }else{
-                start1=start;
-                start+=dwBytes;
-                if (memchr(lpReadBuffer+start1, '\n', dwBytes)){
-                    lpReadBuffer[start]='\0';
-                    return start;
-                }
             }
+            if(dwBytes>0){
+                break;
+            }else{
+                Idle();
+            }
+            
+        }
+        ret=ReadFile(hInput,
+                     lpReadBuffer,
+                     LINE_INPUT_MAX_CHAR,
+                     &dwBytes,
+                     NULL);
+        if(!ret){
+            set_EOF_();
+            lpReadBuffer[0]='\0';
+            return 0;
         }
     }
+    lpReadBuffer[dwBytes]='\0';
+    return dwBytes;
 }
 
 void PipeStruct::ReadInput(void) {
   DWORD dwBytes;
   int ret;
-  ret=ReadLine();
+  BOOL bSetEvent=FALSE;
+  ret=ReadData();
   EnterCriticalSection(&CriticalSection);
   if(!EOF_()){
       if(ret+nReadEnd>=LINE_INPUT_MAX_CHAR){
@@ -204,9 +195,51 @@ void PipeStruct::ReadInput(void) {
       }
       memcpy(lpBuffer+nReadEnd,lpReadBuffer,ret);
       nReadEnd += ret;
+      if(!lpFeedEnd){
+          lpFeedEnd = (char *) memchr(lpBuffer, '\n', nReadEnd);
+      }
+      if(lpFeedEnd){
+          bSetEvent=TRUE;
+      }
   }
   LeaveCriticalSection(&CriticalSection);
-  SetEvent(hEvent);
+  if(EOF_() || bSetEvent){
+      SetEvent(hEvent);
+  }
+}
+
+bool PipeStruct::GetBuffer(char *szLineStr) {
+  int nFeedEnd;
+  int ret;
+  EnterCriticalSection(&CriticalSection);
+  if (lpFeedEnd == NULL) {
+    ret=FALSE;
+  } else {
+    nFeedEnd = lpFeedEnd - lpBuffer;
+    memcpy(szLineStr, lpBuffer, nFeedEnd);
+    if (szLineStr[nFeedEnd - 1] == '\r') {
+      szLineStr[nFeedEnd - 1] = '\0';
+    } else {
+      szLineStr[nFeedEnd] = '\0';
+    }
+    nFeedEnd ++;
+    nReadEnd -= nFeedEnd;
+    memcpy(lpBuffer, lpBuffer + nFeedEnd, nReadEnd);
+    lpFeedEnd = (char *) memchr(lpBuffer, '\n', nReadEnd);
+    ret=TRUE;
+  }
+  LeaveCriticalSection(&CriticalSection);
+  return ret;
+}
+
+void PipeStruct::LineInput(char *szLineStr) {
+    while(!EOF_()){
+        if (GetBuffer(szLineStr)) {
+            break;
+        }else{
+            WaitForSingleObject(hEvent,INFINITE);
+        }
+    }
 }
 
 void PipeStruct::LineOutput(const char *szLineStr) const {
@@ -223,40 +256,5 @@ void PipeStruct::LineOutput(const char *szLineStr) const {
       printf("%s\n",szLineStr);
       fflush(stdout);
   }
-}
-
-bool PipeStruct::GetBuffer(char *szLineStr) {
-  char *lpFeedEnd;
-  int nFeedEnd;
-  int ret;
-  EnterCriticalSection(&CriticalSection);
-  lpFeedEnd = (char *) memchr(lpBuffer, '\n', nReadEnd);
-  if (lpFeedEnd == NULL) {
-    ret=FALSE;
-  } else {
-    nFeedEnd = lpFeedEnd - lpBuffer;
-    memcpy(szLineStr, lpBuffer, nFeedEnd);
-    if (szLineStr[nFeedEnd - 1] == '\r') {
-      szLineStr[nFeedEnd - 1] = '\0';
-    } else {
-      szLineStr[nFeedEnd] = '\0';
-    }
-    nFeedEnd ++;
-    nReadEnd -= nFeedEnd;
-    memcpy(lpBuffer, lpBuffer + nFeedEnd, nReadEnd);
-    ret=TRUE;
-  }
-  LeaveCriticalSection(&CriticalSection);
-  return ret;
-}
-
-void PipeStruct::LineInput(char *szLineStr) {
-    while(!EOF_()){
-        if (GetBuffer(szLineStr)) {
-            break;
-        }else{
-            WaitForSingleObject(hEvent,INFINITE);
-        }
-    }
 }
 #endif

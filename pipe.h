@@ -28,6 +28,7 @@ struct PipeStruct {
     CRITICAL_SECTION CriticalSection;
 
     volatile DWORD state;
+    volatile char * lpFeedEnd;
     volatile int nReadEnd;
     char lpBuffer[LINE_INPUT_MAX_CHAR];
     char lpReadBuffer[LINE_INPUT_MAX_CHAR];
@@ -40,8 +41,7 @@ struct PipeStruct {
     bool Active(void);
     void set_Active(void);
     void ReadInput(void);
-    int ReadLine(void);
-    bool CheckInput(void);
+    int ReadData(void);
     bool GetBuffer(char *szLineStr);
     void LineInput(char *szLineStr);
     void LineOutput(const char *szLineStr) const;
