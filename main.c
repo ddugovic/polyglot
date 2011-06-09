@@ -36,7 +36,7 @@
 // constants
 
 
-static const char * const Version = "1.4.41b";
+static const char * const Version = "1.4.42b";
 static const char * const HelpMessage = "\
 SYNTAX\n\
 * polyglot [configfile] [-noini] [-ec engine] [-ed enginedirectory] [-en enginename] [-log] [-lf logfile] [-hash value] [-bk book] [-pg <name>=<value>]* [-uci <name>=<value>]*\n\
@@ -65,17 +65,18 @@ static void stop_search  ();
 
 // arg_shift_left()
 
-void arg_shift_left(char **argv, int index){
+static void arg_shift_left(char **argv, int index){
     int i;
     for(i=index; argv[i]!=NULL; i++){
         argv[i]=argv[i+1];
     }
 }
 
+// write_ini()
 
-void write_ini(const char *filename,
-               option_list_t *pg_options,
-               option_list_t *uci_options){
+static void write_ini(const char *filename,
+                      option_list_t *pg_options,
+                      option_list_t *uci_options){
     option_t *opt;
     char tmp[StringSize];
     FILE *f;
@@ -91,7 +92,9 @@ void write_ini(const char *filename,
     fprintf(f,"[PolyGlot]\n");
     option_start_iter(pg_options);
     while((opt=option_next(pg_options))){
-        if(!my_string_case_equal(opt->type,"button") && (opt->mode & XBOARD)){
+        if(!my_string_equal(opt->value,opt->default_)&&
+           !my_string_case_equal(opt->type,"button") &&
+           (opt->mode & XBOARD)){
             snprintf(tmp,sizeof(tmp),"%s=%s\n",opt->name,opt->value);
             tmp[sizeof(tmp)-1]='\0';
             fprintf(f,"%s",tmp);
@@ -100,7 +103,8 @@ void write_ini(const char *filename,
     fprintf(f,"[Engine]\n");
     option_start_iter(uci_options);
     while((opt=option_next(uci_options))){
-        if(!my_string_case_equal(opt->type,"button")){
+        if(!my_string_equal(opt->value,opt->default_)&&
+           !my_string_case_equal(opt->type,"button")){
             snprintf(tmp,sizeof(tmp),"%s=%s\n",opt->name,opt->value);
             tmp[sizeof(tmp)-1]='\0';
             fprintf(f,"%s",tmp);
@@ -113,7 +117,7 @@ void write_ini(const char *filename,
 // main()
 
 int main(int argc, char * argv[]) {
-    ini_t ini[1];
+    ini_t ini[1],ini_save[1];
     ini_entry_t *entry;
     char *arg;
     int arg_index;
@@ -145,6 +149,9 @@ int main(int argc, char * argv[]) {
 
     my_random_init();
 
+    ini_init(ini);
+    ini_init(ini_save);
+
         // book utilities
     
     if (argc >= 2 && my_string_equal(argv[1],"make-book")) {
@@ -174,7 +181,10 @@ int main(int argc, char * argv[]) {
         return EXIT_SUCCESS;
     }
 
-        // what is the config file? This is very hacky right now?
+        // TODO: If logging is enabled on the command line turn it on NOW
+        // and do not allow it to be overridden later. 
+    
+        // What is the config file? This is very hacky right now.
 
         // Do we want a config file at all?
 
@@ -203,10 +213,9 @@ int main(int argc, char * argv[]) {
         arg_shift_left(argv,1);
     }else{
             // Config file is the default.
-            // This has already been set above or in "option_init_pg"
+            // This has already been set above or in "option_init_pg()"
     }
     
-    ini_init(ini);
 
         // if we use a config file: load it!
     
@@ -217,86 +226,21 @@ int main(int argc, char * argv[]) {
                    strerror(errno));
         }
     }
+        // remind the reader of what options are in effect
 
-        // parse the command line and merge options
-
-    arg_index=1;
-    while((arg=argv[arg_index])){
-//        int i=1;
-//        char *arg1;
-//        printf("arg_index=%d\n",arg_index);
-//        while((arg1=argv[i++])){
-//            printf("arg=%s ",arg1);
-//        }
-//        printf("\n");
-        if(my_string_equal(arg,"-ec") && argv[arg_index+1]){
-            ini_insert_ex(ini,"PolyGlot","EngineCommand",argv[arg_index+1]);
-            arg_shift_left(argv,arg_index);
-            arg_shift_left(argv,arg_index);
-            continue;
-        }
-        if(my_string_equal(arg,"-ed") && argv[arg_index+1]){
-            ini_insert_ex(ini,"PolyGlot","EngineDir",argv[arg_index+1]);
-            arg_shift_left(argv,arg_index);
-            arg_shift_left(argv,arg_index);
-            continue;
-        }
-        if(my_string_equal(arg,"-en") && argv[arg_index+1]){
-            ini_insert_ex(ini,"PolyGlot","EngineName",argv[arg_index+1]);
-            arg_shift_left(argv,arg_index);
-            arg_shift_left(argv,arg_index);
-            continue;
-        }
-        if(my_string_equal(arg,"-log")){
-            ini_insert_ex(ini,"PolyGlot","Log","true");
-            arg_shift_left(argv,arg_index);
-            continue;
-        }
-        if(my_string_equal(arg,"-lf") && argv[arg_index+1]){
-            ini_insert_ex(ini,"PolyGlot","LogFile",argv[arg_index+1]);
-            arg_shift_left(argv,arg_index);
-            arg_shift_left(argv,arg_index);
-            continue;
-        }
-        if(my_string_equal(arg,"-hash") && argv[arg_index+1]){
-            ini_insert_ex(ini,"Engine","Hash",argv[arg_index+1]);
-            arg_shift_left(argv,arg_index);
-            arg_shift_left(argv,arg_index);
-            continue;
-        }
-        if(my_string_equal(arg,"-bk") && argv[arg_index+1]){
-            ini_insert_ex(ini,"PolyGlot","Book","true");
-            ini_insert_ex(ini,"PolyGlot","BookFile",argv[arg_index+1]);
-            arg_shift_left(argv,arg_index);
-            arg_shift_left(argv,arg_index);
-            continue;
-        }
-        if((my_string_equal(arg,"-pg")||my_string_equal(arg,"-uci")) &&
-           argv[arg_index]){
-            int ret;
-            char section[StringSize];
-            char name[StringSize];
-            char value[StringSize];
-            ret=ini_line_parse(argv[arg_index++],section,name,value);
-            if(ret==NAME_VALUE){
-                if(my_string_equal(arg,"-pg")){
-                    ini_insert_ex(ini,"PolyGlot",name,value);
-                }else{
-                    ini_insert_ex(ini,"Engine",name,value);
-                }
-            }
-            arg_shift_left(argv,arg_index);
-            arg_shift_left(argv,arg_index);
-            continue;
-        }
-        arg_index++;
-    }
+    my_log("POLYGLOG Options from ini file\n");
+    ini_disp(ini);
 
         // extract PG options
-        // this sets both the default and the value
     
-    option_from_ini(Option,ini,"polyglot");
-    
+    ini_start_iter(ini);
+    while((entry=ini_next(ini))){
+        if(my_string_case_equal(entry->section,"polyglot")){
+            option_set(Option,entry->name,entry->value);
+            option_set_default(Option,entry->name,entry->value);
+        }
+    }
+
         // start logging if required
     
     if (option_get_bool(Option,"Log")) {
@@ -312,6 +256,35 @@ int main(int argc, char * argv[]) {
     }    
     my_log("POLYGLOT *** START ***\n");
     my_log("POLYGLOT INI file \"%s\"\n",option_get_string(Option,"OptionFile"));
+
+        // open book (presumably this should go else where)
+    
+    init_book();
+
+        // scavenge command line for options necessary to start the engine
+    
+    arg_index=1;
+    while((arg=argv[arg_index])){
+        if(my_string_equal(arg,"-ec") && argv[arg_index+1]){
+            option_set(Option,"EngineCommand",argv[arg_index+1]);
+            arg_shift_left(argv,arg_index);
+            arg_shift_left(argv,arg_index);
+            continue;
+        }
+        if(my_string_equal(arg,"-ed") && argv[arg_index+1]){
+            option_set(Option,"EngineDir",argv[arg_index+1]);
+            arg_shift_left(argv,arg_index);
+            arg_shift_left(argv,arg_index);
+            continue;
+        }
+        if(my_string_equal(arg,"-en") && argv[arg_index+1]){
+            option_set(Option,"EngineName",argv[arg_index+1]);
+            arg_shift_left(argv,arg_index);
+            arg_shift_left(argv,arg_index);
+            continue;
+        }
+        arg_index++;
+    }
 
         // start engine
     
@@ -337,32 +310,89 @@ int main(int argc, char * argv[]) {
         option_set(Option,"EngineName",Uci->name);
     }
 
-        // if there is a save file: load it!
+        // what is the name of the persist file?
 
-    if(my_string_equal(option_get_string(Option,"SaveFile"),"<empty>")){
+    if(my_string_equal(option_get_string(Option,"PersistFile"),"<empty>")){
         char tmp[StringSize];
         snprintf(tmp,sizeof(tmp),"PG_%s.ini",
                  option_get_string(Option,"EngineName"));
         tmp[sizeof(tmp)-1]='\0';
-        option_set(Option,"SaveFile",tmp);
+        option_set(Option,"PersistFile",tmp);
     }
-    if(option_get_bool(Option,"SaveSettingsOnExit")){
-        my_log("POLYGLOT SaveFile=%s\n",option_get_string(Option,"SaveFile"));
-        if(ini_parse(ini,option_get_string(Option,"SaveFile"))){
-            my_log("POLYGLOT Unable to open SaveFile\n"); 
+
+        // if "Persist" is true, load the persist file!
+    
+    if(option_get_bool(Option,"Persist")){
+        my_log("POLYGLOT PersistFile=%s\n",option_get_string(Option,"PersistFile"));
+        if(ini_parse(ini_save,option_get_string(Option,"PersistFile"))){
+            my_log("POLYGLOT Unable to open PersistFile\n"); 
         }
     }
-        // start if it was enabled in the SaveFile
     
-    my_log_close();
-    if (option_get_bool(Option,"Log")) {
-        my_log_open(option_get_string(Option,"LogFile"));
+        // parse the command line and merge remaining options
+
+    arg_index=1;
+    while((arg=argv[arg_index])){
+        if(my_string_equal(arg,"-log")){
+            ini_insert_ex(ini_save,"PolyGlot","Log","true");
+            arg_shift_left(argv,arg_index);
+            continue;
+        }
+        if(my_string_equal(arg,"-lf") && argv[arg_index+1]){
+            ini_insert_ex(ini_save,"PolyGlot","LogFile",argv[arg_index+1]);
+            arg_shift_left(argv,arg_index);
+            arg_shift_left(argv,arg_index);
+            continue;
+        }
+        if(my_string_equal(arg,"-hash") && argv[arg_index+1]){
+            ini_insert_ex(ini_save,"Engine","Hash",argv[arg_index+1]);
+            arg_shift_left(argv,arg_index);
+            arg_shift_left(argv,arg_index);
+            continue;
+        }
+        if(my_string_equal(arg,"-bk") && argv[arg_index+1]){
+            ini_insert_ex(ini_save,"PolyGlot","Book","true");
+            ini_insert_ex(ini_save,"PolyGlot","BookFile",argv[arg_index+1]);
+            arg_shift_left(argv,arg_index);
+            arg_shift_left(argv,arg_index);
+            continue;
+        }
+        if((my_string_equal(arg,"-pg")||my_string_equal(arg,"-uci")) &&
+           argv[arg_index]){
+            int ret;
+            char section[StringSize];
+            char name[StringSize];
+            char value[StringSize];
+            ret=ini_line_parse(argv[arg_index++],section,name,value);
+            if(ret==NAME_VALUE){
+                if(my_string_equal(arg,"-pg")){
+                    ini_insert_ex(ini_save,"PolyGlot",name,value);
+                }else{
+                    ini_insert_ex(ini_save,"Engine",name,value);
+                }
+            }
+            arg_shift_left(argv,arg_index);
+            arg_shift_left(argv,arg_index);
+            continue;
+        }
+        arg_index++;
     }
-        // remind the user of the options that are now in effect
+
+        // remind the reader once again about options
+
+    my_log("POLYGLOG Options from save file and command line\n");
+    ini_disp(ini_save);
+
+        // extract PG options; this time do not set the default
+        // polyglot_set_option() performs the necessary actions such
+        // as opening the log file/opening book etcetera.
     
-    ini_disp(ini);
-
-
+    ini_start_iter(ini_save);
+    while((entry=ini_next(ini_save))){
+        if(my_string_case_equal(entry->section,"polyglot")){
+            polyglot_set_option(entry->name,entry->value);
+        }
+    }
 
         // done initializing
     
@@ -377,13 +407,23 @@ int main(int argc, char * argv[]) {
             uci_send_option(Uci,entry->name,"%s",entry->value);
                 // since this comes from the ini file, also update default
             option_set_default(Uci->option,entry->name,entry->value);
-                //to get a decent display in winboard_x we need to now if an engine really is doing multipv analysis
-               // "multipv 1" in the pv is meaningless,f.i. toga sends that all the time
-               //therefore check if MultiPV is set to a decent value in the polyglot ini file
+                // this is inherited, it probably does not work correctly
            if(my_string_case_equal(entry->name,"MultiPV") &&
               atoi(entry->value)>1){
                Uci->multipv_mode=TRUE;
            }
+        }
+    }
+    ini_start_iter(ini_save);
+    while((entry=ini_next(ini_save))){
+        if(my_string_case_equal(entry->section,"engine")){
+                // also updates value in Uci->option
+            uci_send_option(Uci,entry->name,"%s",entry->value);
+                // this is inherited, it probably does not work correctly
+            if(my_string_case_equal(entry->name,"MultiPV") &&
+               atoi(entry->value)>1){
+                Uci->multipv_mode=TRUE;
+            }
         }
     }
    
@@ -404,15 +444,15 @@ int main(int argc, char * argv[]) {
     }
 
 
-    init_book();
     gui_init(GUI);
     mainloop();
     return EXIT_SUCCESS; 
 }
 
-// polyglot_set_option
+// polyglot_set_option()
 
-void polyglot_set_option(char *name, char *value){ // this must be cleaned up!
+void polyglot_set_option(const char *name, const char *value){ // this must be cleaned up!
+    my_log("POLYGLOT Setting PolyGlot option %s=\"%s\"\n",name,value);
     option_set(Option,name,value);
     if(option_get_bool(Option,"Book")&&(my_string_case_equal(name,"BookFile")||my_string_case_equal(name,"Book"))){
         my_log("POLYGLOT *** SETTING BOOK ***\n");
@@ -474,8 +514,9 @@ void quit() {
         engine_close(Engine);
         
     }
-    if(option_get_bool(Option,"SaveSettingsOnExit")){
-        write_ini(option_get_string(Option,"SaveFile"),Option,Uci->option);
+    if(option_get_bool(Option,"Persist")){
+        write_ini(option_get_string(Option,"PersistFile"),
+                  Option,Uci->option);
     }
     my_log("POLYGLOT Calling exit\n");
     exit(EXIT_SUCCESS);

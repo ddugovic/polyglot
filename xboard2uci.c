@@ -770,10 +770,12 @@ void format_xboard_option_line(char * option_line, option_t *opt){
     strcat(option_line,option_string);
     if(strcmp(opt->type,"button") && strcmp(opt->type,"combo")){
         if(strcmp(opt->type,"check")){
-            sprintf(option_string," %s",opt->default_);
+            sprintf(option_string," %s",opt->value);
         }else{
             sprintf(option_string," %d",
-                    my_string_case_equal(opt->default_,"true")?1:0);
+                    my_string_case_equal(opt->value,"true")||
+                    my_string_equal(opt->value,"1")
+                    ?1:0);
         }
         strcat(option_line,option_string);
     }
@@ -786,7 +788,7 @@ void format_xboard_option_line(char * option_line, option_t *opt){
         strcat(option_line,option_string);
     }
     for(j=0;j<opt->var_nb;j++){
-        if(!strcmp(opt->var[j],opt->default_)){
+        if(!strcmp(opt->var[j],opt->value)){
             sprintf(option_string," *%s",opt->var[j]);
         }else{
             sprintf(option_string," %s",opt->var[j]);
@@ -870,7 +872,6 @@ static void send_xboard_options(){
         if(my_string_case_equal(opt->name,"NalimovPath")) continue;
         if((name=uci_thread_option(Uci))!=NULL &&
            my_string_case_equal(opt->name,name)) continue;
-        
         format_xboard_option_line(option_line,opt);
         
         gui_send(GUI,"%s",option_line);
@@ -880,6 +881,11 @@ static void send_xboard_options(){
     option_start_iter(Option);
     while((opt=option_next(Option))){
         if(opt->mode &XBOARD){
+            if(my_string_case_equal(opt->name,"Persist") &&
+               my_string_case_equal(option_get_default(Option,opt->name),
+                                    "false")){
+                continue;
+            }
             format_xboard_option_line(option_line,opt);
             gui_send(GUI,"%s",option_line);
         }

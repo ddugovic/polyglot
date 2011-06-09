@@ -426,15 +426,16 @@ CONFIG FILE FORMAT
            This a bit vector in which each bit represents the processors that
            a process is allowed to run on. This option works only on Windows.
 
-       SaveSettingsOnExit (default: true)
+       Persist (default: true)
            If true then PolyGlot will implement persistence by loading options
-           from an additional INI file which is specified by the option "Save-
-           File". At exit PolyGlot will also save its options to this INI
+           from an additional INI file which is specified by the option "Per-
+           sistFile". At exit PolyGlot will also save its options to this INI
            file.
 
-       SaveFile (default: PG_<EngineName>.ini)
+       PersistFile (default: PG_<EngineName>.ini)
            The name of the file from which to take the additional options.
-           You can safely edit this file.
+           You can safely edit this file, or delete it to restore the default
+           options.
 
        Work arounds
 
@@ -569,4 +570,4 @@ SEE ALSO
 
 
 
-                                  2009-08-31                       POLYGLOT(6)
+                                  2009-09-01                       POLYGLOT(6)

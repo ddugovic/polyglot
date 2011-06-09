@@ -1,3 +1,7 @@
+=========1.4.42b================
+- SaveSettingsOnExit/SaveFile renamed as Persist/PersistFile.
+- Many bug fixes in the persistence feature.
+- The PG_<myname>.ini file now contains only options that have been changed. So the resulting ini files are much smaller. This makes this version of PG usable on WB 4.3.15 as now the engine specific ini file will be empty (the user has no way to change options).
 =========1.4.41b================
 - Some segfaults fixed in case of corrupt config files.
 - Persistence of options. If the option SaveSettingsOnExit is true (the default) PolyGlot now saves its options in a file whose name is given by the option SaveFile which by default is equal to the engine name, prefixex by PG_ and suffixed by ".ini".

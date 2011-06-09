@@ -11,7 +11,7 @@
 // functions
 
 extern void quit ();
-extern void polyglot_set_option(char *name, char *value);
+extern void polyglot_set_option(const char *name, const char *value);
 
 #endif // !defined MAIN_H
 

@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2009-08-31" "" ""
+.TH POLYGLOT 6 "2009-09-01" "" ""
 .SH "NAME"
 PolyGlot \-  Winboard protocol to UCI protocol adapter
          \-  book engine for Polyglot books 
@@ -545,16 +545,17 @@ Win32 priority levels are mapped in a sensible way to Unix nice levels.
 .IX Item "Affinity (default: -1)"
 This a bit vector in which each bit represents the processors that a
 process is allowed to run on. This option works only on Windows. 
-.IP "\fBSaveSettingsOnExit\fR (default: true)" 4
-.IX Item "SaveSettingsOnExit (default: true)"
+.IP "\fBPersist\fR (default: true)" 4
+.IX Item "Persist (default: true)"
 If true then PolyGlot will implement persistence by loading 
 options from an additional \s-1INI\s0 file which is specified by the option
-\&\*(L"SaveFile\*(R". At exit PolyGlot will also save its options to this \s-1INI\s0
+\&\*(L"PersistFile\*(R". At exit PolyGlot will also save its options to this \s-1INI\s0
 file. 
-.IP "\fBSaveFile\fR (default: PG_<EngineName>.ini)" 4
-.IX Item "SaveFile (default: PG_<EngineName>.ini)"
+.IP "\fBPersistFile\fR (default: PG_<EngineName>.ini)" 4
+.IX Item "PersistFile (default: PG_<EngineName>.ini)"
 The name of the file from which to take the additional options.
-You can safely edit this file. 
+You can safely edit this file, or delete it to restore the default
+options.
 .Sh "Work arounds"
 .IX Subsection "Work arounds"
 Work arounds are identical to options except that they should be used

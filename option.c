@@ -25,9 +25,9 @@ option_t DefaultOptions[] = {
 
    // options
 
-    { "SaveSettingsOnExit","check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD},
+    { "Persist",      "check","0","0",      "true"     , NULL,0,NNB,  PG|XBOARD},
 
-    { "SaveFile",         "string","0","0",     "<empty>"   , NULL,0,NNB,  PG},
+    { "PersistFile",  "string","0","0",     "<empty>"   , NULL,0,NNB,  PG},
     
     { "EngineName",       "string","0","0",     "<empty>"   , NULL,0,NNB,  PG}, 
     { "EngineDir",        "string","0","0",     "."         , NULL,0,NNB,  PG}, 

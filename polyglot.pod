@@ -513,17 +513,18 @@ Win32 priority levels are mapped in a sensible way to Unix nice levels.
 This a bit vector in which each bit represents the processors that a
 process is allowed to run on. This option works only on Windows. 
 
-=item B<SaveSettingsOnExit> (default: true)
+=item B<Persist> (default: true)
 
 If true then PolyGlot will implement persistence by loading 
 options from an additional INI file which is specified by the option
-"SaveFile". At exit PolyGlot will also save its options to this INI
+"PersistFile". At exit PolyGlot will also save its options to this INI
 file. 
 
-=item B<SaveFile> (default: PG_<EngineName>.ini)
+=item B<PersistFile> (default: PG_<EngineName>.ini)
 
 The name of the file from which to take the additional options.
-You can safely edit this file. 
+You can safely edit this file, or delete it to restore the default
+options.
 
 =back
 
