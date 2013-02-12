@@ -1,9 +1,14 @@
+polyglot (1.4.69b) unstable; urgency=low
+	
+  *  Adapt to latest version of header format.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Wed, 19 Sept 2012 21:00:00 +0100	
+
 polyglot (1.4.68b) unstable; urgency=low
 	
-  *  Make Polyglot header aware.
+  *  Make Polyglot merge-book and make-book aware of the new header format.
 	
-	
- -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Mon, 17 Apr 2012 21:00:00 +0100	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Wed, 19 Sept 2012 21:00:00 +0100	
 
 polyglot (1.4.67b) unstable; urgency=low
 	

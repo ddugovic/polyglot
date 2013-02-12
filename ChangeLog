@@ -1,5 +1,7 @@
-========1.4.68b=================
-Make Polyglot header aware.
+========1.4.69b=================	
+- Adapt to latest version of header format.
+========1.4.68b=================	
+- Make Polyglot merge-book and make-book aware of the new header format.
 ========1.4.67b=================
 - Disable "book learning". Polyglot saves learning information but does not use it itself, probably for a reason. I believe the booklearning concept of Polyglot is fundamentally broken. Learning information is engine specific so it should not be saved in the opening book (it might be saved elsewhere). There are other issues as well, such as copyright and the possibility of the proliferation of polluted books. Opening books can be improved with information from games by using the merge command. This is a form of off line learning which is probably much more effective since one has strict control over what kind of information is added to the book.
 ========1.4.66b=================

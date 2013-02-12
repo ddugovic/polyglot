@@ -56,67 +56,44 @@ static void   write_integer (FILE * file, int size, uint64 n);
 
 // variants_merge()
 
-static void variants_merge(char ** variants, char *header1, char *header2){
+static void variants_merge(char ** variants, char *variants1, char *variants2){
 
     char *token;
     int ret,i,j;
     int count;
-    char *header1_dup;
-    char *header2_dup;
-    char *header;
+    char *variants1_dup;
+    char *variants2_dup;
     char *variant;
+    char *variants_list;
 
 
     // Step 1: Initial malloc
 
-    *variants=malloc(strlen(header1)+strlen(header2)+1);
+    *variants=malloc(strlen(variants1)+strlen(variants2)+1);
     (*variants)[0]='\0';
 
-    // Step 2: Extract variant names.
+    // Step 2: Loop through the variant names
 
-    header1_dup=strdup(header1);
-    header2_dup=strdup(header2);
+    variants1_dup=strdup(variants1);
+    variants2_dup=strdup(variants2);
 
     for(i=0;i<2;i++){
-	header=(i==0)?header1_dup:header2_dup;
-	ret=0;
-	token=strtok(header,"\n");
-	if(token){  // MAGIC
-	    token=strtok(NULL,"\n");
-	    if(token){  // VERSION
-		token=strtok(NULL,"\n");
-		if(token){ // NBVARIANTS
-		    count=atoi(token);
-		    if(count>0){
-			for(j=0;j<count;j++){
-			    variant=strtok(NULL,"\n");
-			    if(!strstr(*variants,variant)){
-				if((*variants)[0]!=0){
-				    strcat(*variants,",");
-				}
-				strcat(*variants,variant);
-			    }
-			}
-		    }else{
-			ret=1;
-		    }
-		    
-		}else{
-		    ret=2;
+	variants_list=(i==0)?variants1_dup:variants2_dup;
+	variant=strtok(variants_list,"\n");
+	while(variant){
+	    // TODO: this does not take into account that one variant name
+	    // may be contained in another.
+	    if(!strstr(*variants,variant)){
+		if((*variants)[0]!=0){
+		    strcat(*variants,"\n");
 		}
-	    }else{
-		ret=3;
+		strcat(*variants,variant);
 	    }
-	}else{
-	    ret=4;
-	}
-	if(ret){
-	    my_fatal("header_merge(): bad header %d. Error %d\n",i,ret);
-	}
-
+	    variant=strtok(NULL,"\n");
+	}    
     }
-    free(header1_dup);
-    free(header2_dup);
+    free(variants1_dup);
+    free(variants2_dup);
 
 }
 
@@ -133,6 +110,9 @@ void book_merge(int argc, char * argv[]) {
    char *header2;
    char *header;
    char *variants;
+   char *comment;
+   char *variants1;
+   char *variants2;
    char *raw_header;
    int size;
    char ret;
@@ -190,8 +170,7 @@ void book_merge(int argc, char * argv[]) {
    if(ret){
        switch(ret){
        case PGHEADER_NO_HEADER:
-	   header1=malloc(strlen(default_header)+1);
-	   strcpy(header1,default_header);
+	   pgheader_create(&header1,"normal","");
 	   break;
        case PGHEADER_OS_ERROR:
 	   my_fatal("book_merge(): %s: %s\n",in_file_1,strerror(errno));
@@ -203,8 +182,7 @@ void book_merge(int argc, char * argv[]) {
    if(ret){
        switch(ret){
        case PGHEADER_NO_HEADER:
-	   header2=malloc(strlen(default_header)+1);
-	   strcpy(header2,default_header);
+	   pgheader_create(&header2,"normal","");
 	   break;
        case PGHEADER_OS_ERROR:
 	   my_fatal("book_merge(): %s: %s\n",in_file_2,strerror(errno));
@@ -212,10 +190,16 @@ void book_merge(int argc, char * argv[]) {
 	   my_fatal("book_merge(): Could not read header of %s\n",in_file_2);
        }
    }
-
-   variants_merge(&variants,header1,header2);
+   
+   pgheader_parse(header1,&variants1,&comment);
    free(header1);
+   free(comment);
+   pgheader_parse(header2,&variants2,&comment);
    free(header2);
+   free(comment);
+   variants_merge(&variants,variants1,variants2);
+   free(variants1);
+   free(variants2);
 
    pgheader_create(&header,variants,"Created by Polyglot.");
    free(variants);
