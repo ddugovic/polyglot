@@ -1,3 +1,9 @@
+polyglot (1.4.70b) unstable; urgency=low
+	
+  *  Previous version did not work correctly on Windows.
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Wed, 20 Sept 2012 21:00:00 +0100	
+
 polyglot (1.4.69b) unstable; urgency=low
 	
   *  Adapt to latest version of header format.

@@ -1,3 +1,5 @@
+========1.4.70b=================	
+- merge-book did not work correctly on Windows.
 ========1.4.69b=================	
 - Adapt to latest version of header format.
 ========1.4.68b=================	

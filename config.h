@@ -11,7 +11,7 @@
 #define HAVE_FLOOR 1
 
 /* Define to 1 if you have the `fork' function. */
-#define HAVE_FORK 1
+/* #undef HAVE_FORK */
 
 /* Define to 1 if you have the `gettimeofday' function. */
 #define HAVE_GETTIMEOFDAY 1
@@ -40,7 +40,7 @@
 #define HAVE_REALLOC 1
 
 /* Define to 1 if you have the `select' function. */
-#define HAVE_SELECT 1
+/* #undef HAVE_SELECT */
 
 /* Define to 1 if stdbool.h conforms to C99. */
 #define HAVE_STDBOOL_H 1
@@ -70,10 +70,10 @@
 #define HAVE_STRSTR 1
 
 /* Define to 1 if you have the <sys/select.h> header file. */
-#define HAVE_SYS_SELECT_H 1
+/* #undef HAVE_SYS_SELECT_H */
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
-#define HAVE_SYS_SOCKET_H 1
+/* #undef HAVE_SYS_SOCKET_H */
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #define HAVE_SYS_STAT_H 1
@@ -88,7 +88,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the `vfork' function. */
-#define HAVE_VFORK 1
+/* #undef HAVE_VFORK */
 
 /* Define to 1 if you have the <vfork.h> header file. */
 /* #undef HAVE_VFORK_H */
@@ -97,10 +97,10 @@
 #define HAVE_VPRINTF 1
 
 /* Define to 1 if `fork' works. */
-#define HAVE_WORKING_FORK 1
+/* #undef HAVE_WORKING_FORK */
 
 /* Define to 1 if `vfork' works. */
-#define HAVE_WORKING_VFORK 1
+/* #undef HAVE_WORKING_VFORK */
 
 /* Define to 1 if the system has the type `_Bool'. */
 #define HAVE__BOOL 1
@@ -115,13 +115,13 @@
 #define PACKAGE_NAME "polyglot"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "polyglot 1.4.69b"
+#define PACKAGE_STRING "polyglot 1.4.70b"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "polyglot"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.4.69b"
+#define PACKAGE_VERSION "1.4.70b"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
@@ -130,7 +130,7 @@
 #define SELECT_TYPE_ARG1 int
 
 /* Define to the type of args 2, 3 and 4 for `select'. */
-#define SELECT_TYPE_ARG234 (fd_set *)
+#define SELECT_TYPE_ARG234 (int *)
 
 /* Define to the type of arg 5 for `select'. */
 #define SELECT_TYPE_ARG5 (struct timeval *)
@@ -142,7 +142,7 @@
 #define TIME_WITH_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "1.4.69b"
+#define VERSION "1.4.70b"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
@@ -166,4 +166,4 @@
 /* #undef size_t */
 
 /* Define as `fork' if `vfork' does not work. */
-/* #undef vfork */
+#define vfork fork

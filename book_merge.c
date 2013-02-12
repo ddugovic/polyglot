@@ -69,7 +69,7 @@ static void variants_merge(char ** variants, char *variants1, char *variants2){
 
     // Step 1: Initial malloc
 
-    *variants=malloc(strlen(variants1)+strlen(variants2)+1);
+    *variants=malloc(strlen(variants1)+strlen(variants2)+1+1);
     (*variants)[0]='\0';
 
     // Step 2: Loop through the variant names
@@ -79,17 +79,17 @@ static void variants_merge(char ** variants, char *variants1, char *variants2){
 
     for(i=0;i<2;i++){
 	variants_list=(i==0)?variants1_dup:variants2_dup;
-	variant=strtok(variants_list,"\n");
+	variant=strtok(variants_list,"\x0a");
 	while(variant){
 	    // TODO: this does not take into account that one variant name
 	    // may be contained in another.
 	    if(!strstr(*variants,variant)){
 		if((*variants)[0]!=0){
-		    strcat(*variants,"\n");
+		    strcat(*variants,"\x0a");
 		}
 		strcat(*variants,variant);
 	    }
-	    variant=strtok(NULL,"\n");
+	    variant=strtok(NULL,"\x0a");
 	}    
     }
     free(variants1_dup);
