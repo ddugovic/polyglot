@@ -1,3 +1,10 @@
+polyglot (1.4.68b) unstable; urgency=low
+	
+  *  Make Polyglot header aware.
+	
+	
+ -- Michel Van den Bergh <michel.vandenbergh@uhasselt.be>  Mon, 17 Apr 2012 21:00:00 +0100	
+
 polyglot (1.4.67b) unstable; urgency=low
 	
   *   Disable "book learning". Polyglot saves learning information but does not use it itself, probably for a reason. I believe the booklearning concept of Polyglot is fundamentally broken. Learning information is engine specific so it should not be saved in the opening book (it might be saved elsewhere). There are other issues as well, such as copyright and the possibility of the proliferation of polluted books. Opening books can be improved with information from games by using the merge command. This is a form of off line learning which is probably much more effective since one has strict control over what kind of information is added to the book.

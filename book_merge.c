@@ -10,6 +10,11 @@
 
 #include "book_merge.h"
 #include "util.h"
+#include "pgheader.h"
+
+// macros
+
+#define MAXVARIANTS 50
 
 // types
 
@@ -32,6 +37,8 @@ static book_t In1[1];
 static book_t In2[1];
 static book_t Out[1];
 
+static const char *default_header="@PG@\n1.0\n1\nnormal\n";
+
 // prototypes
 
 static void   book_clear    (book_t * book);
@@ -47,6 +54,73 @@ static void   write_integer (FILE * file, int size, uint64 n);
 
 // functions
 
+// variants_merge()
+
+static void variants_merge(char ** variants, char *header1, char *header2){
+
+    char *token;
+    int ret,i,j;
+    int count;
+    char *header1_dup;
+    char *header2_dup;
+    char *header;
+    char *variant;
+
+
+    // Step 1: Initial malloc
+
+    *variants=malloc(strlen(header1)+strlen(header2)+1);
+    (*variants)[0]='\0';
+
+    // Step 2: Extract variant names.
+
+    header1_dup=strdup(header1);
+    header2_dup=strdup(header2);
+
+    for(i=0;i<2;i++){
+	header=(i==0)?header1_dup:header2_dup;
+	ret=0;
+	token=strtok(header,"\n");
+	if(token){  // MAGIC
+	    token=strtok(NULL,"\n");
+	    if(token){  // VERSION
+		token=strtok(NULL,"\n");
+		if(token){ // NBVARIANTS
+		    count=atoi(token);
+		    if(count>0){
+			for(j=0;j<count;j++){
+			    variant=strtok(NULL,"\n");
+			    if(!strstr(*variants,variant)){
+				if((*variants)[0]!=0){
+				    strcat(*variants,",");
+				}
+				strcat(*variants,variant);
+			    }
+			}
+		    }else{
+			ret=1;
+		    }
+		    
+		}else{
+		    ret=2;
+		}
+	    }else{
+		ret=3;
+	    }
+	}else{
+	    ret=4;
+	}
+	if(ret){
+	    my_fatal("header_merge(): bad header %d. Error %d\n",i,ret);
+	}
+
+    }
+    free(header1_dup);
+    free(header2_dup);
+
+}
+
+
 // book_merge()
 
 void book_merge(int argc, char * argv[]) {
@@ -55,6 +129,13 @@ void book_merge(int argc, char * argv[]) {
    const char * in_file_1;
    const char * in_file_2;
    const char * out_file;
+   char *header1;
+   char *header2;
+   char *header;
+   char *variants;
+   char *raw_header;
+   int size;
+   char ret;
    int i1, i2;
    bool b1, b2;
    entry_t e1[1], e2[1];
@@ -104,6 +185,43 @@ void book_merge(int argc, char * argv[]) {
       }
    }
 
+
+   ret=pgheader_read(&header1,in_file_1);
+   if(ret){
+       switch(ret){
+       case PGHEADER_NO_HEADER:
+	   header1=malloc(strlen(default_header)+1);
+	   strcpy(header1,default_header);
+	   break;
+       case PGHEADER_OS_ERROR:
+	   my_fatal("book_merge(): %s: %s\n",in_file_1,strerror(errno));
+       default:
+	   my_fatal("book_merge(): Could not read header of %s\n",in_file_1);
+       }
+   }
+   ret=pgheader_read(&header2,in_file_2);
+   if(ret){
+       switch(ret){
+       case PGHEADER_NO_HEADER:
+	   header2=malloc(strlen(default_header)+1);
+	   strcpy(header2,default_header);
+	   break;
+       case PGHEADER_OS_ERROR:
+	   my_fatal("book_merge(): %s: %s\n",in_file_2,strerror(errno));
+       default:
+	   my_fatal("book_merge(): Could not read header of %s\n",in_file_2);
+       }
+   }
+
+   variants_merge(&variants,header1,header2);
+   free(header1);
+   free(header2);
+
+   pgheader_create(&header,variants,"Created by Polyglot.");
+   free(variants);
+   pgheader_create_raw(&raw_header,header,&size);
+   free(header);
+
    book_clear(In1);
    book_clear(In2);
    book_clear(Out);
@@ -112,16 +230,30 @@ void book_merge(int argc, char * argv[]) {
    book_open(In2,in_file_2,"rb");
    book_open(Out,out_file,"wb");
 
+   // write header
+   
+   for(i=0;i<size;i++){
+       fputc(raw_header[i],Out->file);
+   }
+   free(raw_header);
+
    skip = 0;
 
    i1 = 0;
    i2 = 0;
 
+   
+
    while (TRUE) {
 
-      b1 = read_entry(In1,e1,i1);
-      b2 = read_entry(In2,e2,i2);
-
+      do{
+	   b1 = read_entry(In1,e1,i1);
+      }while(b1 && e1->key==U64(0x0) && (++i1));
+       
+      do{
+	  b2 = read_entry(In2,e2,i2);
+      }while(b2 && e2->key==U64(0x0) && (++i2));
+	  
       if (FALSE) {
 
       } else if (!b1 && !b2) {
@@ -129,8 +261,7 @@ void book_merge(int argc, char * argv[]) {
          break;
 
       } else if (b1 && !b2) {
-
-         write_entry(Out,e1);
+	 write_entry(Out,e1);
          i1++;
 
       } else if (b2 && !b1) {
@@ -245,6 +376,8 @@ static void write_entry(book_t * book, const entry_t * entry) {
    write_integer(book->file,2,entry->n);
    write_integer(book->file,2,entry->sum);
 }
+
+
 
 // read_integer()
 
