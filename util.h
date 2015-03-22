@@ -6,7 +6,9 @@
 
 // includes
 
+#include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/timeb.h>
 #include <sys/stat.h>
@@ -58,10 +60,14 @@
 #endif
 
 #undef ASSERT
-#if DEBUG
+#ifdef assert
+#  define ASSERT(a) assert(a)
+#else
+#ifdef DEBUG
 #  define ASSERT(a) { if (!(a)) my_fatal("file \"%s\", line %d, assertion \"" #a "\" failed\n",__FILE__,__LINE__); }
 #else
 #  define ASSERT(a)
+#endif
 #endif
 
 #ifdef _WIN32

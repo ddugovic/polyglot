@@ -35,6 +35,7 @@ typedef struct {
    bool token_first;
 
    char result[PGN_STRING_SIZE];
+   char variant[PGN_STRING_SIZE];
    char fen[PGN_STRING_SIZE];
 
    int move_line;

@@ -1,0 +1,15 @@
+/aclocal.m4
+/autom4te.cache
+/config.log
+/config.status
+/configure
+/install-sh
+/missing
+/polyglot
+/stamp-h1
+
+Makefile
+Makefile.in
+.deps
+*.o
+.*.swp

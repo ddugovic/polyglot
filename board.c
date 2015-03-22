@@ -194,7 +194,7 @@ void board_clear(board_t * board) {
    // piece lists
 
    for (colour = 0; colour < 3; colour++) {
-      for (pos = 0; pos < 32; pos++) { // HACK
+      for (pos = 0; pos < SquareNb; pos++) { // HACK
          board->list[colour][pos] = SquareNone;
       }
       board->list_size[colour] = 0;
@@ -260,6 +260,7 @@ bool board_equal(const board_t * board_1, const board_t * board_2) {
       if (board_1->square[sq] != board_2->square[sq]) return FALSE;
    }
 
+   if (board_1->variant != board_2->variant) return FALSE;
    if (board_1->turn != board_2->turn) return FALSE;
    if (board_1->castle[White][SideH] != board_2->castle[White][SideH]) return FALSE;
    if (board_1->castle[White][SideA] != board_2->castle[White][SideA]) return FALSE;
@@ -287,6 +288,7 @@ void board_init_list(board_t * board) {
    }
 
    for (piece = 0; piece < 12; piece++) board->number[piece] = 0;
+   memset(board->list,SquareNone,sizeof(board->list));
 
    // white piece list
 
@@ -309,7 +311,6 @@ void board_init_list(board_t * board) {
    for (sq_64 = 0; sq_64 < 64; sq_64++) {
       sq = square_from_64(sq_64);
       piece = board->square[sq];
-      ASSERT(pos>=0&&pos<=16);
       if (colour_equal(piece,colour) && !piece_is_king(piece)) {
          board->pos[sq] = pos;
          board->list[colour][pos] = sq;
@@ -317,8 +318,8 @@ void board_init_list(board_t * board) {
          board->number[piece_to_12(piece)]++;
       }
    }
-
    ASSERT(pos>=1&&pos<=16);
+
    board->list[colour][pos] = SquareNone;
    board->list_size[colour] = pos;
 
@@ -338,12 +339,11 @@ void board_init_list(board_t * board) {
          board->number[piece_to_12(piece)]++;
       }
    }
-   ASSERT(pos==1);
+   ASSERT(board->variant==Horde?pos==0:pos==1);
 
    for (sq_64 = 0; sq_64 < 64; sq_64++) {
       sq = square_from_64(sq_64);
       piece = board->square[sq];
-      ASSERT(pos>=1&&pos<=16);
       if (colour_equal(piece,colour) && !piece_is_king(piece)) {
          board->pos[sq] = pos;
          board->list[colour][pos] = sq;
@@ -351,8 +351,8 @@ void board_init_list(board_t * board) {
          board->number[piece_to_12(piece)]++;
       }
    }
+   ASSERT(board->variant==Horde?pos>=0&&pos<=SquareNb:pos>=1&&pos<=16);
 
-   ASSERT(pos>=1&&pos<=16);
    board->list[colour][pos] = SquareNone;
    board->list_size[colour] = pos;
 
@@ -449,6 +449,7 @@ int king_pos(const board_t * board, int colour) {
    ASSERT(board_is_ok(board));
    ASSERT(colour_is_ok(colour));
 
+   if (board->variant==Horde&&colour_is_black(colour)) return SquareNone;
    return board->list[colour][0];
 }
 

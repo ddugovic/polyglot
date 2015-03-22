@@ -12,6 +12,9 @@
 
 // defines
 
+#define Normal 0
+#define Atomic 1
+#define Horde  2
 #define Empty  0
 #define SideH  0
 #define SideA  1
@@ -20,11 +23,11 @@
 // types
 
 typedef struct {
-
+   uint8 variant;
    uint8 square[SquareNb];
    sint8 pos[SquareNb];
 
-   uint8 list[ColourNb][32];
+   uint8 list[ColourNb][SquareNb];
    sint8 list_size[ColourNb];
 
    sint8 number[12];

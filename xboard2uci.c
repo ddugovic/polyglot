@@ -318,6 +318,8 @@ void xboard2uci_gui_step(char string[]) {
 			my_log("POLYGLOT NEW GAME\n");
 
 			option_set(Option,"Chess960","false");
+			option_set(Option,"ChessAtomic","false");
+			option_set(Option,"ChessHorde","false");
 
 			game_clear(Game);
 
@@ -631,6 +633,16 @@ void xboard2uci_gui_step(char string[]) {
 			} else {
 				option_set(Option,"Chess960","false");
 			}
+			if (my_string_equal(Star[0],"atomic")) {
+				option_set(Option,"ChessAtomic","true");
+			} else {
+				option_set(Option,"ChessAtomic","false");
+			}
+			if (my_string_equal(Star[0],"horde")) {
+				option_set(Option,"ChessHorde","true");
+			} else {
+				option_set(Option,"ChessHorde","false");
+			}
 
 		} else if (match(string,"white")) {
 
@@ -902,6 +914,10 @@ static void send_xboard_options(){
     
     if (option_find(Uci->option,"UCI_Chess960")) {
         gui_send(GUI,"feature variants=\"normal,fischerandom\"");
+    } else if (option_find(Uci->option,"UCI_ChessAtomic")) {
+        gui_send(GUI,"feature variants=\"normal,atomic\"");
+    } else if (option_find(Uci->option,"UCI_ChessHorde")) {
+        gui_send(GUI,"feature variants=\"normal,horde\"");
     } else {
         gui_send(GUI,"feature variants=\"normal\"");
     }
@@ -919,6 +935,8 @@ void xboard2uci_send_options(){
     if(my_string_case_equal(opt->name,"UCI_AnalyseMode")) continue;
     if(my_string_case_equal(opt->name,"UCI_Opponent")) continue;
     if(my_string_case_equal(opt->name,"UCI_Chess960")) continue;
+    if(my_string_case_equal(opt->name,"UCI_ChessAtomic")) continue;
+    if(my_string_case_equal(opt->name,"UCI_ChessHorde")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShowCurrLine")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShowRefutations")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShredderbasesPath")) continue;
@@ -1306,6 +1324,10 @@ static void search_update() {
 
       uci_send_option(Uci,"UCI_Chess960","%s",
                       option_get_bool(Option,"Chess960")?"true":"false");
+      uci_send_option(Uci,"UCI_ChessAtomic","%s",
+                      option_get_bool(Option,"ChessAtomic")?"true":"false");
+      uci_send_option(Uci,"UCI_ChessHorde","%s",
+                      option_get_bool(Option,"ChessHorde")?"true":"false");
 
       if (option_get_int(Option,"UCIVersion") >= 2) {
          uci_send_option(Uci,"UCI_Opponent","none none %s %s",(XB->computer)?"computer":"human",XB->name);

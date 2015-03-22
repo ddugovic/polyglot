@@ -263,6 +263,14 @@ static void book_insert(const char file_name[]) {
    while (pgn_next_game(pgn)) {
 
       board_start(board);
+      if (!strcmp(pgn->variant,"Atomic")) {
+         board->variant=Atomic;
+      } else if (!strcmp(pgn->variant,"Horde")) {
+         board->variant=Horde;
+      }
+      if (strcmp(pgn->fen,"?")) {
+         board_from_fen(board,pgn->fen);
+      }
       ply = 0;
       result = 0;
 

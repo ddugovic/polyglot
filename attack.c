@@ -133,6 +133,7 @@ bool is_in_check(const board_t * board, int colour) {
    ASSERT(board_is_ok(board));
    ASSERT(colour_is_ok(colour));
 
+   if (board->variant==Horde&&king_pos(board,colour)==SquareNone) return FALSE;
    return is_attacked(board,king_pos(board,colour),colour_opp(colour));
 }
 

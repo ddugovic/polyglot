@@ -82,6 +82,8 @@ option_t DefaultOptions[] = {
    // internal
 
     { "Chess960",         "check","0","0",      "false"     , NULL,0,NNB,  PG}, 
+    { "ChessAtomic",      "check","0","0",      "false"     , NULL,0,NNB,  PG}, 
+    { "ChessHorde",       "check","0","0",      "false"     , NULL,0,NNB,  PG}, 
 
    // These options flag various hacks in the source to work around
    // WB quirks. They will eventually all be set to false. Probably
