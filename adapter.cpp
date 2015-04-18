@@ -1275,7 +1275,10 @@ static void search_update() {
 
       // options
 
-      uci_send_option(Uci,"UCI_Chess960","%s",option_get_bool("Chess960")?"true":"false");
+      uci_send_option(Uci,"UCI_3Check","%s",option_get_bool(Option,"3Check")?"true":"false");
+      uci_send_option(Uci,"UCI_Chess960","%s",option_get_bool(Option,"Chess960")?"true":"false");
+      uci_send_option(Uci,"UCI_Atomic","%s",option_get_bool(Option,"Atomic")?"true":"false");
+      uci_send_option(Uci,"UCI_Horde","%s",option_get_bool(Option,"Horde")?"true":"false");
 
       if (option_get_int("UCIVersion") >= 2) {
          uci_send_option(Uci,"UCI_Opponent","none none %s %s",(XB->computer)?"computer":"human",XB->name);

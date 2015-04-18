@@ -13,8 +13,9 @@
 // defines
 
 #define Normal 0
-#define Atomic 1
-#define Horde  2
+#define Checks 1
+#define Atomic 2
+#define Horde  3
 #define Empty  0
 #define SideH  0
 #define SideA  1

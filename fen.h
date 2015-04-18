@@ -12,6 +12,7 @@
 // "constants"
 
 extern const char * StartFen;
+extern const char * StartFenHorde;
 
 // functions
 
