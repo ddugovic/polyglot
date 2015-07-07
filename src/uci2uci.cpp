@@ -186,7 +186,24 @@ static void parse_setoption(const char string[]) {
             pg_name=Star[0];
             polyglot_set_option(pg_name,value);
         }else{
-            engine_send(Engine,"%s",string);
+            if(!strcmp(name,"UCI_Chess960") && !strcmp(value,"true")){
+                UCIboard->variant = STANDARD;
+            }
+            if(!strcmp(name,"UCI_3Check") && !strcmp(value,"true")){
+                UCIboard->variant = THREECHECK;
+            }
+            if(!strcmp(name,"UCI_Horde") && !strcmp(value,"true")){
+                UCIboard->variant = HORDE;
+            }
+            if(!strcmp(name,"UCI_KingOfTheHill") && !strcmp(value,"true")){
+                UCIboard->variant = HILL;
+            }
+            if(!strcmp(name,"UCI_Standard") && !strcmp(value,"true")){
+                UCIboard->variant = STANDARD;
+            }
+            if(strcmp(name,"UCI_Standard")){
+                engine_send(Engine,"%s",string);
+            }
         }
     }else{
         engine_send(Engine,"%s",string);
@@ -207,11 +224,15 @@ void uci2uci_gui_step(char string[]) {
          parse_setoption(string);
          return;
      }else if(match(string,"position *")){
+         variant_t var = UCIboard->variant;
          parse_position(string);
+         UCIboard->variant = var;
          Init=false;
      }else if(match(string,"go *")){
          if(Init){
+             variant_t var = UCIboard->variant;
              board_from_fen(UCIboard,StartFen);
+             UCIboard->variant = var;
              Init=false;
          }
          SavedMove=MoveNone;

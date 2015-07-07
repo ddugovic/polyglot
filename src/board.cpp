@@ -218,7 +218,7 @@ void board_clear(board_t * board) {
    board->ply_nb = 0;
    board->move_nb = 0;
 
-   board->key = 0;
+   board->key = board->variant;
 }
 
 // board_start()
@@ -260,6 +260,7 @@ bool board_equal(const board_t * board_1, const board_t * board_2) {
       if (board_1->square[sq] != board_2->square[sq]) return false;
    }
 
+   if (board_1->variant != board_2->variant) return FALSE;
    if (board_1->turn != board_2->turn) return false;
    if (board_1->castle[White][SideH] != board_2->castle[White][SideH]) return false;
    if (board_1->castle[White][SideA] != board_2->castle[White][SideA]) return false;

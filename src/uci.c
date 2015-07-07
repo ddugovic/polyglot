@@ -308,7 +308,7 @@ bool uci_send_option(uci_t * uci, const char option[], const char format[], ...)
                my_string_set(&opt->value,value);
            }else{
                my_log("POLYGLOT Not sending option \"%s\" since it "
-                      "already has the correct value.\n",opt->name);
+                      "already has the correct value (%s).\n",opt->name,value);
            }
        }else{
            engine_send(uci->engine,"setoption name %s",opt->name);

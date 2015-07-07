@@ -226,7 +226,7 @@ static void square_clear(board_t * board, int square, int piece) {
 
    // piece list
 
-   ASSERT(board->list_size[colour]>=2);
+   ASSERT(board->variant==Horde?board->list_size[colour]>=1:board->list_size[colour]>=2);
    size = --board->list_size[colour];
    ASSERT(pos<=size);
 

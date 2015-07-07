@@ -696,12 +696,14 @@ PolyGlot always returns 0 on exit.
 .IX Header "AUTHORS"
 Main author: Fabien Letouzey<fabien_letouzey(at)hotmail.com>
 .PP
-Native Windows port:  Huang Chen<webmaster@elephantbase.net> (\*(L"Morning Yellow\*(R")
+Native Windows port:  Huang Chen<webmaster(at)elephantbase.net> (\*(L"Morning Yellow\*(R")
 .PP
 Various enhancements: Fonzy Bleumers<match(at)geenvis.net>
 .PP
 \&\s-1UCI\s0 port and implementation of new \s-1WB\s0 protocol: Michel Van den Bergh
 <michel.vandenbergh(at)uhasselt.be>
+.PP
+Variant implementation: Daniel Dugovic<dandydand(at)gmail.com>
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 \&\fIxboard\fR\|(6)

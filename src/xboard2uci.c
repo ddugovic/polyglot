@@ -370,7 +370,10 @@ void xboard2uci_gui_step(char string[]) {
 		    uci_send_isready_sync(Uci);
 			my_log("POLYGLOT NEW GAME\n");
 
+			option_set(Option,"3Check","false");
 			option_set(Option,"Chess960","false");
+			option_set(Option,"Horde","false");
+			option_set(Option,"KingOfTheHill","false");
 
 			game_clear(Game);
 
@@ -638,7 +641,7 @@ void xboard2uci_gui_step(char string[]) {
 
 			my_log("POLYGLOT FEN %s\n",Star[0]);
 
-			if (!game_init(Game,Star[0])) my_fatal("xboard_step(): bad FEN \"%s\"\n",Star[0]);
+			if (!game_init(Game,Star[0],board->variant)) my_fatal("xboard_step(): bad FEN \"%s\"\n",Star[0]);
 
 			move_list->size = 0; // [HGM] clear all exclude moves
 
@@ -703,10 +706,30 @@ void xboard2uci_gui_step(char string[]) {
 
 		} else if (match(string,"variant *")) {
 
+			board->variant = STANDARD;
+			if (my_string_equal(Star[0],"3check")) {
+				board->variant = THREECHECK;
+				option_set(Option,"3Check","true");
+			} else {
+				option_set(Option,"3Check","false");
+			}
 			if (my_string_equal(Star[0],"fischerandom")) {
 				option_set(Option,"Chess960","true");
 			} else {
 				option_set(Option,"Chess960","false");
+			}
+			if (my_string_equal(Star[0],"horde")) {
+				board->variant = HORDE;
+				option_set(Option,"Horde","true");
+				game_init(Game,StartFenHorde,board->variant);
+			} else {
+				option_set(Option,"Horde","false");
+			}
+			if (my_string_equal(Star[0],"kingofthehill")) {
+				board->variant = HILL;
+				option_set(Option,"KingOfTheHill","true");
+			} else {
+				option_set(Option,"KingOfTheHill","false");
 			}
 
 		} else if (match(string,"white")) {
@@ -941,6 +964,7 @@ static char*disarm(const char *s){
 static void send_xboard_options(){
 
     char egtfeature[StringSize];
+    char variants[StringSize];
     int tbs=0;
 
     gui_send(GUI,"feature done=0");
@@ -998,11 +1022,23 @@ static void send_xboard_options(){
     egtfeature[StringSize-1]='\0';
     gui_send(GUI,egtfeature);
 
-    if (option_find(Uci->option,"UCI_Chess960")) {
-        gui_send(GUI,"feature variants=\"normal,fischerandom\"");
-    } else {
-        gui_send(GUI,"feature variants=\"normal\"");
+    variants[0]='\0';
+    strncat(variants,"feature variants=\"normal",StringSize);
+    if (option_find(Uci->option,"UCI_3Check")) {
+        strncat(variants,",3check",StringSize-strlen(variants));
     }
+    if (option_find(Uci->option,"UCI_Chess960")) {
+        strncat(variants,",fischerandom",StringSize-strlen(variants));
+    }
+    if (option_find(Uci->option,"UCI_Horde")) {
+        strncat(variants,",horde",StringSize-strlen(variants));
+    }
+    if (option_find(Uci->option,"UCI_KingOfTheHill")) {
+        strncat(variants,",kingofthehill",StringSize-strlen(variants));
+    }
+    strncat(variants,"\"",StringSize-strlen(variants));
+    variants[StringSize-1]='\0';
+    gui_send(GUI,variants);
 
     xboard2uci_send_options();
 }
@@ -1016,7 +1052,10 @@ void xboard2uci_send_options(){
   while((opt=option_next(Uci->option))){
     if(my_string_case_equal(opt->name,"UCI_AnalyseMode")) continue;
     if(my_string_case_equal(opt->name,"UCI_Opponent")) continue;
+    if(my_string_case_equal(opt->name,"UCI_3Check")) continue;
     if(my_string_case_equal(opt->name,"UCI_Chess960")) continue;
+    if(my_string_case_equal(opt->name,"UCI_Horde")) continue;
+    if(my_string_case_equal(opt->name,"UCI_KingOfTheHill")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShowCurrLine")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShowRefutations")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShredderbasesPath")) continue;
@@ -1407,8 +1446,14 @@ static void search_update() {
 
       // options
 
+      uci_send_option(Uci,"UCI_3Check","%s",
+                      option_get_bool(Option,"3Check")?"true":"false");
       uci_send_option(Uci,"UCI_Chess960","%s",
                       option_get_bool(Option,"Chess960")?"true":"false");
+      uci_send_option(Uci,"UCI_Horde","%s",
+                      option_get_bool(Option,"Horde")?"true":"false");
+      uci_send_option(Uci,"UCI_KingOfTheHill","%s",
+                      option_get_bool(Option,"KingOfTheHill")?"true":"false");
 
       if (option_get_int(Option,"UCIVersion") >= 2) {
          uci_send_option(Uci,"UCI_Opponent","none none %s %s",(XB->computer)?"computer":"human",XB->name);

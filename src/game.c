@@ -78,16 +78,17 @@ void game_clear(game_t * game) {
 
    ASSERT(game!=NULL);
 
-   game_init(game,StartFen);
+   game_init(game,StartFen,STANDARD);
 }
 
 // game_init()
 
-bool game_init(game_t * game, const char fen[]) {
+bool game_init(game_t * game, const char fen[], variant_t var) {
 
    ASSERT(game!=NULL);
    ASSERT(fen!=NULL);
 
+   game->start_board->variant = var;
    if (!board_from_fen(game->start_board,fen)) return FALSE;
 
    game->size = 0;

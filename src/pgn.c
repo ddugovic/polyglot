@@ -75,6 +75,7 @@ void pgn_open(pgn_t * pgn, const char file_name[]) {
    pgn->token_first = TRUE;
 
    strcpy(pgn->result,"?"); // DEBUG
+   strcpy(pgn->variant,"?"); // DEBUG
    strcpy(pgn->fen,"?"); // DEBUG
 
    pgn->move_line = -1; // DEBUG
@@ -102,6 +103,7 @@ bool pgn_next_game(pgn_t * pgn) {
    // init
 
    strcpy(pgn->result,"*");
+   strcpy(pgn->variant,"normal");
    strcpy(pgn->fen,"");
 
    // loop
@@ -136,6 +138,8 @@ bool pgn_next_game(pgn_t * pgn) {
       if (FALSE) {
       } else if (my_string_equal(name,"Result")) {
          strcpy(pgn->result,value);
+      } else if (my_string_equal(name,"Variant")) {
+         strcpy(pgn->variant,value);
       } else if (my_string_equal(name,"FEN")) {
          strcpy(pgn->fen,value);
       }

@@ -42,7 +42,7 @@ uint64 hash_key(const board_t * board) {
 
    // init
 
-   key = 0;
+   key = board->variant;
 
    // pieces
 

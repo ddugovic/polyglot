@@ -8,10 +8,12 @@
 
 #include "board.h"
 #include "util.h"
+#include "variant.h"
 
 // "constants"
 
 extern const char * StartFen;
+extern const char * StartFenHorde;
 
 // functions
 

@@ -237,21 +237,6 @@ bool move_to_can(int move, const board_t * board, char string[], int size) {
    from = move_from(move);
    to = move_to(move);
 
-   // king-slide castling
-
-   if (move_is_castle(move,board) && !option_get_bool("Chess960")) {
-      if (false) {
-      } else if (from == E1 && to == H1) {
-         to = G1;
-      } else if (from == E1 && to == A1) {
-         to = C1;
-      } else if (from == E8 && to == H8) {
-         to = G8;
-      } else if (from == E8 && to == A8) {
-         to = C8;
-      }
-   }
-
    // normal moves
 
    if (!square_to_string(from,&string[0],3)) ASSERT(false);

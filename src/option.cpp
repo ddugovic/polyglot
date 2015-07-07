@@ -35,7 +35,11 @@ option_t Option[] = {
     { "UseNice",          "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|UCI},
     { "NiceValue",        "spin", "0","20",     "5"         , NULL,0,NNB,  PG|XBOARD|UCI},
 
+    { "3Check",           "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
     { "Chess960",         "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
+    { "Horde",            "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
+    { "KingOfTheHill",    "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
+    { "Standard",         "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD},
 
     { "Resign",           "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
     { "ResignMoves",      "spin","0","10000",    "3"        , NULL,0,NNB,  PG|XBOARD},

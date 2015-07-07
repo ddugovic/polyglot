@@ -543,13 +543,15 @@ EXIT STATUS
 AUTHORS
        Main author: Fabien Letouzey<fabien_letouzey(at)hotmail.com>
 
-       Native Windows port:  Huang Chen<webmaster@elephantbase.net> ("Morning
-       Yellow")
+       Native Windows port:  Huang Chen<webmaster(at)elephantbase.net>
+       ("Morning Yellow")
 
        Various enhancements: Fonzy Bleumers<match(at)geenvis.net>
 
        UCI port and implementation of new WB protocol: Michel Van den Bergh
        <michel.vandenbergh(at)uhasselt.be>
+
+       Variant implementation: Daniel Dugovic<dandydand(at)gmail.com>
 
 SEE ALSO
        xboard(6)

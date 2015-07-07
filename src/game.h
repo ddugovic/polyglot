@@ -47,7 +47,7 @@ extern game_t Game[1];
 extern bool game_is_ok     (const game_t * game);
 
 extern void game_clear     (game_t * game);
-extern bool game_init      (game_t * game, const char fen[]);
+extern bool game_init      (game_t * game, const char fen[], variant_t var);
 
 extern int  game_status    (const game_t * game);
 

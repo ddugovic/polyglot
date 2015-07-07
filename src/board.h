@@ -9,6 +9,7 @@
 #include "colour.h"
 #include "square.h"
 #include "util.h"
+#include "variant.h"
 
 // defines
 
@@ -36,6 +37,7 @@ typedef struct {
    sint16 ply_nb;
    sint16 move_nb;
 
+   variant_t variant;
    uint64 key;
 } board_t;
 
