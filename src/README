@@ -3,8 +3,8 @@ POLYGLOT(6)                                                        POLYGLOT(6)
 
 
 NAME
-       PolyGlot -  Winboard protocol to UCI protocol adapter
-                -  book engine for Polyglot books
+       PolyGlot -  xboard protocol to UCI protocol adapter
+                -  book engine for PolyGlot books
                 -  a collection of utilities for creating and analyzing
        opening books
                 -  a utility for analyzing epd files
@@ -58,7 +58,7 @@ DESCRIPTION
 
        Options which normally appear in the [PolyGlot] section of the config
        file (see below) are exported as options with their name prefixed by
-       "Polyglot". This makes it easy to filter them in the GUI.
+       "PolyGlot". This makes it easy to filter them in the GUI.
 
        NOTE: Not all options are exported, only those that make sense in the
        given mode.
@@ -132,7 +132,7 @@ OPTIONS
            line.
 
        -pg The argument is a string of the form <name>=<value>. This option
-           will set the Polyglot option <name> to <value>.
+           will set the PolyGlot option <name> to <value>.
 
        -uci
            The argument is a string of the form <name>=<value>. This option
@@ -458,7 +458,7 @@ CONFIG FILE FORMAT
            know that they can ponder.
 
        SyncStop (default: false)
-           When a ponder miss occurs, Polyglot interrupts the engine and
+           When a ponder miss occurs, PolyGlot interrupts the engine and
            IMMEDIATELY launches a new search.  While there should be no
            problem with this, some engines seem confused and corrupt their
            search board.  "SyncStop" forces PolyGlot to wait for the (now
@@ -558,4 +558,4 @@ SEE ALSO
 
 
 
-                                  2015-07-06                       POLYGLOT(6)
+                                  2015-07-08                       POLYGLOT(6)

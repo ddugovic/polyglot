@@ -1,4 +1,4 @@
-Summary: A Winboard protocol to UCI protocol adapter
+Summary: An xboard protocol to UCI protocol adapter
 Name: polyglot
 Version: 2.01
 Release: 1

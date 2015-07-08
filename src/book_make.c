@@ -14,6 +14,7 @@
 #include "move_do.h"
 #include "move_gen.h"
 #include "move_legal.h"
+#include "pgheader.h"
 #include "pgn.h"
 #include "san.h"
 #include "util.h"
@@ -343,17 +344,34 @@ static void book_save(const char file_name[]) {
 
    FILE * file;
    int pos;
+   char *header, *raw_header;
+   unsigned int size;
+   int i;
 
    ASSERT(file_name!=NULL);
 
    file = fopen(file_name,"wb");
    if (file == NULL) my_fatal("book_save(): can't open file \"%s\" for writing: %s\n",file_name,strerror(errno));
 
+   pgheader_create(&header,"normal","Created by PolyGlot.");
+   pgheader_create_raw(&raw_header,header,&size);
+   free(header);
+
+   // write header
+
+   for(i=0;i<size;i++){
+       fputc(raw_header[i],file);
+   }
+   free(raw_header);
+
    // entry loop
 
    for (pos = 0; pos < Book->size; pos++) {
 
       ASSERT(keep_entry(pos));
+
+      /* null keys are reserved for the header */
+      if(Book->entry[pos].key==U64(0x0)) continue;
 
       write_integer(file,8,Book->entry[pos].key);
       write_integer(file,2,Book->entry[pos].move);

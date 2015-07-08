@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 
+#include "pgheader.h"
 #include "util.h"
 
 // defines
@@ -35,7 +36,7 @@ typedef struct {
    bool token_first;
 
    char result[PGN_STRING_SIZE];
-   char variant[PGN_STRING_SIZE];
+   variant_t variant;
    char fen[PGN_STRING_SIZE];
 
    int move_line;

@@ -211,19 +211,19 @@ static void parse_setoption(const char string[]) {
             polyglot_set_option(pg_name,value);
         }else{
             if(!strcmp(name,"UCI_Chess960") && !strcmp(value,"true")){
-                UCIboard->variant = STANDARD;
+                UCIboard->variant = NORMAL;
             }
             if(!strcmp(name,"UCI_3Check") && !strcmp(value,"true")){
                 UCIboard->variant = THREECHECK;
             }
             if(!strcmp(name,"UCI_Horde") && !strcmp(value,"true")){
-                UCIboard->variant = HORDE;
+                UCIboard->variant = DUNSANY;
             }
             if(!strcmp(name,"UCI_KingOfTheHill") && !strcmp(value,"true")){
-                UCIboard->variant = HILL;
+                UCIboard->variant = KINGOFTHEHILL;
             }
             if(!strcmp(name,"UCI_Standard") && !strcmp(value,"true")){
-                UCIboard->variant = STANDARD;
+                UCIboard->variant = NORMAL;
             }
             if(strcmp(name,"UCI_Standard")){
                 engine_send(Engine,"%s",string);

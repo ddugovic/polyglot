@@ -6,16 +6,11 @@ OBJS = attack.o board.o book.o book_make.o book_merge.o colour.o engine.o\
  pipex_posix.o pgn.o piece.o random.o san.o search.o square.o\
  uci.o uci2uci.o util.o xboard2uci.o
 
-# set up for NO cygwin
-CYGF = -mno-cygwin
-CYGL = -lmsvcrt
-
 CC = gcc
 DEFS = -DNDEBUG
 OPTS = -Os -frename-registers -funit-at-a-time -fstrict-aliasing -fstrength-reduce -fomit-frame-pointer
-CFLAGS = -Wall -pipe $(DEFS) $(OPTS) $(CYGF)
-LFLAGS = -fpic -s $(CYGF)
-LIBS = $(CYGL)
+CFLAGS = -Wall -pipe $(DEFS) $(OPTS)
+LFLAGS = -fpic -s
 
 all: $(EXE)
 
@@ -23,7 +18,7 @@ clean:
 	rm -rf $(OBJS) $(EXE)
 
 $(EXE): $(OBJS)
-	$(CC) $(LFLAGS) $(LIBS) $(OBJS) -o $(EXE)
+	$(CC) $(LFLAGS) $(OBJS) -o $(EXE)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<

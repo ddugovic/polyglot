@@ -1,9 +1,9 @@
 src/aclocal.m4
 src/Makefile
 src/autom4te.cache/
+src/compile
 src/config.log
 src/config.status
-src/configure
 src/install-sh
 src/missing
 src/polyglot

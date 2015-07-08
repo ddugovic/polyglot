@@ -1,0 +1,289 @@
+<html>
+<body>
+<h1>Header format for polyglot books.</h1>
+<h2><a name=rationale>Rationale</a></h2>
+The <a href=http://hardy.uhasselt.be/Toga/book_format.html>Polyglot opening book format</a> is the most widely used non-proprietary opening book format. It is understood by many chess engines as well
+as by <a href=http://www.gnu.org/software/xboard/>xboard/winboard</a>, <a href=http://sourceforge.net/projects/icsdrone/>icsdrone</a> and <a href=http://ajonsson.kapsi.fi/cutechess.html>cutechess</a>.
+<p>
+Currently Polyglot book files do not contain any metadata. This is
+problematic for many reasons
+<ul>
+<li>The file type cannot be reliably identified.</li>
+<li>No author information can be embedded in the file.</li>
+<li>No license/copyright information can be embedded in the file.</li>
+<li>It is not possible to specify that the book is for a non FIDE chess variant
+(such as suicide chess).</li>
+</ul>    
+In the current document we propose an extensible header format for
+Polyglot opening books. 
+To facilitate implementation we include a utility for handling such headers.
+<p>
+Since it is anticipated that the adoption of this header format will take
+some time, we have opted for a header consisting entirely of printable
+ASCII characters (with some qualification, see below). So the header can be inspected by a text editor or using
+a simple dump program such as <tt>od</tt> on Linux. In particular the
+following command
+<p>
+<tt>od -w16 -a &lt;file&gt; | less</tt>
+<p> 
+will display the header.
+<h2><a name=backward_compatibility>A note on backward compatibility<a></h2>
+The new header is backward compatible in the 
+sense that it is invisible for applications that use Polyglot books
+through lookup of individual keys corresponding to chess positions (e.g. chess engines). 
+<p>
+Applications that handle Polyglot books in a more global way (such
+as the Polyglot book merging utility) which are unaware of the header could possibly
+unintentionally mess it up.  But the resulting file will still
+behave correctly from the point of view of key lookup.
+<p>
+A broken header may be easily
+deleted and recreated with the <a href=../pgheader-release>pgheader</a> utility which is further
+described below.
+<p>
+Polyglot as of version <a href=http://hardy.uhasselt.be/Toga/polyglot-release/>1.4.70b</a> is aware of the  new header and will treat it correctly.
+<h2><a name=polyglot_books>Polyglot books</a></h2>
+A polyglot book consists of a series of 16 byte records. The first 8 bytes of
+each record form the <em>key</em>. Normally the key is the zobrist hash key
+of a chess position.
+There may be more than one record with the same key.
+The records are ordered 
+according to their keys (lowest key first).
+
+Records with a <em> null key</em> <tt>0x0000000000000000</tt> will be called <em>null records</em> below. If they exist they must necessarily be at the beginning of the file.
+<p>
+The header data will be embedded in null records. Chess positions
+that correspond to null keys are actually known (they were constructed
+by Peter &Ouml;sterlund) but the probability that such a position would
+occur in an actual chess game is totally negligeable, and moreover
+the probability of a collision with another key in the book is much larger.
+Of course
+a header aware application may simply regard a null key as invalid.
+<h2><a name=header_data>Header data</a></h2>
+In a polyglot book the <em>header data</em> is defined as the concatenation
+of the non-key data in the null records. The bytes in the header
+data are in the same order as in the file.
+<p>
+<b>If there are no null records then the book is assumed to contain no header.</b>
+<h2><a name=logical_header>The logical header</a></h2>
+The <em>logical header</em> is the part up to and including the first null character in the header data. 
+
+<p>
+
+<b>If there is no null character in the header data then the book is assumed to contain no header.</b>
+
+<p>
+
+The logical header is a <em>UTF-8 encoded unicode character string</em>  (without byte order marker, see below). Note
+that a character string consisting of 7 bit ascii characters is a valid
+UTF-8 string.
+
+<p>
+
+As the logical header may be arbitrarily long this may present problems
+for applications that use fixed length buffers. 
+
+<p>
+
+<b>An application may refuse to parse a header which it considers too long. However it should always be able to process a logical header
+of at most 2048 characters (including the null character).</b>
+
+
+<h2><a name=fields>Fields</a></h2>
+The logical header is considered to be a sequence of <em>fields</em> separated
+by linefeed characters <tt>0x0A</tt>. The linefeed characters are not 
+part of the fields.  The carriage return character <tt>0x0D</tt> is <em>not</em> a field
+separator, even if it occurs together with a linefeed in the
+typical newline sequence "\r\n". Note that Windows has 
+the habit of changing "\n" into "\r\n" behind your back, so please test
+on that platform.
+
+<p>
+
+A certain number of fields (depending on
+the format version) are predefined. The predefined fields should
+not contain leading or trailing spaces. Numbers are written in decimal form
+without leading zeros.
+
+<p>
+
+The definition of the first three fields is independent
+of the format version.
+<ul>
+<li> The first field should always be equal to <tt>@PG@</tt>.</li>
+<li> The second field is the version number. It has the format
+<p>
+<tt> &lt;major&gt;.&lt;minor&gt;</tt>
+<p>
+where <tt>&lt;major&gt;</tt> and <tt>&lt;minor&gt;</tt> are respectively
+the major and minor version number written in decimal form. They
+should be non-negative integers and contain no leading zeros.
+<p>
+<li>The third field is the total number of predefined fields (not
+including the first three). If <tt>m</tt> is the number
+of predefined fields then the first comment field will be 
+numbered <tt>4+m</tt>. Applications <b>should</b> skip predefined fields
+they do not know about (that is: if these fields belong to a higher header version
+than the one they are currently supporting). 
+</ul>
+In the current version of the logical header (1.0) one has:
+<ul>
+<li>The fourth field is the number of variants supported by the book.</li>
+</ul>
+If <tt>n</tt> is the number of variants in the book then the fields <tt>5</tt> to <tt>5+n-1</tt>
+are the names of the variants supported by the book. 
+<p>
+Variant names should be printable ascii characters and contain no spaces
+or upper case letters.
+<b>For known variants  the standard variant
+names from the <a href=http://www.gnu.org/software/xboard/engine-intf.html>Chess Engine Communication Protocol</a> should be used.</b>
+<p>
+Having zero variants is legal but the meaning of this is undefined in v1.0
+of the format.
+<p>
+The non-predefined fields are free format. They should be regarded
+as comments and would typically include license information, author data, 
+source files etc...
+<h2><a name=extensibility>A note on extensibility</a></h2>
+It recommended that newer versions of the format do not change the definition
+of predefined fields. Instead it is recommended to add new fields. The
+design of the format allows one to do this is in a way which is
+invisible to applications supporting only an earlier version of the
+format.
+
+<p>
+
+Currently the logical header is structured like a shallow tree. It
+is recommended to keep this tree-like format for further
+versions of the format according to the following Backus-Naur form
+
+<pre>
+&lt;header&gt;        := &lt;magic&gt;\n&lt;version&gt;\n&lt;root-field&gt;[\n&lt;field&gt;]*
+&lt;magic&gt;         := @PG@
+&lt;version&gt;       := &lt;number&gt;.&lt;number&gt;
+&lt;root-field&gt;    := &lt;count&gt;[\n&lt;multi-field&gt;]*
+&lt;multi-field&gt;   := [&lt;root-field&gt; | &lt;field&gt;]
+&lt;field&gt;         := &lt;string&gt; 
+&lt;count&gt;         := &lt;number&gt;
+</pre>
+where &lt;string&gt; is assumed to contain no linefeed characters and
+&lt;count&gt; is the total number of fields contained in the corresponding
+subtree (but not including the &lt;count&gt; field itself).
+
+<h2><a name=note_utf-8>A note on UTF-8</a></h2> Although this specification allows the
+comment section in the header to contain UTF-8 encoded multi-byte
+characters (recognizable by the fact that the highest bit in the
+corresponding bytes is set) it is currently probably best for a widely
+distributed book to use only the backward compatible 7bit ascii subset
+of UTF-8 (i.e. only single byte characters).
+
+Indeed not all current GUI's may be prepared to display multi-byte
+characters although this is likely to change in the future.
+
+<p>
+
+For clarification it should also be pointed out that the header should
+<b>not</b> contain a byte order marker (BOM) since it breaks compatibility
+with 7bit ascii. But this
+issue is actually moot since a valid BOM would be at the beginning of the header
+where normally the magic string is. So a header containing a BOM would
+be invalid.
+
+<p> A BOM is not necessary since by design UTF-8 has no endianness ambiguity
+and moreover  the official specification for UTF-8 specifies a BOM as optional.
+
+<h2><a name=example>Example</a></h2>
+The following logical header (written as C string) represents a book supporting
+normal and suicide chess.
+<p>
+<tt>
+"@PG@\n1.0\n3\n2\nnormal\nsuicide\n(normally comments here)"
+</tt>
+<p>
+In version 1.1 of the format it might perhaps be
+<p>
+<tt>
+"@PG@\n1.1\n4\n2\nnormal\nsuicide\n[somenewfield]\n(normally comments here)"
+</tt>
+<p>
+<h2><a name=sample_code>Sample code</a></h2>
+Here is <a href=../pgheader-release>
+sample code</a> that adds, displays and deletes headers in Polyglot books.
+This code may be freely used in guis, adaptors and other programs (including
+closed source ones).  
+<p>
+
+<pre>
+$ ./pgheader -h
+pgheader &lt;options&gt; [&lt;file&gt];
+Update a header, adding a default one if necessary
+&lt;file&gt;            input file
+Options:
+-h                print this help 
+-l                print the known variant list
+-s                print the header
+-S                print the header data
+-d                delete the header
+-v  &lt;variants&gt;    comma separated list of supported variants
+-f                force inclusion of unknown variants
+-c  &lt;comment&gt;     free format string, may contain newlines encoded as
+                  two character strings "\n"
+</pre>
+The following command adds a comment to the very widely used polyglot
+book "performance.bin" by Marc Lacrosse.
+<pre>
+$ ./pgheader performance.bin  -c "performance.bin by Marc Lacrosse."
+</pre>
+We verify that the header has indeed been added.
+<pre>
+$ ./pgheader -s performance.bin
+Variants supported:
+normal
+Comment:
+performance.bin by Marc Lacrosse.
+</pre>
+Here is the actual header data as shown by "./pgheader -S performance.bin".
+<pre>
+    @    P    G    @   \n    1    .    0
+   \n    2   \n    1   \n    n    o    r
+    m    a    l   \n    p    e    r    f
+    o    r    m    a    n    c    e    .
+    b    i    n         b    y         M
+    a    r    c         L    a    c    r
+    o    s    s    e    .   \0   \0   \0
+</pre>
+The actual api is contained in the source files <tt>pgheader.h</tt>
+and <tt>pgheader.c</tt>. It provides the following functions 
+<pre>
+int pgheader_known_variant(const char *variant);
+int pgheader_detect(const char *infile);
+int pgheader_create(char **header, const char *variants, const char *comment);
+int pgheader_create_raw(char **raw_header, const char *header, unsigned int *size);
+int pgheader_parse(const char *header, char **variants, char **comment);
+int pgheader_read(char **header, const char *infile);
+int pgheader_read_raw(char **raw_header, const char *infile, unsigned int *size);
+int pgheader_write(const char *header, const char *infile, const char *outfile);
+int pgheader_delete(const char *infile, const char *outfile);
+const char * pgheader_strerror(int pgerror);
+</pre>
+For instructions about using these functions see the comments in <tt>pgheader.h</tt>.
+
+
+<h2><a name=magics>Magics</a></h2>
+The following magic may be used to recognize the new header on Linux
+
+<pre>
+#------------------------------------------------------------------------------
+# polyglot:  file(1) magic polyglot chess opening book files
+#
+# From Michel Van den Bergh <michel.vandenbergh@uhasselt.be>
+
+0       string          \x00\x00\x00\x00\x00\x00\x00\x00@PG@\x0a           Polyglot chess opening book
+>13     string          1.0\x00\x00\x00\x00\x00\x00\x00\x00\x0a                (version 1.0)
+!:mime  application/x-polyglot
+</pre>
+It should be appended to
+ <tt>/usr/share/file/magic</tt> and the latter file should then be recompiled with
+<tt> file -C </tt>.
+</body>
+</html>

@@ -706,7 +706,7 @@ void xboard2uci_gui_step(char string[]) {
 
 		} else if (match(string,"variant *")) {
 
-			board->variant = STANDARD;
+			board->variant = NORMAL;
 			if (my_string_equal(Star[0],"3check")) {
 				board->variant = THREECHECK;
 				option_set(Option,"3Check","true");
@@ -719,14 +719,13 @@ void xboard2uci_gui_step(char string[]) {
 				option_set(Option,"Chess960","false");
 			}
 			if (my_string_equal(Star[0],"horde")) {
-				board->variant = HORDE;
+				board->variant = DUNSANY;
 				option_set(Option,"Horde","true");
-				game_init(Game,StartFenHorde,board->variant);
 			} else {
 				option_set(Option,"Horde","false");
 			}
 			if (my_string_equal(Star[0],"kingofthehill")) {
-				board->variant = HILL;
+				board->variant = KINGOFTHEHILL;
 				option_set(Option,"KingOfTheHill","true");
 			} else {
 				option_set(Option,"KingOfTheHill","false");

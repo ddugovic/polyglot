@@ -133,14 +133,14 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2015-07-06" "" ""
+.TH POLYGLOT 6 "2015-07-08" "" ""
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
 .nh
 .SH "NAME"
-PolyGlot \-  Winboard protocol to UCI protocol adapter
-         \-  book engine for Polyglot books 
+PolyGlot \-  xboard protocol to UCI protocol adapter
+         \-  book engine for PolyGlot books 
          \-  a collection of utilities for creating and analyzing opening books
          \-  a utility for analyzing epd files
          \-  a perft counter
@@ -188,7 +188,7 @@ an extension of the xboard protocol as defined by H.G. Muller.
 .PP
 Options which normally appear in the [PolyGlot] section of the
 config file (see below) are exported as options with their name prefixed
-by \*(L"Polyglot\*(R". This makes it easy to filter them in the \s-1GUI.\s0
+by \*(L"PolyGlot\*(R". This makes it easy to filter them in the \s-1GUI.\s0
 .PP
 \&\s-1NOTE:\s0 Not all options are exported, only those that make sense in the
 given mode.
@@ -262,7 +262,7 @@ Do not use a config file, even if one was specified on the command line.
 .IP "\fB\-pg\fR" 4
 .IX Item "-pg"
 The argument is a string of the form <name>=<value>. This option will
-set the Polyglot option <name> to <value>.
+set the PolyGlot option <name> to <value>.
 .IP "\fB\-uci\fR" 4
 .IX Item "-uci"
 The argument is a string of the form <name>=<value>. This option will
@@ -598,7 +598,7 @@ option.  However some engines which can actually ponder do not declare
 the option.  This work around lets PolyGlot know that they can ponder.
 .IP "\fBSyncStop\fR (default: false)" 4
 .IX Item "SyncStop (default: false)"
-When a ponder miss occurs, Polyglot interrupts the engine and
+When a ponder miss occurs, PolyGlot interrupts the engine and
 \&\s-1IMMEDIATELY\s0 launches a new search.  While there should be no problem
 with this, some engines seem confused and corrupt their search board.
 \&\*(L"SyncStop\*(R" forces PolyGlot to wait for the (now useless) ponder search

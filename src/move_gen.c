@@ -213,7 +213,7 @@ static void add_castle_moves(list_t * list, const board_t * board) {
    me = board->turn;
    opp = colour_opp(me);
 
-   if (board->variant == HORDE && king_pos(board,me) == SquareNone)
+   if (board->variant == DUNSANY && king_pos(board,me) == SquareNone)
       return;
    rank = colour_is_white(me) ? Rank1 : Rank8;
 

@@ -78,7 +78,7 @@ void game_clear(game_t * game) {
 
    ASSERT(game!=NULL);
 
-   game_init(game,StartFen,STANDARD);
+   game_init(game,StartFen,NORMAL);
 }
 
 // game_init()

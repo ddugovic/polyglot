@@ -1,6 +1,7 @@
+- Removed MSVC++ makefile and Debian/Ubuntu packaging.
 - The exclude-moves feature now fully supports the WB protocol extension for this (exclude MOVE|all, include MOVE|all).
 =========2.0.1==================
-- This is the first of a fork initiated by HGM. It starts by reverting the previous book-learning change, as the reasons for it seem invalid. Peopl do not use book learning for making better opening books, but for adapting a book to one specific engine, and provide diversity in on-line play, to prevent human opponents from exploiting a likely line they once won by repeating it again and again.
+- This is the first of a fork initiated by HGM. It starts by reverting the previous book-learning change, as the reasons for it seem invalid. People do not use book learning for making better opening books, but for adapting a book to one specific engine, and provide diversity in on-line play, to prevent human opponents from exploiting a likely line they once won by repeating it again and again.
 - Polyglot was now also made to use the learn info it updates, for promoting diversity and avoidance of lines with a poor result record.
 - An option to refrain from resigning while you till have a Queen (QueenNeverResigns) was added
 - Option to accept draw offers (HandleDraws and ContemptScore) were added.

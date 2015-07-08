@@ -1,7 +1,7 @@
 =head1 NAME
 
-PolyGlot -  Winboard protocol to UCI protocol adapter
-         -  book engine for Polyglot books 
+PolyGlot -  xboard protocol to UCI protocol adapter
+         -  book engine for PolyGlot books 
          -  a collection of utilities for creating and analyzing opening books
          -  a utility for analyzing epd files
          -  a perft counter
@@ -51,7 +51,7 @@ an extension of the xboard protocol as defined by H.G. Muller.
 
 Options which normally appear in the [PolyGlot] section of the
 config file (see below) are exported as options with their name prefixed
-by "Polyglot". This makes it easy to filter them in the GUI.
+by "PolyGlot". This makes it easy to filter them in the GUI.
 
 NOTE: Not all options are exported, only those that make sense in the
 given mode.
@@ -133,7 +133,7 @@ Do not use a config file, even if one was specified on the command line.
 =item B<-pg>
 
 The argument is a string of the form <name>=<value>. This option will
-set the Polyglot option <name> to <value>. 
+set the PolyGlot option <name> to <value>. 
 
 =item B<-uci>
 
@@ -565,7 +565,7 @@ the option.  This work around lets PolyGlot know that they can ponder.
 
 =item B<SyncStop> (default: false)
 
-When a ponder miss occurs, Polyglot interrupts the engine and
+When a ponder miss occurs, PolyGlot interrupts the engine and
 IMMEDIATELY launches a new search.  While there should be no problem
 with this, some engines seem confused and corrupt their search board.
 "SyncStop" forces PolyGlot to wait for the (now useless) ponder search
