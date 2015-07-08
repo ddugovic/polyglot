@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2015-07-08" "" ""
+.TH POLYGLOT 6 "2015-07-09" "" ""
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -488,13 +488,30 @@ are ignored.
 .IP "\fBResignScore\fR (default: 600)" 4
 .IX Item "ResignScore (default: 600)"
 This is the score in centipawns that will trigger resign \*(L"counting\*(R".
+.IP "\fBQueenNeverResigns\fR (default: true)" 4
+.IX Item "QueenNeverResigns (default: true)"
+Suppresses resigning irrespective of the score,
+as long as the engine still has a Queen (hoping for a perpetual).
+.IP "\fBHandleDraws\fR (default: false)" 4
+.IX Item "HandleDraws (default: false)"
+When set PolyGlot can accept draw offers on behalf of the engine,
+when the last reported engine score is below PolyGlot's contempt.
+.IP "\fBContemptScore\fR (default: 30)" 4
+.IX Item "ContemptScore (default: 30)"
+This is the score in centipawns that the engine must minimally see
+in its own disadvantage before PolyGlot will accept a draw offer.
 .IP "\fBShowPonder\fR (default: true)" 4
 .IX Item "ShowPonder (default: true)"
 Show search information during engine pondering.  Turning this off
 might be better for interactive use in some interfaces.
+.IP "\fBShowTbHits\fR (default: false)" 4
+.IX Item "ShowTbHits (default: false)"
+Reports extra info on selective depth, search speed (knps) and
+tablebase hits at the beginning of the \s-1PV\s0 field in the thinking output
+of WinBoard protocol, just before the real \s-1PV.\s0
 .IP "\fBScoreWhite\fR (default: true)" 4
 .IX Item "ScoreWhite (default: true)"
-Report score from white's point of view in xboard mode.
+Report score from white's point of view in xboard mode. (Wrecks XBoard...).
 .IP "\fBKibitzMove\fR (default: false)" 4
 .IX Item "KibitzMove (default: false)"
 Whether to kibitz when playing a move.
@@ -542,8 +559,16 @@ Select moves according to their weights in the book. If false the move
 with the highest weight is selected.
 .IP "\fBBookLearn\fR (default: false)" 4
 .IX Item "BookLearn (default: false)"
-Store learning information in the book (which must be writable).
-Currently no engine actually uses this information.
+Switches on updating of the 'learn fields' of the opening book,
+which for each move record the number of times the move was played,
+and the number of half-points scored with it.
+It also switches on making use of this information already in the book,
+for altering the move-selection probabilities from those
+specified by the book weights.
+(Rarely played moves will be favored,
+moves with a significant poor performance will be shunned.)
+This option must be set before the book is specified,
+or the updating of the learn info will not work!
 .IP "\fBBookDepth\fR (default: 256)" 4
 .IX Item "BookDepth (default: 256)"
 Stop using the book after this number of moves.
@@ -630,10 +655,13 @@ value true\*(R" at engine startup.
 .PP
 Standard \s-1UCI\s0 options are
 .PP
-.Vb 4
+.Vb 7
 \&    Hash 
 \&    NalimovPath
 \&    NalimovCache
+\&    GaviotaPath
+\&    GaviotaCache
+\&    SyzygyPath
 \&    OwnBook
 .Ve
 .PP

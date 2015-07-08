@@ -428,14 +428,35 @@ are ignored.
 
 This is the score in centipawns that will trigger resign "counting".
 
+=item B<QueenNeverResigns> (default: true)
+
+Suppresses resigning irrespective of the score,
+as long as the engine still has a Queen (hoping for a perpetual).
+
+=item B<HandleDraws> (default: false)
+
+When set PolyGlot can accept draw offers on behalf of the engine,
+when the last reported engine score is below PolyGlot's contempt.
+
+=item B<ContemptScore> (default: 30)
+
+This is the score in centipawns that the engine must minimally see
+in its own disadvantage before PolyGlot will accept a draw offer.
+
 =item B<ShowPonder> (default: true)
 
 Show search information during engine pondering.  Turning this off
 might be better for interactive use in some interfaces.
 
+=item B<ShowTbHits> (default: false)
+
+Reports extra info on selective depth, search speed (knps) and
+tablebase hits at the beginning of the PV field in the thinking output
+of WinBoard protocol, just before the real PV.
+
 =item B<ScoreWhite> (default: true)
 
-Report score from white's point of view in xboard mode.
+Report score from white's point of view in xboard mode. (Wrecks XBoard...).
 
 =item B<KibitzMove> (default: false)
 
@@ -493,8 +514,16 @@ with the highest weight is selected.
 
 =item B<BookLearn> (default: false)
 
-Store learning information in the book (which must be writable).
-Currently no engine actually uses this information.
+Switches on updating of the 'learn fields' of the opening book,
+which for each move record the number of times the move was played,
+and the number of half-points scored with it.
+It also switches on making use of this information already in the book,
+for altering the move-selection probabilities from those
+specified by the book weights.
+(Rarely played moves will be favored,
+moves with a significant poor performance will be shunned.)
+This option must be set before the book is specified,
+or the updating of the learn info will not work!
 
 =item B<BookDepth> (default: 256)
 
@@ -606,6 +635,9 @@ Standard UCI options are
     Hash 
     NalimovPath
     NalimovCache
+    GaviotaPath
+    GaviotaCache
+    SyzygyPath
     OwnBook
 
 Hidden options like "Ponder" or "UCI_xxx" are automatic
