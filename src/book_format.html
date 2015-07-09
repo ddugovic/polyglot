@@ -1,28 +1,28 @@
 <html>
 <head>
-<title>Polyglot book format</title>
+<title>PolyGlot book format</title>
 </head>
 <body>
-<h1>Polyglot book format</h1>
-The following description of the Polyglot book format is obtained
-by inspecting the freely available source code of Polyglot. 
+<h1>PolyGlot book format</h1>
+The following description of the PolyGlot book format is obtained
+by inspecting the freely available source code of PolyGlot.
 <h2>A note on copyright</h2> I believe that the algorithm described
 below may be freely implemented by all GUIs, adapters and engines,
-including closed source ones. Polyglot itself is GPL but the GPL only
+including closed source ones. PolyGlot itself is GPL but the GPL only
 covers actual code and not algorithms.
 <p>
-The array of 781 random numbers is of course taken from the Polyglot
+The array of 781 random numbers is of course taken from the PolyGlot
 source code but I am pretty sure that a table of random numbers 
 cannot be covered by copyright.
 <p>
 Look below for some sample code which is released
 in the public domain.
 <p>
-At the end of this document we discuss an extension of the Polyglot
+At the end of this document we discuss an extension of the PolyGlot
 opening book format for Chess960. This extension is implemented in
 upcoming versions of xboard/winboard.
 <h2>Outline</h2>
-A Polyglot book is a series of "entries" of 16 bytes
+A PolyGlot book is a series of "entries" of 16 bytes
 <p>
 <pre>
 key    uint64
@@ -416,22 +416,22 @@ moves. So before deciding that these are really castling moves the
 implementation may for example verify that there is really a king
 present on e1/e8.
 <h2>weight</h2>
-In the Polyglot source code this field is called "count" but it is in fact
+In the PolyGlot source code this field is called "count" but it is in fact
 a measure for the quality of the move.
 <p>
-The Polyglot book generator sets it to 2*(wins)+(draws), globally 
+The PolyGlot book generator sets it to 2*(wins)+(draws), globally
 scaled to fit into 16 bits. A move with a weight of zero is deleted
 from the book. This is just a convention and  book authors
 are free to set this field according to their taste.
 <p>
-If random play is enabled in Polyglot then the probability that
+If random play is enabled in PolyGlot then the probability that
 a move is selected is its weight divided by the sum of the weights
 of all the moves in the given position. 
-In XBoard, which also supports Polyglot books, the weight can be raised
+In XBoard, which also supports PolyGlot books, the weight can be raised
 to a power N (0 <= N <= infinity) before doing the probability calculation,
 enhancing or completely destroying the effect of the weights.
 <h3>A note on zero weights</h3>
-Note that older Polyglot versions are defective as to the use of zero weights,
+Note that older PolyGlot versions are defective as to the use of zero weights,
 (meaning the move should never be played),
 and crash when they encounter them.
 This because of a misplaced internal consistency check,
@@ -442,15 +442,15 @@ Yet hand-tuning of a book often leads to the desire to completely disable a move
 without deleting it. Some software approximates an entry with zero weight
 by giving it very low probability. This is for instance what Scid does,
 but it means the move will still occasionally be played.
-With XBoard you can edit Polyglot books to set the weight to exactly zero,
+With XBoard you can edit PolyGlot books to set the weight to exactly zero,
 as well as delete or add moves.
  
-<h2>learn</h2> "learn" is set to zero by the Polyglot book generator.
+<h2>learn</h2> "learn" is set to zero by the PolyGlot book generator.
 If you set "BookLearn=true" in polyglot.ini then this field
-is used to record learning information. From Polyglot 2.0 on, Polyglot
+is used to record learning information. From PolyGlot 2.0 on, PolyGlot
 can also use this learn information for modulating the playing probabilities
 of the book moves, based on how often they were played and with
-how much success they met. To use this feature Polyglot should
+how much success they met. To use this feature PolyGlot should
 have write access to the opening book which on Unix systems will probably
 not be the case if the book has been installed centrally.
 Note that for the book to be opened for write access, the option
@@ -477,7 +477,7 @@ with the rules of Chess960 (also called Fisher Random Chess or
 FRC). See e.g.
 <a href=http://en.wikipedia.org/wiki/Fischer_Random_Chess>http://en.wikipedia.org/wiki/Fischer_Random_Chess</a>.
 <p>
-The Zobrist hash function used in Polyglot does not keep track of
+The Zobrist hash function used in PolyGlot does not keep track of
 which rook has castling rights if there are multiple rooks present on
 the same side of the king. However it is rather unlikely that this
 situation would occur in the opening. So the ambiguity can be resolved
@@ -487,7 +487,7 @@ in a satisfactory way by making the following convention.
 rook (closest to a or h file) should not be included in the book. </b>
 <p>
 Nonetheless this is an unsatisfactory situation. Therefore the
-upcoming versions of xboard/winboard extend the Polyglot hash function
+upcoming versions of xboard/winboard extend the PolyGlot hash function
 in such a way that it takes into account the full castling rights in
 Chess960, therefore 
 <b>removing the need of the above disambiguating convention</b>.  This is done in a backward compatible way. I.e. ordinary
@@ -531,8 +531,8 @@ the "to square" is the position of the rook. This is to maintain
 compatibility with various Fruit derivatives.
 
 <h2>Extension to other variants</h2>
-Polyglot does not support any Chess variants other than Mad Queen and Chess960.
-XBoard, however, does, and has extended the definition of the Polyglot book format to cover such variants.
+PolyGlot does not support any Chess variants other than Mad Queen and Chess960.
+XBoard, however, does, and has extended the definition of the PolyGlot book format to cover such variants.
 To generalize to various board formats, it also numbers the board square in raster-scan fashion.
 So in Xiangqi, which has a 9x10 board, the square number equals 9*row+file, and can run upto 90.
 The piece numbering is also extended beyond King, keeping the alternation of 
@@ -591,7 +591,8 @@ so that XORing the corresponding key into the total will not work.
 Therefore the holdings keys are not XORed but added to the total key,
 after all other key terms have been taken into account through XOR.
 <p>
-The move encoding on large boards is fromSquare*boardSize + toSquare + boardSize*boardSize*promotionType.
+The move encoding on non-8x8 boards is generalized to fromSquare*boardSize + toSquare + boardSize*boardSize*promotionType
+(where boardSize = boardLength*boardWidth).
 For large boards this might leave a shortage of promotion types,
 but fortunately promotions are not very common in opening theory.
 The meaning of the promotionType code can be variant-dependent.
@@ -599,6 +600,70 @@ Especially if there is a shortage of codes, the most common promotions should re
 (E.g. in Grand Chess the board is 10x10, so the promotion-type multiplier is 10,000,
 while the 16-bit move encoding only runs upto 65,535.
 So there is only room for 6 promotion types, while 7 would be needed for the 6 possible piece types and non-promotion.)
-In asymmetric variants (e.g. Spartan Chess) the same code need not indicate the same piece type for both sides.
-</body>
+In asymmetric variants (e.g. Spartan Chess) the same code needs not indicate the same piece type for both sides.
+<p>
+Special moves are indicated by using a (non-existent) promotion choice as an 'escape',
+in which case the from-square number isn't really a from-square, but identifies the special move.
+This system is used (with promotionType = 9, when available) for drops, where the from-square contains the ID of the piece to be dropped
+(A=1, B=2 etc.).
+It is also used to indicate double-moves of a Chu-Shogi Lion (promotionType = 10, when available, but 2 in Chu Shogi),
+where every combination of first and second step gets a unique code 0-63, which is then stored in the from-square.
+</p>
+<p>
+For really large boards (say larger than 144 squares) a more compact encoding system should be used,
+which indicates the from-square relative to the to-square in polar coordinates:
+toSquare + boardSize*directionCode + 4*boardSize*distanceCode.
+Here boardLength is the largest linear dimension of the board (be it height or width),
+and the distanceCodes &lt; boardLength-1 indicate the distance along the indicated ray to the from-square,
+such that the move goes in the direction forward, right, right-forward or left-forward as seen from the player that makes the move.
+When this lies off-board, the distanceCode should be subtracted from boardLength+1 to obtain the distance in the opposite direction.
+The rayCodes 0-3 represent the directions vertical, horizontal, diagonal and anti-diagonal (N, E, NE, SE), respectively.
+The remaining distanceCodes (>= boardLength-1) represent oblique moves, special moves and promotions.
+They always start with the two Knight jumps landing just right of the ray, in the positive and negative direction,
+followed by two (1,3) and two (2,3) jumps.
+</p><p>
+After the Knight jumps the meaning of the distanceCodes becomes variant dependent.
+By default they would contain promotions to various piece types,
+in the order of their piece code (i.e. N, B, R, Q, K, other) in so far they participate in the variant.
+These codes imply a single step in the forward direction along the ray.
+In variants with Shogi-like promotions, where all pieces can promote, but the only choice is promote or not,
+the entire range of distanceCode meanings will be repeated, this time meaning the move will be accompanied by a promotion.
+</p><p>
+The meaning of these variant-dependent distanceCodes can be overruled through the book header.
+After a line with the word "Special" in this header,
+a number of lines can follow, specifying the move as it would be for the vertical ray in the forward direction, starting from e4.
 
+
+After that follow codes to indicate additional oblique moves: a pair of Camel jumps, a pair of Zebra jumps, etc.
+With Shogi-like promotions, the 16 promotion choices instead code for two-step Lion moves that start off along the ray.
+Promotions are indicated by adding a number to the distanceCode one larger than the highest code used to indicate any oblique move.
+E.g. for Tenjiku Shogi with its 16x16 board codes 0-14 indicate true (positiove and negative) distances along the ray,
+15 &amp; 16 are Knight jumps, 17-32 are Lion double moves, 33-36 are C and Z jumps (for the area moves),
+and promotions add 37.
+As the board has 256 squares, there are only 64 distance codes available,
+so the highest code for which a promoted version is available is 26 (26 + 37 = 63).
+So there is no room to specify promotion on C and Z jumps, and with part of the Lion double-moves.
+But the only pieces in Tenjiku Shogi that can make C and Z moves do not promote,
+and the Lion double-moves can be ordered such that only the backward moves cannot promote.
+</p><p>
+For Maka Dai Dai Shogi the 8 codes after the Lion double moves
+(36-43, as the board is 19x19 there, shifting up everything 3 places compared to Tenjiku)
+specify Lion Dog linear triple-moves,
+(2-out-1-in, 2+1-out, 1+2-out and 1+1+1-out in both directions along the ray)
+and 44 specifies the moves was made by a 'Universal Leaper' (the ray number indicating which one).
+The latter necessitates the decoding routine to find the corresponding piece on the board.
+('Universal Leaper' in this context means a piece that is not bound to rays,
+and can move almost anywhere, such as Hook Mover, encoded in ray 0, Capricorn (ray 1) or Emperor (ray 2).)
+With 45 distance codes, 4 rays and 361 board squares all available 16-bit codes ar almost used up,
+so there is no way to indicate promotion.
+This is serious, as this variant has promotion on capture,
+making promotion early in the opening quite common.
+Fortunately the pieces are clearly divided into those that promote to upward-compatible pieces
+(replacing all step moves by unlimited sliding in that direction),
+for which you would always promote,
+and those that 'promote' to a worthless Gold, which you would virtually never promote.
+So promotion / deferral is decided by which class the piece belongs to,
+and only moves that do the opposite from what you would normally do cannot be incorporated in the book.
+This again need consulting of the board position before the move can be decoded.
+</p>
+</body>
