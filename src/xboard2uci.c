@@ -393,7 +393,10 @@ void xboard2uci_gui_step(char string[]) {
 			XB->result = FALSE;
 
 			XB->depth_limit = FALSE;
-            XB->node_rate=-1;
+			XB->node_rate=-1;
+			if (option_find(Uci->option,"UCI_PlayByNodes")) {
+				uci_send_option(Uci,"UCI_PlayByNodes","%d",0);
+			}
 
 			XB->computer = FALSE;
 			my_string_set(&XB->name,"<empty>");
@@ -430,10 +433,13 @@ void xboard2uci_gui_step(char string[]) {
 				ASSERT(XB->ping==-1);
 				gui_send(GUI,"pong %s",Star[0]);
 			}
-        } else if (match(string,"nps *")) {
+		} else if (match(string,"nps *")) {
 
-                // fake WB play-by-nodes mode
-            XB->node_rate = atoi(Star[0]);
+			if (Star[0] > 0 && option_find(Uci->option,"UCI_PlayByNodes"))
+				uci_send_option(Uci,"UCI_PlayByNodes","%d",Star[0]);
+			else
+				// fake WB play-by-nodes mode
+				XB->node_rate = atoi(Star[0]);
 		} else if (match(string,"playother")) {
 
 			State->computer[game_turn(Game)] = FALSE;
@@ -1060,6 +1066,7 @@ void xboard2uci_send_options(){
     if(my_string_case_equal(opt->name,"UCI_ShredderbasesPath")) continue;
     if(my_string_case_equal(opt->name,"UCI_SetPositionValue")) continue;
     if(my_string_case_equal(opt->name,"UCI_DrawOffers")) continue;
+    if(my_string_case_equal(opt->name,"UCI_PlayByNodes")) continue;
     if(my_string_case_equal(opt->name,"Ponder")) continue;
     if(my_string_case_equal(opt->name,"Hash")) continue;
     if(my_string_case_equal(opt->name,"NalimovPath")) continue;
