@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2015-07-09" "" ""
+.TH POLYGLOT 6 "2015-07-18" "" ""
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -212,31 +212,27 @@ by their own GUIs.
 PolyGlot can compile a pgn file into a binary PolyGlot book and furthermore
 it can merge two such binary books into a third one.
 .PP
-PolyGlot can also extract some useful information from PolyGlot books. The utility
-\&\*(L"dump-book\*(R" dumps the \*(L"lines\*(R" in a book for a given color. By definition
-a line is a sequence of moves (from the starting position) in which
-the given color makes only book moves and the other color makes 
+PolyGlot can also extract some useful information from PolyGlot books.
+The utility \*(L"dump-book\*(R" dumps the \*(L"lines\*(R" in a book for a given color.
+By definition a line is a sequence of moves (from the starting position)
+in which the given color makes only book moves and the other color makes
 arbitrary moves (i.e. not necessarily book moves).
 .PP
-Since a PolyGlot book is built up from positions and not lines there
-may be (and there usually are) many positions in the book that are not
-on a \*(L"line\*(R" as defined in the previous paragraph. It is convenient
-to call such positions \*(L"isolated\*(R" positions. The utility \*(L"info-book\*(R"
-counts such isolated positions.
+Since a PolyGlot book is comprised of positions (and not of \*(L"lines\*(R") there
+may be positions in the book that are not on a \*(L"line\*(R" as previously defined.
+It is convenient to call such positions \*(L"isolated\*(R" positions.
+The utility \*(L"info-book\*(R" counts such isolated positions.
 .PP
-Some of the isolated positions are provably unreachable and they
-could in principle be deleted from the book. For example if a book
-contains only the move \*(L"e4\*(R" in the starting position but also the
-position after \*(L"d4 d5\*(R" then this last position is provably unreachable
-since it requires white to make a non-book move when a book move is
-available. Such situations arise frequently from the priority rules
-in merging books.
+Some isolated positions are provably unreachable and they could in principle
+be deleted from the book. For example if a book contains only the move \*(L"e4\*(R"
+in the starting position but also the position after \*(L"d4 d5\*(R" then this last
+position is provably unreachable from \*(L"lines\*(R" since it requires white to make
+a non-book move when a book move is available. Such situations arise from
+improper pruning during merging opening books \*(-- which will be corrected.
 .PP
-Unfortunately not all isolated positions are provably unreachable and
-it is difficult to identify the latter. If invoked with \*(L"\-exact\*(R" the
-utility info-book will attempt to count the isolated positions which
-require a player to make a non-book move when a book move is available.
-Due to the possibility of transpositions this is not a fool proof method.
+If invoked with \*(L"\-exact\*(R" the \-utility info-book will count isolated keys
+which are discovered to be unreachable from \*(L"lines\*(R". Due to the possibility
+of transpositions (after finishing \*(L"lines\*(R") this is not a foolproof method.
 .SS "Epd test mode"
 .IX Subsection "Epd test mode"
 In epd test mode, PolyGlot will search positions in an epd file and
@@ -337,6 +333,7 @@ Second input file (in PolyGlot book format).
 .IX Item "-out (default: out.bin)"
 Output file (in PolyGlot book format).
 .PP
+\&\s-1TODO:\s0 Where positions are identical, preserve moves and scale \*(L"in2\*(R" weights
 Input files are not symmetrical, \*(L"in1\*(R" has priority over \*(L"in2\*(R". In other
 words when a position occurs both in \*(L"in1\*(R" and \*(L"in2\*(R" only the
 moves and weights from \*(L"in1\*(R" will be retained in \*(L"out\*(R".

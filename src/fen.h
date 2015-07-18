@@ -13,6 +13,7 @@
 // "constants"
 
 extern const char * StartFen;
+extern const char * StartFen960[960];
 
 // functions
 

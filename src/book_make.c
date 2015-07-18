@@ -10,6 +10,7 @@
 
 #include "board.h"
 #include "book_make.h"
+#include "fen.h"
 #include "move.h"
 #include "move_do.h"
 #include "move_gen.h"
@@ -73,6 +74,7 @@ typedef struct {
     int initial_color;
     bool book_trans_only;
     bool extended_search;
+    const char *fen;
     uint16 moves[1024];
     double probs[1024];
     uint64 keys[1024];
@@ -262,7 +264,7 @@ static void book_insert(const char file_name[]) {
 
    while (pgn_next_game(pgn)) {
 
-      board_start(board);
+      board_start(board,pgn->fen);
       ply = 0;
       result = 0;
 
@@ -766,7 +768,7 @@ static void print_moves(info_t *info){
     if(!info->output){
         return;
     }
-    board_start(board);
+    board_start(board,info->fen);
     for(i=0;i<info->height;i++){
         if(color==White){
             fprintf(info->output,"%d. ",i/2+1);
@@ -911,6 +913,7 @@ void book_dump(int argc, char * argv[]) {
     board_t board[1];
     info_t info[1];
     int i;
+    int n;
     FILE *f;
     my_string_set(&bin_file,"book.bin");
     for (i = 1; i < argc; i++) {
@@ -950,7 +953,6 @@ void book_dump(int argc, char * argv[]) {
     book_clear();
     if(!Quiet){printf("loading book ...\n");}
     book_load(bin_file);
-    board_start(board);
     init_info(info);
     info->initial_color=color;
     if(!(f=fopen(txt_file,"w"))){
@@ -962,10 +964,22 @@ void book_dump(int argc, char * argv[]) {
             bin_file,color==White?"white":"black");
     if(color==White){
         if(!Quiet){printf("generating lines for white...\n");}
-        search_book(board,info, BOOK);
+        for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+            board_start(board,info->fen=StartFen960[n]);
+            if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
+            fprintf(info->output,"[FEN \"%s\"]\n",string);
+            info->line = 1;
+            search_book(board,info, BOOK);
+        }
     }else{
         if(!Quiet){printf("generating lines for black...\n");}
-        search_book(board,info, ALL);
+        for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+            board_start(board,info->fen=StartFen960[n]);
+            if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
+            fprintf(info->output,"[FEN \"%s\"]\n",string);
+            info->line = 1;
+            search_book(board,info, ALL);
+        }
     }
 }
 
@@ -982,6 +996,7 @@ void book_info(int argc,char* argv[]){
     int s;
     bool extended_search=FALSE;
     int i;
+    int n;
     Quiet=TRUE;
     my_string_set(&bin_file,"book.bin");
 
@@ -1004,12 +1019,14 @@ void book_info(int argc,char* argv[]){
     book_load(bin_file);
     s=Book->size;
 
-    board_start(board);
     init_info(info);
     info->book_trans_only=FALSE;
     info->initial_color=White;
     info->extended_search=FALSE;
-    search_book(board,info, BOOK);
+    for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+        board_start(board,info->fen=StartFen960[n]);
+        search_book(board,info, BOOK);
+    }
     printf("Lines for white                : %8d\n",info->line-1);
 
 
@@ -1018,8 +1035,10 @@ void book_info(int argc,char* argv[]){
     info->initial_color=Black;
     book_clean();
     ASSERT(Book->size==s);
-    board_start(board);
-    search_book(board,info, ALL);
+    for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+        board_start(board,info->fen=StartFen960[n]);
+        search_book(board,info, ALL);
+    }
     printf("Lines for black                : %8d\n",info->line-1);
 
     book_clean();
@@ -1051,16 +1070,19 @@ void book_info(int argc,char* argv[]){
         info->initial_color=White;
         info->extended_search=TRUE;
         book_clean();
-        board_start(board);
-        search_book(board,info, BOOK);
-
+        for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+            board_start(board,info->fen=StartFen960[n]);
+            search_book(board,info, BOOK);
+        }
         init_info(info);
         info->book_trans_only=TRUE;
         info->initial_color=Black;
         info->extended_search=TRUE;
         book_clean();
-        board_start(board);
-        search_book(board,info, ALL);
+        for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+            board_start(board,info->fen=StartFen960[n]);
+            search_book(board,info, ALL);
+        }
         book_clean();
         ASSERT(Book->size==s);
         white_pos_extended=0;

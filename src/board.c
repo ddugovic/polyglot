@@ -223,11 +223,11 @@ void board_clear(board_t * board) {
 
 // board_start()
 
-void board_start(board_t * board) {
+void board_start(board_t * board, const char fen[]) {
 
    ASSERT(board!=NULL);
 
-   if (!board_from_fen(board,StartFen)) ASSERT(FALSE);
+   if (!board_from_fen(board,fen)) ASSERT(FALSE);
 }
 
 // board_copy()

@@ -10,6 +10,7 @@
 
 #include "board.h"
 #include "engine.h"
+#include "fen.h"
 #include "gui.h"
 #include "move.h"
 #include "move_do.h"
@@ -139,7 +140,7 @@ void uci_open(uci_t * uci, engine_t * engine) {
    uci->searching = 0;
    uci->pending_nb = 0;
    uci->multipv_mode = FALSE;
-   board_start(uci->board);
+   board_start(uci->board,StartFen);
    uci_clear(uci);
 
    // send "uci" and wait for "uciok"
