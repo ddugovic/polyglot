@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "fen.h"
 #include "pgn.h"
 #include "util.h"
 
@@ -104,7 +105,7 @@ bool pgn_next_game(pgn_t * pgn) {
 
    strcpy(pgn->result,"*");
    pgn->variant = NORMAL;
-   strcpy(pgn->fen,"");
+   strcpy(pgn->fen,StartFen);
 
    // loop
 

@@ -143,17 +143,20 @@ void book_merge(int argc, char * argv[]) {
          ASSERT(b1);
          ASSERT(b2);
 
-         if (FALSE) {
-         } else if (e1->key < e2->key) {
+         if (e1->key < e2->key) {
+
             write_entry(Out,e1);
             i1++;
-         } else if (e1->key > e2->key) {
+
+         } else {
+
+            if (e1->key == e2->key) {
+                e2->n = 0; // play e1 move(s) instead of e2 move(s)
+                skip++;
+            }
             write_entry(Out,e2);
             i2++;
-         } else {
-            ASSERT(e1->key==e2->key);
-            skip++;
-            i2++;
+
          }
       }
    }
