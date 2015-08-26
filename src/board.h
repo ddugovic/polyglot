@@ -7,6 +7,7 @@
 // includes
 
 #include "colour.h"
+#include "piece.h"
 #include "square.h"
 #include "util.h"
 #include "variant.h"
@@ -25,10 +26,10 @@ typedef struct {
    uint8 square[SquareNb];
    sint8 pos[SquareNb];
 
-   uint8 list[ColourNb][32];
+   uint8 list[ColourNb][RankNb * FileNb];
    sint8 list_size[ColourNb];
 
-   sint8 number[12];
+   sint8 number[ColourNb * PieceNb];
 
    sint8 turn;
    uint8 castle[ColourNb][SideNb];

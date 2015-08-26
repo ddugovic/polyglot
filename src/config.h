@@ -105,11 +105,14 @@
 /* Define to 1 if the system has the type `_Bool'. */
 #define HAVE__BOOL 1
 
+/* Define to 1 if assertions should be disabled. */
+/* #undef NDEBUG */
+
 /* Name of package */
 #define PACKAGE "polyglot"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "michel.vandenbergh@uhasselt.be"
+#define PACKAGE_BUGREPORT "dandydand@gmail.com"
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "polyglot"

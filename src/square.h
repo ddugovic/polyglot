@@ -10,7 +10,9 @@
 
 // defines
 
-#define SquareNb (16 * 12)
+#define RankNb 8
+#define FileNb 8
+#define SquareNb (12 * 16)
 
 #define FileA 0
 #define FileB 1

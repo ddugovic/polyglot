@@ -7,7 +7,6 @@ OBJS = attack.o board.o book.o book_make.o book_merge.o colour.o engine.o\
  uci.o uci2uci.o util.o xboard2uci.o
 
 CC = gcc
-DEFS = -DNDEBUG
 OPTS = -Os -frename-registers -funit-at-a-time -fstrict-aliasing -fstrength-reduce -fomit-frame-pointer
 CFLAGS = -Wall -pipe $(DEFS) $(OPTS)
 LFLAGS = -fpic -s

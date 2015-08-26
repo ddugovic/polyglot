@@ -17,7 +17,7 @@
 // 4
 #define RandomEnPassant    772
 // 8
-#define  RandomTurn        780
+#define RandomTurn         780
 // 1
 
 // functions

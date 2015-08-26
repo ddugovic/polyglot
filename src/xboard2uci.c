@@ -371,6 +371,7 @@ void xboard2uci_gui_step(char string[]) {
 			my_log("POLYGLOT NEW GAME\n");
 
 			option_set(Option,"3Check","false");
+			option_set(Option,"Atomic","false");
 			option_set(Option,"Chess960","false");
 			option_set(Option,"Horde","false");
 			option_set(Option,"KingOfTheHill","false");
@@ -719,6 +720,12 @@ void xboard2uci_gui_step(char string[]) {
 			} else {
 				option_set(Option,"3Check","false");
 			}
+			if (my_string_equal(Star[0],"atomic")) {
+				board->variant = ATOMIC;
+				option_set(Option,"Atomic","true");
+			} else {
+				option_set(Option,"Atomic","false");
+			}
 			if (my_string_equal(Star[0],"fischerandom")) {
 				option_set(Option,"Chess960","true");
 			} else {
@@ -1032,6 +1039,9 @@ static void send_xboard_options(){
     if (option_find(Uci->option,"UCI_3Check")) {
         strncat(variants,",3check",StringSize-strlen(variants));
     }
+    if (option_find(Uci->option,"UCI_Atomic")) {
+        strncat(variants,",atomic",StringSize-strlen(variants));
+    }
     if (option_find(Uci->option,"UCI_Chess960")) {
         strncat(variants,",fischerandom",StringSize-strlen(variants));
     }
@@ -1058,6 +1068,7 @@ void xboard2uci_send_options(){
     if(my_string_case_equal(opt->name,"UCI_AnalyseMode")) continue;
     if(my_string_case_equal(opt->name,"UCI_Opponent")) continue;
     if(my_string_case_equal(opt->name,"UCI_3Check")) continue;
+    if(my_string_case_equal(opt->name,"UCI_Atomic")) continue;
     if(my_string_case_equal(opt->name,"UCI_Chess960")) continue;
     if(my_string_case_equal(opt->name,"UCI_Horde")) continue;
     if(my_string_case_equal(opt->name,"UCI_KingOfTheHill")) continue;
@@ -1454,6 +1465,8 @@ static void search_update() {
 
       uci_send_option(Uci,"UCI_3Check","%s",
                       option_get_bool(Option,"3Check")?"true":"false");
+      uci_send_option(Uci,"UCI_Atomic","%s",
+                      option_get_bool(Option,"Atomic")?"true":"false");
       uci_send_option(Uci,"UCI_Chess960","%s",
                       option_get_bool(Option,"Chess960")?"true":"false");
       uci_send_option(Uci,"UCI_Horde","%s",

@@ -178,8 +178,39 @@ void move_do(board_t * board, int move) {
    }
 
    // move the piece
+   if (board->variant == ATOMIC && capture != Empty) {
 
-   if (move_is_promote(move)) {
+      // explode
+
+      square_clear(board,from,piece);
+      if (square_file(to) != FileA)
+          if (board->square[to-1] != Empty && !piece_is_pawn(board->square[to-1]))
+              square_clear(board,to-1,board->square[to-1]);
+      if (square_file(to) != FileH)
+          if (board->square[to+1] != Empty && !piece_is_pawn(board->square[to+1]))
+              square_clear(board,to+1,board->square[to+1]);
+      if (square_rank(to) != Rank1) {
+          if (board->square[to-16] != Empty && !piece_is_pawn(board->square[to-16]))
+              square_clear(board,to-16,board->square[to-16]);
+          if (square_file(to) != FileA)
+              if (board->square[to-17] != Empty && !piece_is_pawn(board->square[to-17]))
+                  square_clear(board,to-17,board->square[to-17]);
+          if (square_file(to) != FileH)
+              if (board->square[to-15] != Empty && !piece_is_pawn(board->square[to-15]))
+                  square_clear(board,to-15,board->square[to-15]);
+      }
+      if (square_rank(to) != Rank8) {
+          if (board->square[to+16] != Empty && !piece_is_pawn(board->square[to+16]))
+              square_clear(board,to+16,board->square[to+16]);
+          if (square_file(to) != FileA)
+              if (board->square[to+15] != Empty && !piece_is_pawn(board->square[to+15]))
+                  square_clear(board,to+15,board->square[to+15]);
+          if (square_file(to) != FileH)
+              if (board->square[to+17] != Empty && !piece_is_pawn(board->square[to+17]))
+                  square_clear(board,to+17,board->square[to+17]);
+      }
+
+   } else if (move_is_promote(move)) {
 
       // promote
 
@@ -226,7 +257,7 @@ static void square_clear(board_t * board, int square, int piece) {
 
    // piece list
 
-   ASSERT(board->variant==Horde?board->list_size[colour]>=1:board->list_size[colour]>=2);
+   ASSERT(board->variant==DUNSANY?board->list_size[colour]>=1:board->list_size[colour]>=2);
    size = --board->list_size[colour];
    ASSERT(pos<=size);
 

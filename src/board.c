@@ -60,7 +60,7 @@ bool board_is_ok(const board_t * board) {
    colour = White;
    pos = 0;
 
-   if (board->list_size[colour] <= 0 || board->list_size[colour] > 16) return FALSE;
+   if (board->list_size[colour] <= 0 || board->list_size[colour] > SquareNb) return FALSE;
 
    sq = board->list[colour][pos];
    if (sq == SquareNone) return FALSE;
@@ -83,7 +83,7 @@ bool board_is_ok(const board_t * board) {
    colour = Black;
    pos = 0;
 
-   if (board->list_size[colour] <= 0 || board->list_size[colour] > 16) return FALSE;
+   if (board->list_size[colour] <= 0 || board->list_size[colour] > SquareNb) return FALSE;
 
    sq = board->list[colour][pos];
    if (sq == SquareNone) return FALSE;
@@ -193,8 +193,8 @@ void board_clear(board_t * board) {
 
    // piece lists
 
-   for (colour = 0; colour < 3; colour++) {
-      for (pos = 0; pos < 32; pos++) { // HACK
+   for (colour = 0; colour < ColourNb; colour++) {
+      for (pos = 0; pos < RankNb * FileNb; pos++) { // HACK
          board->list[colour][pos] = SquareNone;
       }
       board->list_size[colour] = 0;
@@ -202,7 +202,7 @@ void board_clear(board_t * board) {
 
    // material
 
-   for (piece = 0; piece < 12; piece++) {
+   for (piece = 0; piece < ColourNb * PieceNb; piece++) {
       board->number[piece] = 0;
    }
 
@@ -255,7 +255,7 @@ bool board_equal(const board_t * board_1, const board_t * board_2) {
 
    // slow comparison
 
-   for (sq_64 = 0; sq_64 < 64; sq_64++) {
+   for (sq_64 = 0; sq_64 < RankNb * FileNb; sq_64++) {
       sq = square_from_64(sq_64);
       if (board_1->square[sq] != board_2->square[sq]) return FALSE;
    }
@@ -279,7 +279,7 @@ bool board_has_queen(const board_t * board, int colour) {
 
    ASSERT(board!=NULL);
 
-   for (sq_64 = 0; sq_64 < 64; sq_64++) {
+   for (sq_64 = 0; sq_64 < RankNb * FileNb; sq_64++) {
       sq = square_from_64(sq_64);
       piece = board->square[sq];
       if (colour_equal(piece,colour) && piece_is_queen(piece)) {
@@ -300,22 +300,22 @@ void board_init_list(board_t * board) {
 
    // init
 
-   for (sq_64 = 0; sq_64 < 64; sq_64++) {
+   for (sq_64 = 0; sq_64 < RankNb * FileNb; sq_64++) {
       sq = square_from_64(sq_64);
       board->pos[sq] = -1;
    }
 
-   for (piece = 0; piece < 12; piece++) board->number[piece] = 0;
+   for (piece = 0; piece < ColourNb * PieceNb; piece++) board->number[piece] = 0;
+   memset(board->list,SquareNone,sizeof(board->list));
 
    // white piece list
 
    colour = White;
    pos = 0;
 
-   for (sq_64 = 0; sq_64 < 64; sq_64++) {
+   for (sq_64 = 0; sq_64 < RankNb * FileNb; sq_64++) {
       sq = square_from_64(sq_64);
       piece = board->square[sq];
-      ASSERT(pos>=0&&pos<=16);
       if (colour_equal(piece,colour) && piece_is_king(piece)) {
          board->pos[sq] = pos;
          board->list[colour][pos] = sq;
@@ -323,12 +323,11 @@ void board_init_list(board_t * board) {
          board->number[piece_to_12(piece)]++;
       }
    }
-   ASSERT(pos==1);
+   ASSERT(board->variant==DUNSANY?pos==0:pos==1);
 
-   for (sq_64 = 0; sq_64 < 64; sq_64++) {
+   for (sq_64 = 0; sq_64 < RankNb * FileNb; sq_64++) {
       sq = square_from_64(sq_64);
       piece = board->square[sq];
-      ASSERT(pos>=0&&pos<=16);
       if (colour_equal(piece,colour) && !piece_is_king(piece)) {
          board->pos[sq] = pos;
          board->list[colour][pos] = sq;
@@ -336,8 +335,8 @@ void board_init_list(board_t * board) {
          board->number[piece_to_12(piece)]++;
       }
    }
+   ASSERT(board->variant==DUNSANY?pos>=0&&pos<=SquareNb:pos>=1&&pos<=SquareNb);
 
-   ASSERT(pos>=1&&pos<=16);
    board->list[colour][pos] = SquareNone;
    board->list_size[colour] = pos;
 
@@ -346,10 +345,10 @@ void board_init_list(board_t * board) {
    colour = Black;
    pos = 0;
 
-   for (sq_64 = 0; sq_64 < 64; sq_64++) {
+   for (sq_64 = 0; sq_64 < RankNb * FileNb; sq_64++) {
       sq = square_from_64(sq_64);
       piece = board->square[sq];
-      ASSERT(pos>=0&&pos<=16);
+      ASSERT(pos>=0&&pos<=SquareNb);
       if (colour_equal(piece,colour) && piece_is_king(piece)) {
          board->pos[sq] = pos;
          board->list[colour][pos] = sq;
@@ -359,10 +358,9 @@ void board_init_list(board_t * board) {
    }
    ASSERT(pos==1);
 
-   for (sq_64 = 0; sq_64 < 64; sq_64++) {
+   for (sq_64 = 0; sq_64 < RankNb * FileNb; sq_64++) {
       sq = square_from_64(sq_64);
       piece = board->square[sq];
-      ASSERT(pos>=1&&pos<=16);
       if (colour_equal(piece,colour) && !piece_is_king(piece)) {
          board->pos[sq] = pos;
          board->list[colour][pos] = sq;
@@ -370,8 +368,8 @@ void board_init_list(board_t * board) {
          board->number[piece_to_12(piece)]++;
       }
    }
+   ASSERT(pos>=1&&pos<=SquareNb);
 
-   ASSERT(pos>=1&&pos<=16);
    board->list[colour][pos] = SquareNone;
    board->list_size[colour] = pos;
 
@@ -468,6 +466,7 @@ int king_pos(const board_t * board, int colour) {
    ASSERT(board_is_ok(board));
    ASSERT(colour_is_ok(colour));
 
+   if (board->variant==DUNSANY&&colour_is_white(colour)) return SquareNone;
    return board->list[colour][0];
 }
 

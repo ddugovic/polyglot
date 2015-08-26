@@ -85,7 +85,7 @@ static void add_all_moves(list_t * list, const board_t * board) {
          to = from + 16;
          if (board->square[to] == Empty) {
             add_pawn_move(list,from,to);
-            if (square_rank(from) == Rank2) {
+            if (square_rank(from) <= Rank2) {
                to = from + 32;
                if (board->square[to] == Empty) {
                   ASSERT(!square_is_promote(to));
@@ -111,7 +111,7 @@ static void add_all_moves(list_t * list, const board_t * board) {
          to = from - 16;
          if (board->square[to] == Empty) {
             add_pawn_move(list,from,to);
-            if (square_rank(from) == Rank7) {
+            if (square_rank(from) >= Rank7) {
                to = from - 32;
                if (board->square[to] == Empty) {
                   ASSERT(!square_is_promote(to));

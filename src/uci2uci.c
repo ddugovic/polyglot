@@ -210,11 +210,14 @@ static void parse_setoption(const char string[]) {
             pg_name=Star[0];
             polyglot_set_option(pg_name,value);
         }else{
-            if(!strcmp(name,"UCI_Chess960") && !strcmp(value,"true")){
-                UCIboard->variant = NORMAL;
-            }
             if(!strcmp(name,"UCI_3Check") && !strcmp(value,"true")){
                 UCIboard->variant = THREECHECK;
+            }
+            if(!strcmp(name,"UCI_Atomic") && !strcmp(value,"true")){
+                UCIboard->variant = ATOMIC;
+            }
+            if(!strcmp(name,"UCI_Chess960") && !strcmp(value,"true")){
+                UCIboard->variant = NORMAL;
             }
             if(!strcmp(name,"UCI_Horde") && !strcmp(value,"true")){
                 UCIboard->variant = DUNSANY;

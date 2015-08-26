@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([polyglot], [1.4.67b], [michel.vandenbergh@uhasselt.be])
+AC_INIT([polyglot], [1.4.67b], [dandydand@gmail.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([mainloop.c])
 AC_CONFIG_HEADER([config.h])
@@ -11,10 +11,10 @@ AC_CONFIG_HEADER([config.h])
 AC_PROG_CC
 
 # Checks for libraries.
-
 AC_CHECK_LIB([m], [main])
 
 # Checks for header files.
+AC_HEADER_ASSERT
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h string.h sys/time.h unistd.h])
 

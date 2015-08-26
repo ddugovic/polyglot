@@ -11,6 +11,8 @@
 
 // defines
 
+#define PieceNb 6
+
 #define BlackPawnFlag     (1 << 2)
 #define WhitePawnFlag     (1 << 3)
 #define KnightFlag        (1 << 4)
@@ -43,6 +45,8 @@
 #define  WhiteQueen256     (Queen64     | White)
 #define  BlackKing256      (King64      | Black)
 #define  WhiteKing256      (King64      | White)
+
+// 12 refers to ColourNb * PieceNb
 
 #define BlackPawn12        (0)
 #define WhitePawn12        (1)
@@ -77,6 +81,8 @@ extern bool piece_is_queen  (int piece);
 extern bool piece_is_king   (int piece);
 
 extern bool piece_is_slider (int piece);
+
+// 12 refers to ColourNb * PieceNb
 
 extern int  piece_to_12     (int piece);
 extern int  piece_from_12   (int piece);
