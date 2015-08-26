@@ -39,7 +39,7 @@ overridden in the configuration file.
 In xboard mode PolyGlot fully translates between the xboard and UCI protocols.
 In addition it tries to solve known problems with other adapters.
 For instance, it detects and reports draws by fifty-move rule,
-repetition, etc ... It also supports Chess960.
+repetition, etc ... It also supports Chess960 and some variants.
 
 When in UCI mode PolyGlot mostly passes commands from the GUI
 to the engine and vice versa, except that it will play book moves on
@@ -450,6 +450,24 @@ might be better for interactive use in some interfaces.
 Reports extra info on selective depth, search speed (knps) and
 tablebase hits at the beginning of the PV field in the thinking output
 of WinBoard protocol, just before the real PV.
+
+=item B<SyzygyPath> (default: <empty>)
+
+Directory or directories where the .rtbw and .rtbz files can be found.
+Multiple directories should be separated by ";" on Windows and by ":"
+on Unix-based operating systems.
+
+=item B<SyzygyProbeDepth> (default: 1)
+
+Determines the depth at which tablebases will be probed during search.
+
+=item B<Syzygy50MoveRule> (default: true)
+
+Determines whether to respect the 50-move rule during tablebase probing.
+
+=item B<SyzygyProbeLimit> (default: 6)
+
+Determines how few pieces need to be on the board before probing occurs.
 
 =item B<ScoreWhite> (default: true)
 
