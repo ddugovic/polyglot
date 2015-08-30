@@ -73,6 +73,7 @@ void move_do(board_t * board, int move) {
    if (board->castle[opp][SideH] == to) board->castle[opp][SideH] = SquareNone;
    if (board->castle[opp][SideA] == to) board->castle[opp][SideA] = SquareNone;
 
+
    new_flags = board_flags(board);
 
    board->key ^= hash_castle_key(new_flags^old_flags); // HACK
@@ -209,6 +210,22 @@ void move_do(board_t * board, int move) {
               if (board->square[to+17] != Empty && !piece_is_pawn(board->square[to+17]))
                   square_clear(board,to+17,board->square[to+17]);
       }
+
+      if (board->castle[me][SideA] != SquareNone &&
+          board->square[board->castle[me][SideA]] == Empty)
+          board->castle[me][SideA] = SquareNone;
+      if (board->castle[me][SideH] != SquareNone &&
+          board->square[board->castle[me][SideH]] == Empty)
+          board->castle[me][SideH] = SquareNone;
+
+      if (board->castle[opp][SideA] != SquareNone &&
+          board->square[board->castle[opp][SideA]] == Empty)
+          board->castle[opp][SideA] = SquareNone;
+      if (board->castle[opp][SideH] != SquareNone &&
+          board->square[board->castle[opp][SideH]] == Empty)
+          board->castle[opp][SideH] = SquareNone;
+
+      board->key = hash_key(board);
 
    } else if (move_is_promote(move)) {
 

@@ -331,7 +331,8 @@ int move_from_can(const char string[], const board_t * board) {
    }
    // debug
 
-   ASSERT(move_is_legal(move,board));
+   if (board->variant != ATOMIC)
+       ASSERT(move_is_legal(move,board));
    return move;
 }
 
