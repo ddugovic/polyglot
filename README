@@ -365,23 +365,6 @@ CONFIG FILE FORMAT
            tablebase hits at the beginning of the PV field in the thinking
            output of WinBoard protocol, just before the real PV.
 
-       SyzygyPath (default: <empty>)
-           Directory or directories where the .rtbw and .rtbz files can be
-           found.  Multiple directories should be separated by ";" on Windows
-           and by ":" on Unix-based operating systems.
-
-       SyzygyProbeDepth (default: 1)
-           Determines the depth at which tablebases will be probed during
-           search.
-
-       Syzygy50MoveRule (default: true)
-           Determines whether to respect the 50-move rule during tablebase
-           probing.
-
-       SyzygyProbeLimit (default: 6)
-           Determines how few pieces need to be on the board before probing
-           occurs.
-
        ScoreWhite (default: true)
            Report score from white's point of view in xboard mode. (Wrecks
            XBoard...).
@@ -601,4 +584,4 @@ SEE ALSO
 
 
 
-                                  2015-08-26                       POLYGLOT(6)
+                                  2015-08-30                       POLYGLOT(6)

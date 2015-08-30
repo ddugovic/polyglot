@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "POLYGLOT 6"
-.TH POLYGLOT 6 "2015-08-26" "" ""
+.TH POLYGLOT 6 "2015-08-30" "" ""
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -506,20 +506,6 @@ might be better for interactive use in some interfaces.
 Reports extra info on selective depth, search speed (knps) and
 tablebase hits at the beginning of the \s-1PV\s0 field in the thinking output
 of WinBoard protocol, just before the real \s-1PV.\s0
-.IP "\fBSyzygyPath\fR (default: <empty>)" 4
-.IX Item "SyzygyPath (default: <empty>)"
-Directory or directories where the .rtbw and .rtbz files can be found.
-Multiple directories should be separated by \*(L";\*(R" on Windows and by \*(L":\*(R"
-on Unix-based operating systems.
-.IP "\fBSyzygyProbeDepth\fR (default: 1)" 4
-.IX Item "SyzygyProbeDepth (default: 1)"
-Determines the depth at which tablebases will be probed during search.
-.IP "\fBSyzygy50MoveRule\fR (default: true)" 4
-.IX Item "Syzygy50MoveRule (default: true)"
-Determines whether to respect the 50\-move rule during tablebase probing.
-.IP "\fBSyzygyProbeLimit\fR (default: 6)" 4
-.IX Item "SyzygyProbeLimit (default: 6)"
-Determines how few pieces need to be on the board before probing occurs.
 .IP "\fBScoreWhite\fR (default: true)" 4
 .IX Item "ScoreWhite (default: true)"
 Report score from white's point of view in xboard mode. (Wrecks XBoard...).

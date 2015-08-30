@@ -62,11 +62,6 @@ option_t DefaultOptions[] = {
     { "BookLearn",        "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
     { "ShowTbHits",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|XBSEL},
 
-    { "SyzygyPath",       "path","0","0",       "<empty>"   , NULL,0,NNB,  PG|UCI},
-    { "SyzygyProbeDepth", "spin","1","100",     "1"         , NULL,0,NNB,  PG|UCI},
-    { "Syzygy50MoveRule", "check","0","0",      "true"      , NULL,0,NNB,  PG|UCI},
-    { "SyzygyProbeLimit", "spin","0","6",       "6"         , NULL,0,NNB,  PG|UCI},
-
     { "KibitzMove",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
     { "KibitzPV",         "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
 
