@@ -142,9 +142,10 @@ int book_move(const board_t * board, bool random) {
       move = list->move[i];
       score = list->value[i];
 
-      if (move != MoveNone &&
-          move_is_legal(move,board) &&
-          score>10*option_get_int(Option,"BookThreshold")) {
+      if (move == MoveNone || !move_is_legal(move,board)) {
+          ASSERT(move != MoveNone && move_is_legal(move, board));
+
+      } else if (score>10*option_get_int(Option,"BookThreshold")) {
 
          // pick this move?
 
@@ -159,10 +160,6 @@ int book_move(const board_t * board, bool random) {
                best_score = score;
             }
          }
-
-      } else {
-
-         ASSERT(FALSE);
       }
    }
 
