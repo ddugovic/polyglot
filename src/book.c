@@ -144,7 +144,7 @@ int book_move(const board_t * board, bool random) {
 
       if (move != MoveNone &&
           move_is_legal(move,board) &&
-          score>10*option_get_int(Option,"BookTreshold")) {
+          score>10*option_get_int(Option,"BookThreshold")) {
 
          // pick this move?
 
@@ -235,7 +235,7 @@ void book_disp(const board_t * board) {
    char move_string[256];
    list_t list[1];
    int i;
-   int treshold=option_get_int(Option,"BookTreshold");
+   int treshold=option_get_int(Option,"BookThreshold");
 
    ASSERT(board!=NULL);
 

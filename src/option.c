@@ -58,7 +58,7 @@ option_t DefaultOptions[] = {
 
     { "BookRandom",       "check","0","0",      "true"      , NULL,0,NNB,  PG|XBOARD|XBSEL|UCI},
     { "BookDepth",        "spin","0","256",     "256"       , NULL,0,NNB,  PG|XBOARD|XBSEL|UCI},
-    { "BookTreshold",     "spin","0","1000",    "5"         , NULL,0,NNB,  PG|XBOARD|UCI},
+    { "BookThreshold",    "spin","0","1000",    "5"         , NULL,0,NNB,  PG|XBOARD|UCI},
     { "BookLearn",        "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD},
     { "ShowTbHits",       "check","0","0",      "false"     , NULL,0,NNB,  PG|XBOARD|XBSEL},
 
