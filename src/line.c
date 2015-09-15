@@ -15,8 +15,8 @@
 
 // constants
 
-static const bool Strict = FALSE; // FALSE
-static const bool UseDebug = FALSE; // FALSE
+static const bool Strict = FALSE;
+static const bool UseDebug = FALSE;
 
 // functions
 

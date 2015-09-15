@@ -7,6 +7,7 @@
 // includes
 
 #include <assert.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -41,13 +42,8 @@
 #  define DEBUG FALSE
 #endif
 
-#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
-#  define S64_FORMAT "%I64d"
-#  define U64_FORMAT "%016I64X"
-#else
-#  define S64_FORMAT "%lld"
-#  define U64_FORMAT "%016llX"
-#endif
+#define S64_FORMAT "%"PRId64
+#define U64_FORMAT "%"PRIu64
 
 // macros
 
@@ -107,24 +103,18 @@
                          my_string_case_equal(string,"0"))
 // types
 
-typedef signed char sint8;
-typedef unsigned char uint8;
+typedef int8_t sint8;
+typedef uint8_t uint8;
 
-typedef signed short sint16;
-typedef unsigned short uint16;
+typedef int16_t sint16;
+typedef uint16_t uint16;
 
-typedef signed int sint32;
-typedef unsigned int uint32;
+typedef int32_t sint32;
+typedef uint32_t uint32;
 
 typedef int bool;
 
-#ifdef _MSC_VER
-  typedef signed __int64 sint64;
-  typedef unsigned __int64 uint64;
-#else
-  typedef signed long long int sint64;
-  typedef unsigned long long int uint64;
-#endif
+typedef int64_t sint64;
 
 typedef struct {
    double start_real;

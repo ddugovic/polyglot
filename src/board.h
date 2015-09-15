@@ -39,7 +39,7 @@ typedef struct {
    sint16 move_nb;
 
    variant_t variant;
-   uint64 key;
+   uint64_t key;
 } board_t;
 
 // functions
@@ -47,7 +47,7 @@ typedef struct {
 extern bool board_is_ok        (const board_t * board);
 
 extern void board_clear        (board_t * board);
-extern void board_start        (board_t * board, const char fen[]);
+extern void board_start        (board_t * board, const char fen[], variant_t variant);
 
 extern void board_copy         (board_t * dst, const board_t * src);
 extern bool board_equal        (const board_t * board_1, const board_t * board_2);

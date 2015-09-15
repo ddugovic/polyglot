@@ -25,7 +25,7 @@ upcoming versions of xboard/winboard.
 A PolyGlot book is a series of "entries" of 16 bytes
 <p>
 <pre>
-key    uint64
+key    uint64_t
 move   uint16 
 weight uint16
 learn  uint32
@@ -50,7 +50,7 @@ The starting point is given by the following declaration
 #  define U64(u) (u##ULL)
 #endif
 
-const uint64 Random64[781] = {
+const uint64_t Random64[781] = {
    U64(0x9D39247E33776D41), U64(0x2AF7398005AAA5C7), U64(0x44DB015024623547), U64(0x9C15F73E62A76AE2),
    U64(0x75834465489C0C89), U64(0x3290AC3A203001BF), U64(0x0FBBAD1F61042279), U64(0xE83A908FF2FB60CA),
    U64(0x0D7E765D58755C10), U64(0x1A083822CEAFE02D), U64(0x9605D5F0E25EC3B0), U64(0xD021FF5CD13A2ED5),
@@ -497,7 +497,7 @@ ambiguity will keep their old hash key.
 <p>
 The above declaration of RandomCastle is replaced by
 <pre>
-const uint64 RandomCastle[16]={
+const uint64_t RandomCastle[16]={
 &lt; to be filled in &gt;
 }
 </pre>

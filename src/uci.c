@@ -140,7 +140,7 @@ void uci_open(uci_t * uci, engine_t * engine) {
    uci->searching = 0;
    uci->pending_nb = 0;
    uci->multipv_mode = FALSE;
-   board_start(uci->board,StartFen);
+   board_start(uci->board,StartFen,NORMAL);
    uci_clear(uci);
 
    // send "uci" and wait for "uciok"

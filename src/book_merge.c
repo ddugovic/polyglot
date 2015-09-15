@@ -19,7 +19,7 @@ typedef struct {
 } book_t;
 
 typedef struct {
-   uint64 key;
+   uint64_t key;
    uint16 move;
    uint16 count;
    uint16 n;
@@ -34,16 +34,16 @@ static book_t Out[1];
 
 // prototypes
 
-static void   book_clear    (book_t * book);
+static void     book_clear    (book_t * book);
 
-static void   book_open     (book_t * book, const char file_name[], const char mode[]);
-static void   book_close    (book_t * book);
+static void     book_open     (book_t * book, const char file_name[], const char mode[]);
+static void     book_close    (book_t * book);
 
-static bool   read_entry    (book_t * book, entry_t * entry, int n);
-static void   write_entry   (book_t * book, const entry_t * entry);
+static bool     read_entry    (book_t * book, entry_t * entry, int n);
+static void     write_entry   (book_t * book, const entry_t * entry);
 
-static uint64 read_integer  (FILE * file, int size);
-static void   write_integer (FILE * file, int size, uint64 n);
+static uint64_t read_integer  (FILE * file, int size);
+static void     write_integer (FILE * file, int size, uint64_t n);
 
 // functions
 
@@ -251,9 +251,9 @@ static void write_entry(book_t * book, const entry_t * entry) {
 
 // read_integer()
 
-static uint64 read_integer(FILE * file, int size) {
+static uint64_t read_integer(FILE * file, int size) {
 
-   uint64 n;
+   uint64_t n;
    int i;
    int b;
 
@@ -283,7 +283,7 @@ static uint64 read_integer(FILE * file, int size) {
 
 // write_integer()
 
-static void write_integer(FILE * file, int size, uint64 n) {
+static void write_integer(FILE * file, int size, uint64_t n) {
 
    int i;
    int b;

@@ -35,7 +35,7 @@ typedef struct {
    sint16 pos;
    sint8 status;
    move_t move[GameSize];
-   uint64 key[GameSize];
+   uint64_t key[GameSize];
 } game_t;
 
 // variables

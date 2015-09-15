@@ -33,7 +33,7 @@ static const int NIL = -1;
 // types
 
 typedef struct {
-    uint64 key;
+    uint64_t key;
     uint16 move;
     uint16 count;
 // Unfortunately the minggw32 cross compiler [4.2.1-sjlj (mingw32-2)]
@@ -75,9 +75,10 @@ typedef struct {
     bool book_trans_only;
     bool extended_search;
     const char *fen;
+    variant_t variant;
     uint16 moves[1024];
     double probs[1024];
-    uint64 keys[1024];
+    uint64_t keys[1024];
     FILE *output;
 } info_t;
 
@@ -95,24 +96,24 @@ static book_t Book[1];
 
 // prototypes
 
-static void   book_clear    ();
-static void   book_insert   (const char file_name[]);
-static void   book_filter   ();
-static void   book_sort     ();
-static void   book_save     (const char file_name[]);
+static void     book_clear    ();
+static void     book_insert   (const char file_name[]);
+static void     book_filter   ();
+static void     book_sort     ();
+static void     book_save     (const char file_name[]);
 
-static int    find_entry    (const board_t * board, int move);
-static void   resize        ();
-static void   halve_stats   (uint64 key);
+static int      find_entry    (const board_t * board, int move);
+static void     resize        ();
+static void     halve_stats   (uint64_t key);
 
-static bool   keep_entry    (int pos);
+static bool     keep_entry    (int pos);
 
-static int    entry_score    (const entry_t * entry);
+static int      entry_score   (const entry_t * entry);
 
-static int    key_compare   (const void * p1, const void * p2);
+static int      key_compare   (const void * p1, const void * p2);
 
-static void   write_integer (FILE * file, int size, uint64 n);
-static uint64 read_integer(FILE * file, int size);
+static void     write_integer (FILE * file, int size, uint64_t n);
+static uint64_t read_integer  (FILE * file, int size);
 
 static void read_entry_file(FILE *f, entry_t *entry);
 static void write_entry_file(FILE * f, const entry_t * entry);
@@ -264,7 +265,13 @@ static void book_insert(const char file_name[]) {
 
    while (pgn_next_game(pgn)) {
 
-      board_start(board,pgn->fen);
+      board_start(board,pgn->fen,pgn->variant);
+#if 1
+char fen[256];
+board_to_fen(board,fen,256);
+fprintf(stderr, "HASH [%"PRIx64"] [%"PRIx64"] [%d] [%s]\n", hash_key(board), board->key, board->variant, fen);
+ASSERT(board->key==hash_key(board));
+#endif
       ply = 0;
       result = 0;
 
@@ -389,7 +396,7 @@ static void book_save(const char file_name[]) {
 
 static int find_entry(const board_t * board, int move) {
 
-   uint64 key;
+   uint64_t key;
    int index;
    int pos;
 
@@ -404,7 +411,7 @@ static int find_entry(const board_t * board, int move) {
 
    // search
 
-   for (index = key & (uint64) Book->mask; (pos=Book->hash[index]) != NIL; index = (index+1) & Book->mask) {
+   for (index = key & (uint64_t) Book->mask; (pos=Book->hash[index]) != NIL; index = (index+1) & Book->mask) {
 
       ASSERT(pos>=0&&pos<Book->size);
 
@@ -423,7 +430,7 @@ static int find_entry(const board_t * board, int move) {
 
       resize();
 
-      for (index = key & (uint64) Book->mask; Book->hash[index] != NIL; index = (index+1) & Book->mask)
+      for (index = key & (uint64_t) Book->mask; Book->hash[index] != NIL; index = (index+1) & Book->mask)
          ;
    }
 
@@ -457,7 +464,7 @@ static void rebuild_hash_table(){
         Book->hash[index] = NIL;
     }
     for (pos = 0; pos < Book->size; pos++) {
-        for (index = Book->entry[pos].key & (uint64) Book->mask; Book->hash[index] != NIL; index = (index+1) & Book->mask)
+        for (index = Book->entry[pos].key & (uint64_t) Book->mask; Book->hash[index] != NIL; index = (index+1) & Book->mask)
          ;
         ASSERT(index>=0&&index<Book->alloc*2);
         Book->hash[index] = pos;
@@ -494,14 +501,14 @@ static void resize() {
 
 // halve_stats()
 
-static void halve_stats(uint64 key) {
+static void halve_stats(uint64_t key) {
 
    int index;
    int pos;
 
    // search
 
-   for (index = key & (uint64) Book->mask; (pos=Book->hash[index]) != NIL; index = (index+1) & Book->mask) {
+   for (index = key & (uint64_t) Book->mask; (pos=Book->hash[index]) != NIL; index = (index+1) & Book->mask) {
 
       ASSERT(pos>=0&&pos<Book->size);
 
@@ -587,7 +594,7 @@ static int key_compare(const void * p1, const void * p2) {
 
 // write_integer()
 
-static void write_integer(FILE * file, int size, uint64 n) {
+static void write_integer(FILE * file, int size, uint64_t n) {
 
    int i;
    int b;
@@ -605,8 +612,8 @@ static void write_integer(FILE * file, int size, uint64 n) {
 
 // read_integer()
 
-static uint64 read_integer(FILE * file, int size) {
-   uint64 n;
+static uint64_t read_integer(FILE * file, int size) {
+   uint64_t n;
    int i;
    int b;
    ASSERT(file!=NULL);
@@ -630,7 +637,7 @@ static uint64 read_integer(FILE * file, int size) {
 // read_entry_file
 
 static void read_entry_file(FILE *f, entry_t *entry){
-    uint64 n;
+    uint64_t n;
     ASSERT(entry!=NULL);
     n = entry->key   = read_integer(f,8);
     entry->move  = read_integer(f,2);
@@ -697,7 +704,7 @@ static void book_load(const char filename[]){
         Book->entry[pos].sum = entry->sum;
         Book->entry[pos].colour = ColourNone;
             // find free hash table spot
-        for (index = entry->key & (uint64) Book->mask;
+        for (index = entry->key & (uint64_t) Book->mask;
              Book->hash[index] != NIL;
              index = (index+1) & Book->mask);
             // insert into the hash table
@@ -717,7 +724,7 @@ static int gen_book_moves(list_t * list, const board_t * board){
     bool found;
     list_clear(list);
     found=FALSE;
-    for (index = board->key & (uint64) Book->mask; (first_pos=Book->hash[index]) != NIL; index = (index+1) & Book->mask) {
+    for (index = board->key & (uint64_t) Book->mask; (first_pos=Book->hash[index]) != NIL; index = (index+1) & Book->mask) {
         ASSERT(first_pos>=0&&first_pos<Book->size);
         if (Book->entry[first_pos].key == board->key) {
             found=TRUE;
@@ -768,7 +775,7 @@ static void print_moves(info_t *info){
     if(!info->output){
         return;
     }
-    board_start(board,info->fen);
+    board_start(board,info->fen,info->variant);
     for(i=0;i<info->height;i++){
         if(color==White){
             fprintf(info->output,"%d. ",i/2+1);
@@ -965,7 +972,7 @@ void book_dump(int argc, char * argv[]) {
     if(color==White){
         if(!Quiet){printf("generating lines for white...\n");}
         for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
-            board_start(board,info->fen=StartFen960[n]);
+            board_start(board,info->fen=StartFen960[n],info->variant);
             if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
             fprintf(info->output,"[FEN \"%s\"]\n",string);
             info->line = 1;
@@ -974,7 +981,7 @@ void book_dump(int argc, char * argv[]) {
     }else{
         if(!Quiet){printf("generating lines for black...\n");}
         for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
-            board_start(board,info->fen=StartFen960[n]);
+            board_start(board,info->fen=StartFen960[n],info->variant);
             if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
             fprintf(info->output,"[FEN \"%s\"]\n",string);
             info->line = 1;
@@ -989,7 +996,7 @@ void book_info(int argc,char* argv[]){
     const char *bin_file=NULL;
     board_t board[1];
     info_t info[1];
-    uint64 last_key;
+    uint64_t last_key;
     int pos;
     int white_pos,black_pos,total_pos,white_pos_extended,
         black_pos_extended,white_pos_extended_diff,black_pos_extended_diff;
@@ -1024,7 +1031,7 @@ void book_info(int argc,char* argv[]){
     info->initial_color=White;
     info->extended_search=FALSE;
     for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
-        board_start(board,info->fen=StartFen960[n]);
+        board_start(board,info->fen=StartFen960[n],info->variant=NORMAL);
         search_book(board,info, BOOK);
     }
     printf("Lines for white                : %8d\n",info->line-1);
@@ -1036,7 +1043,7 @@ void book_info(int argc,char* argv[]){
     book_clean();
     ASSERT(Book->size==s);
     for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
-        board_start(board,info->fen=StartFen960[n]);
+        board_start(board,info->fen=StartFen960[n],info->variant=NORMAL);
         search_book(board,info, ALL);
     }
     printf("Lines for black                : %8d\n",info->line-1);
@@ -1071,7 +1078,7 @@ void book_info(int argc,char* argv[]){
         info->extended_search=TRUE;
         book_clean();
         for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
-            board_start(board,info->fen=StartFen960[n]);
+            board_start(board,info->fen=StartFen960[n],info->variant=NORMAL);
             search_book(board,info, BOOK);
         }
         init_info(info);
@@ -1080,7 +1087,7 @@ void book_info(int argc,char* argv[]){
         info->extended_search=TRUE;
         book_clean();
         for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
-            board_start(board,info->fen=StartFen960[n]);
+            board_start(board,info->fen=StartFen960[n],info->variant=NORMAL);
             search_book(board,info, ALL);
         }
         book_clean();

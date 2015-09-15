@@ -18,12 +18,12 @@
 
 // "constants"
 
-extern const uint64 Random64[RandomNb];
+extern const uint64_t Random64[RandomNb];
 
 // functions
 
-extern void   random_init ();
-extern uint64 random_64   (int n);
+extern void     random_init ();
+extern uint64_t random_64   (int n);
 
 #endif // !defined RANDOM_H
 

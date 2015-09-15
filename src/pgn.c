@@ -140,7 +140,7 @@ bool pgn_next_game(pgn_t * pgn) {
       } else if (my_string_equal(name,"Result")) {
          strcpy(pgn->result,value);
       } else if (my_string_equal(name,"Variant")) {
-         pgn->variant = pgheader_known_variant(name);
+         pgn->variant = pgheader_known_variant(value);
       } else if (my_string_equal(name,"FEN")) {
          strcpy(pgn->fen,value);
       }

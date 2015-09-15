@@ -47,7 +47,7 @@ static int FirstDepth;
 static int FirstSelDepth;
 static int FirstScore;
 static double FirstTime;
-static uint64 FirstNodeNb;
+static uint64_t FirstNodeNb;
 static move_t FirstPV[LineSize];
 
 static int LastMove;
@@ -55,7 +55,7 @@ static int LastDepth;
 static int LastSelDepth;
 static int LastScore;
 static double LastTime;
-static uint64 LastNodeNb;
+static uint64_t LastNodeNb;
 static move_t LastPV[LineSize];
 
 static my_timer_t Timer[1];

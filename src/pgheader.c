@@ -351,7 +351,7 @@ int test_variant(void){
 variant_t pgheader_known_variant(const char *variant){
     variant_t i;
     for(i=NORMAL; i<UNKNOWN; i++){
-        if(!strcmp(pgheader_known_variants[i],variant)){
+        if(!strcasecmp(pgheader_known_variants[i],variant)){
             return i;
         }
     }

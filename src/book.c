@@ -19,7 +19,7 @@
 // types
 
 typedef struct {
-   uint64 key;
+   uint64_t key;
    uint16 move;
    uint16 count;
    uint16 n;
@@ -33,13 +33,13 @@ static int BookSize;
 
 // prototypes
 
-static int    find_pos      (uint64 key);
+static int    find_pos      (uint64_t key);
 
 static void   read_entry    (entry_t * entry, int n);
 static void   write_entry   (const entry_t * entry, int n);
 
-static uint64 read_integer  (FILE * file, int size);
-static void   write_integer (FILE * file, int size, uint64 n);
+static uint64_t read_integer  (FILE * file, int size);
+static void   write_integer (FILE * file, int size, uint64_t n);
 
 // functions
 
@@ -298,7 +298,7 @@ void book_flush() {
 
 // find_pos()
 
-static int find_pos(uint64 key) {
+static int find_pos(uint64_t key) {
 
    int left, right, mid;
    entry_t entry[1];
@@ -369,9 +369,9 @@ static void write_entry(const entry_t * entry, int n) {
 
 // read_integer()
 
-static uint64 read_integer(FILE * file, int size) {
+static uint64_t read_integer(FILE * file, int size) {
 
-   uint64 n;
+   uint64_t n;
    int i;
    int b;
 
@@ -401,7 +401,7 @@ static uint64 read_integer(FILE * file, int size) {
 
 // write_integer()
 
-static void write_integer(FILE * file, int size, uint64 n) {
+static void write_integer(FILE * file, int size, uint64_t n) {
 
    int i;
    int b;

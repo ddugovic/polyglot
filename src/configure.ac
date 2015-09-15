@@ -16,7 +16,7 @@ AC_CHECK_LIB([m], [main])
 # Checks for header files.
 AC_HEADER_ASSERT
 AC_HEADER_STDC
-AC_CHECK_HEADERS([stdlib.h string.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([inttypes.h stdlib.h string.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -34,7 +34,7 @@ AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_SETVBUF_REVERSED
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([dup2 floor gettimeofday memchr memmove select strchr strdup strerror strstr])
+AC_CHECK_FUNCS([dup2 floor gettimeofday memchr memmove select strcasecmp strchr strdup strerror strstr])
 
 
 AC_CONFIG_FILES([Makefile])

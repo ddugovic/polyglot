@@ -223,10 +223,11 @@ void board_clear(board_t * board) {
 
 // board_start()
 
-void board_start(board_t * board, const char fen[]) {
+void board_start(board_t * board, const char fen[], variant_t variant) {
 
    ASSERT(board!=NULL);
 
+   board->variant = variant;
    if (!board_from_fen(board,fen)) ASSERT(FALSE);
 }
 
@@ -238,6 +239,7 @@ void board_copy(board_t * dst, const board_t * src) {
    ASSERT(board_is_ok(src));
 
    *dst = *src;
+   ASSERT(board_equal(src, dst));
 }
 
 // board_equal()

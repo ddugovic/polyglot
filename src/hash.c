@@ -12,11 +12,11 @@
 
 // variables
 
-static uint64 Castle64[16];
+static uint64_t Castle64[16];
 
 // prototypes
 
-static uint64 hash_castle_key_debug (int flags);
+static uint64_t hash_castle_key_debug (int flags);
 
 // functions
 
@@ -31,9 +31,9 @@ void hash_init() {
 
 // hash_key()
 
-uint64 hash_key(const board_t * board) {
+uint64_t hash_key(const board_t * board) {
 
-   uint64 key;
+   uint64_t key;
    int colour;
    const uint8 * ptr;
    int sq, piece;
@@ -66,12 +66,17 @@ uint64 hash_key(const board_t * board) {
 
    key ^= hash_turn_key(board->turn);
 
+#if 1
+char fen[256];
+board_to_fen(board,fen,256);
+fprintf(stderr, "HASH [%"PRIx64"] [%d] [%s]\n", key, board->variant, fen);
+#endif
    return key;
 }
 
 // hash_piece_key()
 
-uint64 hash_piece_key(int piece, int square) {
+uint64_t hash_piece_key(int piece, int square) {
 
    ASSERT(piece_is_ok(piece));
    ASSERT(square_is_ok(square));
@@ -81,7 +86,7 @@ uint64 hash_piece_key(int piece, int square) {
 
 // hash_castle_key()
 
-uint64 hash_castle_key(int flags) {
+uint64_t hash_castle_key(int flags) {
 
    ASSERT((flags&~0xF)==0);
 
@@ -90,9 +95,9 @@ uint64 hash_castle_key(int flags) {
 
 // hash_castle_key_debug()
 
-static uint64 hash_castle_key_debug(int flags) {
+static uint64_t hash_castle_key_debug(int flags) {
 
-   uint64 key;
+   uint64_t key;
    int i;
 
    ASSERT((flags&~0xF)==0);
@@ -108,7 +113,7 @@ static uint64 hash_castle_key_debug(int flags) {
 
 // hash_ep_key()
 
-uint64 hash_ep_key(int square) {
+uint64_t hash_ep_key(int square) {
 
    ASSERT(square_is_ok(square));
 
@@ -117,7 +122,7 @@ uint64 hash_ep_key(int square) {
 
 // hash_turn_key()
 
-uint64 hash_turn_key(int colour) {
+uint64_t hash_turn_key(int colour) {
 
    ASSERT(colour_is_ok(colour));
 

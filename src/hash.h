@@ -22,16 +22,16 @@
 
 // functions
 
-extern void   hash_init       ();
+extern void     hash_init       ();
 
-extern uint64 hash_key        (const board_t * board);
+extern uint64_t hash_key        (const board_t * board);
 
-extern uint64 hash_piece_key  (int piece, int square);
-extern uint64 hash_castle_key (int flags);
-extern uint64 hash_ep_key     (int square);
-extern uint64 hash_turn_key   (int colour);
+extern uint64_t hash_piece_key  (int piece, int square);
+extern uint64_t hash_castle_key (int flags);
+extern uint64_t hash_ep_key     (int square);
+extern uint64_t hash_turn_key   (int colour);
 
-extern uint64 hash_random_64  (int index);
+extern uint64_t hash_random_64  (int index);
 
 #endif // !defined HASH_H
 

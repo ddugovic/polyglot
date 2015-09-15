@@ -285,7 +285,7 @@ static int game_comp_status(const game_t * game) {
    int i, n;
    int wb, bb;
    const board_t * board;
-   uint64 key;
+   uint64_t key;
    int start;
 
    ASSERT(game!=NULL);
