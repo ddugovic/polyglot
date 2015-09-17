@@ -38,6 +38,9 @@ uint64_t hash_key(const board_t * board) {
    const uint8 * ptr;
    int sq, piece;
 
+#ifndef NDEBUG
+if (board == NULL) return (key = 0);
+#endif
    ASSERT(board_is_ok(board));
 
    // init
@@ -66,9 +69,10 @@ uint64_t hash_key(const board_t * board) {
 
    key ^= hash_turn_key(board->turn);
 
-#if 1
+#if 0
 char fen[256];
 board_to_fen(board,fen,256);
+fprintf(stderr, "HASH (%zu) (%zu) [%d] [%s]\n", sizeof(key), sizeof(board->key), board->variant, fen);
 fprintf(stderr, "HASH [%"PRIx64"] [%d] [%s]\n", key, board->variant, fen);
 #endif
    return key;

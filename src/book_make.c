@@ -266,10 +266,13 @@ static void book_insert(const char file_name[]) {
    while (pgn_next_game(pgn)) {
 
       board_start(board,pgn->fen,pgn->variant);
-#if 1
+#ifndef NDEBUG
 char fen[256];
 board_to_fen(board,fen,256);
-fprintf(stderr, "HASH [%"PRIx64"] [%"PRIx64"] [%d] [%s]\n", hash_key(board), board->key, board->variant, fen);
+fprintf(stderr, "HASH? (%zu) (%zu) [%d] [%s]\n", sizeof(hash_key(NULL)), sizeof(board->key), board->variant, fen);
+fprintf(stderr, "HASH? (%zu) (%zu) [%d] [%s]\n", sizeof(hash_key(board)), sizeof(board->key), board->variant, fen);
+fprintf(stderr, "HASH? [%"PRIx64"] [%"PRIx64"] [%d] [%s]\n", hash_key(board), board->key, board->variant, fen);
+ASSERT(sizeof(board->key)==sizeof(hash_key(board)));
 ASSERT(board->key==hash_key(board));
 #endif
       ply = 0;
