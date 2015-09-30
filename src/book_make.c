@@ -974,21 +974,31 @@ void book_dump(int argc, char * argv[]) {
             bin_file,color==White?"white":"black");
     if(color==White){
         if(!Quiet){printf("generating lines for white...\n");}
+        board_start(board,info->fen=StartFen,info->variant);
+        if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
+        fprintf(info->output,"[FEN \"%s\"]\n",string);
+        info->line = 1;
+        search_book(board,info,BOOK);
         for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
             board_start(board,info->fen=StartFen960[n],info->variant);
             if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
             fprintf(info->output,"[FEN \"%s\"]\n",string);
             info->line = 1;
-            search_book(board,info, BOOK);
+            search_book(board,info,BOOK);
         }
     }else{
         if(!Quiet){printf("generating lines for black...\n");}
+        board_start(board,info->fen=StartFen,info->variant);
+        if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
+        fprintf(info->output,"[FEN \"%s\"]\n",string);
+        info->line = 1;
+        search_book(board,info,ALL);
         for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
             board_start(board,info->fen=StartFen960[n],info->variant);
             if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
             fprintf(info->output,"[FEN \"%s\"]\n",string);
             info->line = 1;
-            search_book(board,info, ALL);
+            search_book(board,info,ALL);
         }
     }
 }
@@ -1033,9 +1043,11 @@ void book_info(int argc,char* argv[]){
     info->book_trans_only=FALSE;
     info->initial_color=White;
     info->extended_search=FALSE;
+    board_start(board,info->fen=StartFen,info->variant=NORMAL);
+    search_book(board,info,BOOK);
     for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
-        board_start(board,info->fen=StartFen960[n],info->variant=NORMAL);
-        search_book(board,info, BOOK);
+        board_start(board,info->fen=StartFen960[n],info->variant=FISCHER);
+        search_book(board,info,BOOK);
     }
     printf("Lines for white                : %8d\n",info->line-1);
 
@@ -1045,9 +1057,11 @@ void book_info(int argc,char* argv[]){
     info->initial_color=Black;
     book_clean();
     ASSERT(Book->size==s);
+    board_start(board,info->fen=StartFen,info->variant=NORMAL);
+    search_book(board,info,ALL);
     for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
-        board_start(board,info->fen=StartFen960[n],info->variant=NORMAL);
-        search_book(board,info, ALL);
+        board_start(board,info->fen=StartFen960[n],info->variant=FISCHER);
+        search_book(board,info,ALL);
     }
     printf("Lines for black                : %8d\n",info->line-1);
 
@@ -1080,18 +1094,22 @@ void book_info(int argc,char* argv[]){
         info->initial_color=White;
         info->extended_search=TRUE;
         book_clean();
+        board_start(board,info->fen=StartFen,info->variant=NORMAL);
+        search_book(board,info,BOOK);
         for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
-            board_start(board,info->fen=StartFen960[n],info->variant=NORMAL);
-            search_book(board,info, BOOK);
+            board_start(board,info->fen=StartFen960[n],info->variant=FISCHER);
+            search_book(board,info,BOOK);
         }
         init_info(info);
         info->book_trans_only=TRUE;
         info->initial_color=Black;
         info->extended_search=TRUE;
         book_clean();
+        board_start(board,info->fen=StartFen,info->variant=NORMAL);
+        search_book(board,info,ALL);
         for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
-            board_start(board,info->fen=StartFen960[n],info->variant=NORMAL);
-            search_book(board,info, ALL);
+            board_start(board,info->fen=StartFen960[n],info->variant=FISCHER);
+            search_book(board,info,ALL);
         }
         book_clean();
         ASSERT(Book->size==s);

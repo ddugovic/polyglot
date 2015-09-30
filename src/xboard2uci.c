@@ -727,6 +727,7 @@ void xboard2uci_gui_step(char string[]) {
 				option_set(Option,"Atomic","false");
 			}
 			if (my_string_equal(Star[0],"fischerandom")) {
+				board->variant = FISCHER;
 				option_set(Option,"Chess960","true");
 			} else {
 				option_set(Option,"Chess960","false");

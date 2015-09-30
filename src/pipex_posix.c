@@ -194,7 +194,7 @@ void pipex_wait_event(pipex_t *pipex[]){
    q=pipex;
    if (val > 0) {
        while((p=*(q++))!=NULL){
-           if (FD_ISSET(p->io->in_fd,set) /*&& !io_line_ready(p->io)*/){
+           if (FD_ISSET(p->io->in_fd,set) && !io_line_ready(p->io)){
 	       io_get_update(p->io);
 	   }
        }

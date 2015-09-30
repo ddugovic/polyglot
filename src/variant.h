@@ -3,7 +3,8 @@
 
 // Enumeration of rule sets, regardless of start position
 typedef enum {
-    NORMAL, // transposes with Fischer Random and No-Castle
+    NORMAL,
+    FISCHER, // necessary due to UCI / FEN-960 inconsistencies
     BUGHOUSE,
     CRAZYHOUSE,
     LOSERS,

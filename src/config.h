@@ -109,7 +109,7 @@
 #define HAVE__BOOL 1
 
 /* Define to 1 if assertions should be disabled. */
-/* #undef NDEBUG */
+#define NDEBUG 1
 
 /* Name of package */
 #define PACKAGE "polyglot"

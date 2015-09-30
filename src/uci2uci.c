@@ -217,7 +217,7 @@ static void parse_setoption(const char string[]) {
                 UCIboard->variant = ATOMIC;
             }
             if(!strcmp(name,"UCI_Chess960") && !strcmp(value,"true")){
-                UCIboard->variant = NORMAL;
+                UCIboard->variant = FISCHER;
             }
             if(!strcmp(name,"UCI_Horde") && !strcmp(value,"true")){
                 UCIboard->variant = DUNSANY;
