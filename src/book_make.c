@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "board.h"
 #include "book_make.h"
 #include "fen.h"
 #include "move.h"
@@ -30,59 +29,6 @@ static const int NIL = -1;
 
 #define opp_search(s) ((s)==BOOK?ALL:BOOK)
 
-// types
-
-typedef struct {
-    uint64_t key;
-    uint16 move;
-    uint16 count;
-// Unfortunately the minggw32 cross compiler [4.2.1-sjlj (mingw32-2)]
-// seems to have a bug with anon structs contained in unions when using -O2.
-// See the ASSERT below in "read_entry_file"...
-// To be fair this seems to be illegal in C++
-// although it is hard to understand why, and the compiler does not complain
-// even with -Wall.
-//    union {
-//        struct {
-            uint16 n;
-            uint16 sum;
-//        };
-//        struct {
-            uint8 height;
-            int line;
-//        };
-//   };
-    uint8 colour;
-} entry_t;
-
-typedef struct {
-   int size;
-   int alloc;
-   uint32 mask;
-   entry_t * entry;
-   sint32 * hash;
-} book_t;
-
-typedef enum {
-    BOOK,
-    ALL
-} search_t;
-
-typedef struct {
-    int height;
-    int line;
-    int initial_color;
-    bool book_trans_only;
-    bool extended_search;
-    const char *fen;
-    variant_t variant;
-    uint16 moves[1024];
-    double probs[1024];
-    uint64_t keys[1024];
-    FILE *output;
-} info_t;
-
-
 // variables
 
 static int MaxPly;
@@ -93,30 +39,18 @@ static bool Uniform;
 static bool Quiet=FALSE;
 
 static book_t Book[1];
+static info_t Info[1];
 
 // prototypes
 
-static void     book_clear    ();
+static void     book_clear    (info_t *info);
 static void     book_insert   (const char file_name[]);
 static void     book_filter   ();
 static void     book_sort     ();
 static void     book_save     (const char file_name[]);
 
-static int      find_entry    (const board_t * board, int move);
-static void     resize        ();
-static void     halve_stats   (uint64_t key);
-
-static bool     keep_entry    (int pos);
-
-static int      entry_score   (const entry_t * entry);
-
-static int      key_compare   (const void * p1, const void * p2);
-
 static void     write_integer (FILE * file, int size, uint64_t n);
 static uint64_t read_integer  (FILE * file, int size);
-
-static void read_entry_file(FILE *f, entry_t *entry);
-static void write_entry_file(FILE * f, const entry_t * entry);
 
 // functions
 
@@ -128,6 +62,7 @@ void book_make(int argc, char * argv[]) {
    const char * pgn_file;
    const char * bin_file;
 
+   info_t *info = &Info[0];
    pgn_file = NULL;
    my_string_set(&pgn_file,"book.pgn");
 
@@ -207,12 +142,12 @@ void book_make(int argc, char * argv[]) {
       }
    }
 
-   book_clear();
+   book_clear(info);
 
-   printf("inserting games ...\n");
+   printf("inserting games.");
    book_insert(pgn_file);
 
-   printf("filtering entries ...\n");
+   printf("filtering entries.");
    book_filter();
 
    printf("sorting entries ...\n");
@@ -226,18 +161,18 @@ void book_make(int argc, char * argv[]) {
 
 // book_clear()
 
-static void book_clear() {
+static void book_clear(info_t *info) {
 
    int index;
 
-   Book->alloc = 1;
-   Book->mask = (Book->alloc * 2) - 1;
+   info->alloc = 1;
+   Book->mask = (info->alloc * 2) - 1;
 
-   Book->entry = (entry_t *) my_malloc(Book->alloc*sizeof(entry_t));
+   Book->entry = (entry_t *) my_malloc(info->alloc*sizeof(entry_t));
    Book->size = 0;
 
-   Book->hash = (sint32 *) my_malloc((Book->alloc*2)*sizeof(sint32));
-   for (index = 0; index < Book->alloc*2; index++) {
+   Book->hash = (sint32 *) my_malloc((info->alloc*2)*sizeof(sint32));
+   for (index = 0; index < info->alloc*2; index++) {
       Book->hash[index] = NIL;
    }
 }
@@ -246,13 +181,14 @@ static void book_clear() {
 
 static void book_insert(const char file_name[]) {
 
+   info_t *info = &Info[0];
    pgn_t pgn[1];
    board_t board[1];
    int ply;
    int result;
    char string[256];
    int move;
-   int pos;
+   entry_t *entry;
 
    ASSERT(file_name!=NULL);
 
@@ -295,12 +231,11 @@ ASSERT(board->key==hash_key(board));
                my_fatal("book_insert(): illegal move \"%s\" at line %d, column %d,game %d\n",string,pgn->move_line,pgn->move_column,pgn->game_nb);
             }
 
-            pos = find_entry(board,move);
+            entry = create_entry(Book,info,board,move);
+            entry->n++;
+            entry->sum += result+1;
 
-            Book->entry[pos].n++;
-            Book->entry[pos].sum += result+1;
-
-            if (Book->entry[pos].n >= COUNT_MAX) {
+            if (entry->n >= COUNT_MAX) {
                halve_stats(board->key);
             }
 
@@ -309,14 +244,19 @@ ASSERT(board->key==hash_key(board));
             result = -result;
          }
       }
-	  pgn->game_nb++;
-      if (pgn->game_nb % 10000 == 0) printf("%d games ...\n",pgn->game_nb);
+      pgn->game_nb++;
+      if (pgn->game_nb % 1000 == 0) {
+         if (pgn->game_nb % 10000 == 0) printf("\n%9zu games", pgn->game_nb);
+         printf(".");
+         fflush(stdout);
+      }
    }
+   printf("\n");
 
    pgn_close(pgn);
 
-   printf("%d game%s.\n",pgn->game_nb,(pgn->game_nb>2)?"s":"");
-   printf("%d entries.\n",Book->size);
+   printf("%zu game%s.\n",pgn->game_nb,(pgn->game_nb>1)?"s":"");
+   printf("%zu entries.\n",Book->size);
 
    return;
 }
@@ -333,12 +273,18 @@ static void book_filter() {
 
    for (src = 0; src < Book->size; src++) {
       if (keep_entry(src)) Book->entry[dst++] = Book->entry[src];
+      if (src+1 % 1000 == 0) {
+         if (src+1 % 10000 == 0) printf("\n%9d entries", src+1);
+         printf(".");
+         fflush(stdout);
+      }
    }
+   printf("\n");
 
    ASSERT(dst>=0&&dst<=Book->size);
    Book->size = dst;
 
-   printf("%d entries.\n",Book->size);
+   printf("%zu entries.\n",Book->size);
 }
 
 // book_sort()
@@ -385,11 +331,7 @@ static void book_save(const char file_name[]) {
       /* null keys are reserved for the header */
       if(Book->entry[pos].key==U64(0x0)) continue;
 
-      write_integer(file,8,Book->entry[pos].key);
-      write_integer(file,2,Book->entry[pos].move);
-      write_integer(file,2,entry_score(&Book->entry[pos]));
-      write_integer(file,2,0);
-      write_integer(file,2,0);
+      write_entry_file(file,&Book->entry[pos]);
    }
 
    fclose(file);
@@ -397,114 +339,118 @@ static void book_save(const char file_name[]) {
 
 // find_entry()
 
-static int find_entry(const board_t * board, int move) {
+entry_t * find_entry(book_t *book, info_t *info, const board_t *board, int move, size_t *index) {
 
-   uint64_t key;
-   int index;
-   int pos;
+   size_t pos;
 
    ASSERT(board!=NULL);
    ASSERT(move==MoveNone || move_is_ok(move));
-
    ASSERT(move==MoveNone || move_is_legal(move,board));
 
-   // init
+   for (*index = board->key & (uint64_t) book->mask; (pos=book->hash[*index]) != NIL; *index = (*index+1) & book->mask) {
 
-   key = board->key;
+      ASSERT(pos>=0&&pos<book->size);
 
-   // search
-
-   for (index = key & (uint64_t) Book->mask; (pos=Book->hash[index]) != NIL; index = (index+1) & Book->mask) {
-
-      ASSERT(pos>=0&&pos<Book->size);
-
-      if (Book->entry[pos].key == key && Book->entry[pos].move == move) {
-         return pos; // found
+      if (book->entry[pos].key == board->key && book->entry[pos].move == move) {
+         return &book->entry[pos]; // found
       }
    }
 
+   return NULL;
+}
+
+// create_entry()
+
+entry_t * create_entry(book_t *book, info_t *info, const board_t *board, int move) {
+
+   size_t index;
+   entry_t * entry;
+   size_t pos;
+
+   entry = find_entry(book, info, board, move, &index);
+   if (entry!=NULL)
+      return entry;
+
    // not found
 
-   ASSERT(Book->size<=Book->alloc);
+   ASSERT(book->size<=info->alloc);
 
-   if (Book->size == Book->alloc) {
+   if (book->size == info->alloc) {
 
       // allocate more memory
 
-      resize();
+      resize(info);
 
-      for (index = key & (uint64_t) Book->mask; Book->hash[index] != NIL; index = (index+1) & Book->mask)
+      for (index = board->key & (uint64_t) book->mask; book->hash[index] != NIL; index = (index+1) & book->mask)
          ;
    }
 
    // create a new entry
 
-   ASSERT(Book->size<Book->alloc);
-   pos = Book->size++;
+   ASSERT(book->size<=info->alloc);
+   pos = book->size++;
 
-   Book->entry[pos].key = key;
-   Book->entry[pos].move = move;
-   Book->entry[pos].n = 0;
-   Book->entry[pos].sum = 0;
-   Book->entry[pos].colour = board->turn;
+   book->entry[pos].key = board->key;
+   book->entry[pos].move = move;
+   book->entry[pos].n = 0;
+   book->entry[pos].sum = 0;
+   book->entry[pos].colour = board->turn;
 
    // insert into the hash table
 
-   ASSERT(index>=0&&index<Book->alloc*2);
-   ASSERT(Book->hash[index]==NIL);
-   Book->hash[index] = pos;
+   ASSERT(index>=0&&index<info->alloc*2);
+   ASSERT(book->hash[index]==NIL);
+   book->hash[index] = pos;
 
-   ASSERT(pos>=0&&pos<Book->size);
+   ASSERT(pos>=0&&pos<book->size);
 
-   return pos;
+   return &book->entry[pos];
 }
 
 // rebuild_hash_table
 
-static void rebuild_hash_table(){
+static void rebuild_hash_table(info_t *info){
     int index,pos;
-    for (index = 0; index < Book->alloc*2; index++) {
+    for (index = 0; index < info->alloc*2; index++) {
         Book->hash[index] = NIL;
     }
     for (pos = 0; pos < Book->size; pos++) {
         for (index = Book->entry[pos].key & (uint64_t) Book->mask; Book->hash[index] != NIL; index = (index+1) & Book->mask)
          ;
-        ASSERT(index>=0&&index<Book->alloc*2);
+        ASSERT(index>=0&&index<info->alloc*2);
         Book->hash[index] = pos;
     }
 }
 
-static void resize() {
+void resize(info_t *info) {
 
-   int size;
+   size_t size;
 
-   ASSERT(Book->size==Book->alloc);
+   info->alloc *= 2;
+   Book->mask = (info->alloc * 2) - 1;
 
-   Book->alloc *= 2;
-   Book->mask = (Book->alloc * 2) - 1;
+   size = info->alloc * sizeof(entry_t);
+   size += (info->alloc*2) * sizeof(sint32);
 
-   size = 0;
-   size += Book->alloc * sizeof(entry_t);
-   size += (Book->alloc*2) * sizeof(sint32);
-
-   if (size >= 1048576) if(!Quiet){
-           printf("allocating %gMB ...\n",((double)size)/1048576.0);
-       }
+   if (!Quiet && size >= 1048576) {
+      printf("(allocating %gMB)",((double)size)/1048576.0);
+      fflush(stdout);
+   }
 
    // resize arrays
 
-   Book->entry = (entry_t *) my_realloc(Book->entry,Book->alloc*sizeof(entry_t));
-   Book->hash = (sint32 *) my_realloc(Book->hash,(Book->alloc*2)*sizeof(sint32));
+   Book->entry = (entry_t *) my_realloc(Book->entry,info->alloc*sizeof(entry_t));
+   Book->hash = (sint32 *) my_realloc(Book->hash,(info->alloc*2)*sizeof(sint32));
 
    // rebuild hash table
 
-   rebuild_hash_table();
+   rebuild_hash_table(info);
 }
 
 
 // halve_stats()
 
-static void halve_stats(uint64_t key) {
+void halve_stats(uint64_t key) {
 
    int index;
    int pos;
@@ -524,7 +470,7 @@ static void halve_stats(uint64_t key) {
 
 // keep_entry()
 
-static bool keep_entry(int pos) {
+bool keep_entry(int pos) {
 
    const entry_t * entry;
    int colour;
@@ -558,7 +504,7 @@ static bool keep_entry(int pos) {
 
 // entry_score()
 
-static int entry_score(const entry_t * entry) {
+int entry_score(const entry_t * entry) {
 
    int score;
 
@@ -576,7 +522,7 @@ static int entry_score(const entry_t * entry) {
 
 // key_compare()
 
-static int key_compare(const void * p1, const void * p2) {
+int key_compare(const void * p1, const void * p2) {
 
    const entry_t * entry_1, * entry_2;
 
@@ -637,28 +583,60 @@ static uint64_t read_integer(FILE * file, int size) {
    return n;
 }
 
+// read_entry()
+
+bool read_entry(info_t *info, entry_t *entry, int n) {
+
+   ASSERT(info!=NULL);
+   ASSERT(entry!=NULL);
+
+   if (n < 0 || n >= info->alloc) return FALSE;
+
+   ASSERT(n>=0&&n<info->alloc);
+
+   if (fseek(info->file,n*sizeof(entry_t),SEEK_SET) == -1) {
+      my_fatal("read_entry(): fseek(): %s\n",strerror(errno));
+   }
+
+   read_entry_file(info->file, entry, n);
+
+   return TRUE;
+}
+
+// write_entry()
+
+void write_entry(info_t *info, const entry_t *entry) {
+
+   ASSERT(info!=NULL);
+   ASSERT(entry!=NULL);
+
+   write_entry_file(info->file, entry);
+}
+
 // read_entry_file
 
-static void read_entry_file(FILE *f, entry_t *entry){
-    uint64_t n;
+void read_entry_file(FILE *f, entry_t *entry, int n){
+
     ASSERT(entry!=NULL);
-    n = entry->key   = read_integer(f,8);
+    entry->key   = read_integer(f,8);
     entry->move  = read_integer(f,2);
     entry->count = read_integer(f,2);
-    entry->n     = read_integer(f,2);
-    entry->sum   = read_integer(f,2);
-    ASSERT(n==entry->key); // test for mingw compiler bug with anon structs
+    entry->n     = entry->count;//read_integer(f,2);
+    entry->sum   = entry->count;//read_integer(f,2);
+
+    ASSERT(entry->move!=MoveNone);
 }
 
 // write_entry_file
 
-static void write_entry_file(FILE * f, const entry_t * entry) {
+void write_entry_file(FILE * f, const entry_t * entry) {
+
    ASSERT(entry!=NULL);
    write_integer(f,8,entry->key);
    write_integer(f,2,entry->move);
-   write_integer(f,2,entry->count);
-   write_integer(f,2,entry->n);
-   write_integer(f,2,entry->sum);
+   write_integer(f,2,entry_score(entry));
+   write_integer(f,2,0);//write_integer(f,2,entry->n);
+   write_integer(f,2,0);//write_integer(f,2,entry->sum);
 }
 
 static void print_list(const board_t *board, list_t *list){
@@ -677,30 +655,29 @@ static void print_list(const board_t *board, list_t *list){
 // loads a polyglot book
 
 static void book_load(const char filename[]){
-    FILE* f;
+
+    info_t *info = &Info[0];
     entry_t entry[1];
-    int size;
-    int i;
+    size_t n;
+    size_t m;
     int pos;
     int index;
     ASSERT(filename!=NULL);
-    if(!(f=fopen(filename,"rb"))){
+    if(!(info->file=fopen(filename,"rb"))){
         my_fatal("book_load() : can't open file \"%s\" for reading: %s\n",filename,strerror(errno));
     }
-    fseek(f,0L,SEEK_END);   // superportable way to get size of book!
-    size=ftell(f)/16;
-    fseek(f,0,SEEK_SET);
-    for(i=0L;i<size;i++){
-        read_entry_file(f,entry);
-        ASSERT(Book->size<=Book->alloc);
-        if (Book->size == Book->alloc) {
-                // allocate more memoryx
-            resize();
-        }
+    fseek(info->file,0L,SEEK_END);   // superportable way to get size of book!
+    m = ftell(info->file)/sizeof(entry_t);
+    while(info->alloc<m) {
+        // allocate more memory
+        resize(info);
+    }
+    for(n=0L;n<m;n++){
+        read_entry(info,entry,n);
+        ASSERT(Book->size<=info->alloc);
             // insert into the book
         pos = Book->size++;
         Book->entry[pos].key = entry->key;
-        ASSERT(entry->move!=MoveNone);
         Book->entry[pos].move = entry->move;
         Book->entry[pos].count = entry->count;
         Book->entry[pos].n = entry->n;
@@ -711,12 +688,12 @@ static void book_load(const char filename[]){
              Book->hash[index] != NIL;
              index = (index+1) & Book->mask);
             // insert into the hash table
-        ASSERT(index>=0&&index<Book->alloc*2);
+        ASSERT(index>=0&&index<info->alloc*2);
         ASSERT(Book->hash[index]==NIL);
         Book->hash[index] = pos;
         ASSERT(pos>=0&&pos<Book->size);
     }
-    fclose(f);
+    fclose(info->file);
 }
 
 // gen_book_moves()
@@ -775,23 +752,23 @@ static void print_moves(info_t *info){
     char move_string[256];
     int i;
     int color=White;
-    if(!info->output){
+    if(!info->file){
         return;
     }
     board_start(board,info->fen,info->variant);
     for(i=0;i<info->height;i++){
         if(color==White){
-            fprintf(info->output,"%d. ",i/2+1);
+            fprintf(info->file,"%d. ",i/2+1);
             color=Black;
         }else{
             color=White;
         }
         move_to_san(info->moves[i],board,move_string,256);
-        fprintf(info->output,"%s", move_string);
+        fprintf(info->file,"%s", move_string);
         if(color==colour_opp(info->initial_color)){
-            fprintf(info->output,"{%.0f%%} ",100*info->probs[i]);
+            fprintf(info->file,"{%.0f%%} ",100*info->probs[i]);
         }else{
-            fprintf(info->output," ");
+            fprintf(info->file," ");
         }
         move_do(board,info->moves[i]);
     }
@@ -805,8 +782,8 @@ static int search_book(board_t *board, info_t *info, search_t search){
     int ret;
     int i;
     int offset;
-    int pos;
-    int size;
+    size_t index;
+    entry_t *entry;
     int prob_sum;
     double probs[256];
     for(i=0;i<256;i++){
@@ -814,32 +791,29 @@ static int search_book(board_t *board, info_t *info, search_t search){
     }
     for(i=0;i<info->height;i++){
         if(board->key==info->keys[i]){
-            if(info->output){
-                fprintf(info->output,"%d: ",info->line);
+            if(info->file){
+                fprintf(info->file,"%d: ",info->line);
                 print_moves(info);
-                fprintf(info->output,"{cycle: ply=%d}\n",i);
+                fprintf(info->file,"{cycle: ply=%d}\n",i);
             }
             info->line++;
+            if(!Quiet && info->line%1000==0){printf("."); fflush(stdout);}
             return 1; // end of line because of cycle
         }
     }
     if(!info->book_trans_only || (info->book_trans_only && search==BOOK)){
         info->keys[info->height]=board->key;
-        size=Book->size;  // hack
-        pos=find_entry(board,MoveNone);
-        if(size==Book->size){
-            if(info->output){
-                fprintf(info->output,"%d: ",info->line);
+        entry=find_entry(Book,info,board,MoveNone,&index);
+        if(entry!=NULL){
+            if(info->file){
+                fprintf(info->file,"%d: ",info->line);
                 print_moves(info);
-                fprintf(info->output,"{trans: line=%d, ply=%d}\n",
-                        Book->entry[pos].line,
-                        Book->entry[pos].height);
+                fprintf(info->file,"{trans: line=%d, ply=%d}\n",
+                        entry->line,entry->height);
             }
             info->line++;
+            if(!Quiet && info->line%1000==0){printf("."); fflush(stdout);}
             return 1; // end of line because of transposition
-        }else{
-            Book->entry[pos].height=info->height;
-            Book->entry[pos].line=info->line;
         }
     }
     count=0;
@@ -876,12 +850,13 @@ static int search_book(board_t *board, info_t *info, search_t search){
         }
         ret=search_book(new_board, info, opp_search(search));
         if(ret==0 && search==BOOK){
-            if(info->output){
-                fprintf(info->output,"%d: ",info->line);
+            if(info->file){
+                fprintf(info->file,"%d: ",info->line);
                 print_moves(info);
-                fprintf(info->output,"\n");
+                fprintf(info->file,"\n");
             }
             info->line++;
+            if(!Quiet && info->line%1000==0){printf("."); fflush(stdout);}
             ret=1; // end of line book move counts for 1
         }
         info->height--;
@@ -894,14 +869,14 @@ static int search_book(board_t *board, info_t *info, search_t search){
 void init_info(info_t *info){
     info->line=1;
     info->height=0;
-    info->output=NULL;
+    info->file=NULL;
     info->initial_color=White;
     info->book_trans_only=FALSE;
 }
 
 // book_clean()
 // remove MoveNone entries from book and rebuild hash table
-void book_clean(){
+void book_clean(info_t *info){
     int read_ptr,write_ptr;
     write_ptr=0;
     for(read_ptr=0;read_ptr<Book->size;read_ptr++){
@@ -910,18 +885,19 @@ void book_clean(){
         }
     }
     Book->size=write_ptr;
-    rebuild_hash_table();
+    rebuild_hash_table(info);
 }
 
 // book_dump()
 
 void book_dump(int argc, char * argv[]) {
+
+    info_t *info = Info;
     const char * bin_file=NULL;
     const char * txt_file=NULL;
     char string[StringSize];
     int color=ColourNone;
     board_t board[1];
-    info_t info[1];
     int i;
     int n;
     FILE *f;
@@ -960,8 +936,8 @@ void book_dump(int argc, char * argv[]) {
         my_string_set(&txt_file,string);
     }
 
-    book_clear();
-    if(!Quiet){printf("loading book ...\n");}
+    book_clear(info);
+    if(!Quiet){printf("Loading book %s...\n",bin_file);}
     book_load(bin_file);
     init_info(info);
     info->initial_color=color;
@@ -969,20 +945,20 @@ void book_dump(int argc, char * argv[]) {
         my_fatal("book_dump(): can't open file \"%s\" for writing: %s",
                  txt_file,strerror(errno));
     }
-    info->output=f;
-    fprintf(info->output,"Dump of \"%s\" for %s.\n",
+    info->file=f;
+    fprintf(info->file,"Dump of \"%s\" for %s.\n",
             bin_file,color==White?"white":"black");
     if(color==White){
         if(!Quiet){printf("generating lines for white...\n");}
         board_start(board,info->fen=StartFen,info->variant);
         if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
-        fprintf(info->output,"[FEN \"%s\"]\n",string);
+        fprintf(info->file,"[FEN \"%s\"]\n",string);
         info->line = 1;
         search_book(board,info,BOOK);
-        for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+        for (n=0; n<sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
             board_start(board,info->fen=StartFen960[n],info->variant);
             if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
-            fprintf(info->output,"[FEN \"%s\"]\n",string);
+            fprintf(info->file,"[FEN \"%s\"]\n",string);
             info->line = 1;
             search_book(board,info,BOOK);
         }
@@ -990,13 +966,13 @@ void book_dump(int argc, char * argv[]) {
         if(!Quiet){printf("generating lines for black...\n");}
         board_start(board,info->fen=StartFen,info->variant);
         if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
-        fprintf(info->output,"[FEN \"%s\"]\n",string);
+        fprintf(info->file,"[FEN \"%s\"]\n",string);
         info->line = 1;
         search_book(board,info,ALL);
-        for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+        for (n=0; n<sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
             board_start(board,info->fen=StartFen960[n],info->variant);
             if (!board_to_fen(board,string,StringSize)) ASSERT(FALSE);
-            fprintf(info->output,"[FEN \"%s\"]\n",string);
+            fprintf(info->file,"[FEN \"%s\"]\n",string);
             info->line = 1;
             search_book(board,info,ALL);
         }
@@ -1006,9 +982,10 @@ void book_dump(int argc, char * argv[]) {
 // book_info()
 
 void book_info(int argc,char* argv[]){
+
+    info_t *info = Info;
     const char *bin_file=NULL;
     board_t board[1];
-    info_t info[1];
     uint64_t last_key;
     int pos;
     int white_pos,black_pos,total_pos,white_pos_extended,
@@ -1017,7 +994,6 @@ void book_info(int argc,char* argv[]){
     bool extended_search=FALSE;
     int i;
     int n;
-    Quiet=TRUE;
     my_string_set(&bin_file,"book.bin");
 
     for (i = 1; i < argc; i++) {
@@ -1034,38 +1010,40 @@ void book_info(int argc,char* argv[]){
             my_fatal("book_info(): unknown option \"%s\"\n",argv[i]);
         }
     }
-    book_clear();
-    if(!Quiet){printf("loading book ...\n");}
+    book_clear(info);
+    if(!Quiet){printf("Loading book %s...",bin_file);}
     book_load(bin_file);
+    if(!Quiet){printf("\n");}
     s=Book->size;
 
     init_info(info);
     info->book_trans_only=FALSE;
     info->initial_color=White;
     info->extended_search=FALSE;
+    if(!Quiet){printf("Scanning book.");}
     board_start(board,info->fen=StartFen,info->variant=NORMAL);
     search_book(board,info,BOOK);
-    for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+    for (n=0; n<sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
         board_start(board,info->fen=StartFen960[n],info->variant=FISCHER);
         search_book(board,info,BOOK);
     }
-    printf("Lines for white                : %8d\n",info->line-1);
-
+    printf("\nLines for white                : %8d\n",info->line-1);
 
     info->line=1;
     info->height=0;
     info->initial_color=Black;
-    book_clean();
+    book_clean(info);
     ASSERT(Book->size==s);
+    if(!Quiet){printf("Scanning book.");}
     board_start(board,info->fen=StartFen,info->variant=NORMAL);
     search_book(board,info,ALL);
-    for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+    for (n=0; n<sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
         board_start(board,info->fen=StartFen960[n],info->variant=FISCHER);
         search_book(board,info,ALL);
     }
-    printf("Lines for black                : %8d\n",info->line-1);
+    printf("\nLines for black                : %8d\n",info->line-1);
 
-    book_clean();
+    book_clean(info);
     ASSERT(Book->size==s);
     white_pos=0;
     black_pos=0;
@@ -1093,10 +1071,11 @@ void book_info(int argc,char* argv[]){
         info->book_trans_only=TRUE;
         info->initial_color=White;
         info->extended_search=TRUE;
-        book_clean();
+        book_clean(info);
+        if(!Quiet){printf("Scanning book.");}
         board_start(board,info->fen=StartFen,info->variant=NORMAL);
         search_book(board,info,BOOK);
-        for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+        for (n=0; n<sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
             board_start(board,info->fen=StartFen960[n],info->variant=FISCHER);
             search_book(board,info,BOOK);
         }
@@ -1104,14 +1083,14 @@ void book_info(int argc,char* argv[]){
         info->book_trans_only=TRUE;
         info->initial_color=Black;
         info->extended_search=TRUE;
-        book_clean();
+        book_clean(info);
         board_start(board,info->fen=StartFen,info->variant=NORMAL);
         search_book(board,info,ALL);
-        for (n = 0; n < sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
+        for (n=0; n<sizeof(StartFen960)/sizeof(StartFen960[0]); n++) {
             board_start(board,info->fen=StartFen960[n],info->variant=FISCHER);
             search_book(board,info,ALL);
         }
-        book_clean();
+        book_clean(info);
         ASSERT(Book->size==s);
         white_pos_extended=0;
         black_pos_extended=0;
@@ -1130,7 +1109,7 @@ void book_info(int argc,char* argv[]){
         }
         white_pos_extended_diff=white_pos_extended-white_pos;
         black_pos_extended_diff=black_pos_extended-black_pos;
-        printf("Unreachable white positions(?) : %8d\n",
+        printf("\nUnreachable white positions(?) : %8d\n",
                white_pos_extended_diff);
         printf("Unreachable black positions(?) : %8d\n",
                black_pos_extended_diff);
