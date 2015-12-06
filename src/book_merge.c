@@ -8,20 +8,42 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "book_make.h"
 #include "book_merge.h"
 #include "util.h"
 
+// types
+
+typedef struct {
+   FILE * file;
+   int size;
+} book_t;
+
+typedef struct {
+   uint64_t key;
+   uint16 move;
+   uint16 count;
+   uint16 n;
+   uint16 sum;
+} entry_t;
+
 // variables
 
-static info_t In1[1];
-static info_t In2[1];
-static info_t Out[1];
+static book_t In1[1];
+static book_t In2[1];
+static book_t Out[1];
 
 // prototypes
 
-static void     book_open     (info_t * book, const char file_name[], const char mode[]);
-static void     book_close    (info_t * book);
+static void     book_clear    (book_t * book);
+
+static void     book_open     (book_t * book, const char file_name[], const char mode[]);
+static void     book_close    (book_t * book);
+
+static bool     read_entry    (book_t * book, entry_t * entry, int n);
+static void     write_entry   (book_t * book, const entry_t * entry);
+
+static uint64_t read_integer  (FILE * file, int size);
+static void     write_integer (FILE * file, int size, uint64_t n);
 
 // functions
 
@@ -36,6 +58,7 @@ void book_merge(int argc, char * argv[]) {
    int i1, i2;
    bool b1, b2;
    entry_t e1[1], e2[1];
+   int skip;
 
    in_file_1 = NULL;
    my_string_clear(&in_file_1);
@@ -81,13 +104,15 @@ void book_merge(int argc, char * argv[]) {
       }
    }
 
-   init_info(In1);
-   init_info(In2);
-   init_info(Out);
+   book_clear(In1);
+   book_clear(In2);
+   book_clear(Out);
 
    book_open(In1,in_file_1,"rb");
    book_open(In2,in_file_2,"rb");
    book_open(Out,out_file,"wb");
+
+   skip = 0;
 
    i1 = 0;
    i2 = 0;
@@ -118,13 +143,20 @@ void book_merge(int argc, char * argv[]) {
          ASSERT(b1);
          ASSERT(b2);
 
-         // ASSUME duplicate entries aren't a problem
-         if (key_compare(e1,e2) < 0) {
-            write_entry(Out, e1);
+         if (e1->key < e2->key) {
+
+            write_entry(Out,e1);
             i1++;
+
          } else {
-            write_entry(Out, e2);
+
+            if (e1->key == e2->key) {
+                e2->n = 0; // play e1 move(s) instead of e2 move(s)
+                skip++;
+            }
+            write_entry(Out,e2);
             i2++;
+
          }
       }
    }
@@ -133,12 +165,26 @@ void book_merge(int argc, char * argv[]) {
    book_close(In2);
    book_close(Out);
 
+   if (skip != 0) {
+      printf("skipped %d entr%s.\n",skip,(skip>1)?"ies":"y");
+   }
+
    printf("done!\n");
+}
+
+// book_clear()
+
+static void book_clear(book_t * book) {
+
+   ASSERT(book!=NULL);
+
+   book->file = NULL;
+   book->size = 0;
 }
 
 // book_open()
 
-static void book_open(info_t * book, const char file_name[], const char mode[]) {
+static void book_open(book_t * book, const char file_name[], const char mode[]) {
 
    ASSERT(book!=NULL);
    ASSERT(file_name!=NULL);
@@ -151,17 +197,109 @@ static void book_open(info_t * book, const char file_name[], const char mode[]) 
       my_fatal("book_open(): fseek(): %s\n",strerror(errno));
    }
 
-   book->alloc = ftell(book->file) / 16;
+   book->size = ftell(book->file) / 16;
 }
 
 // book_close()
 
-static void book_close(info_t * book) {
+static void book_close(book_t * book) {
 
    ASSERT(book!=NULL);
 
    if (fclose(book->file) == EOF) {
       my_fatal("book_close(): fclose(): %s\n",strerror(errno));
+   }
+}
+
+// read_entry()
+
+static bool read_entry(book_t * book, entry_t * entry, int n) {
+
+   ASSERT(book!=NULL);
+   ASSERT(entry!=NULL);
+
+   if (n < 0 || n >= book->size) return FALSE;
+
+   ASSERT(n>=0&&n<book->size);
+
+   if (fseek(book->file,n*16,SEEK_SET) == -1) {
+      my_fatal("read_entry(): fseek(): %s\n",strerror(errno));
+   }
+
+   entry->key   = read_integer(book->file,8);
+   entry->move  = read_integer(book->file,2);
+   entry->count = read_integer(book->file,2);
+   entry->n     = read_integer(book->file,2);
+   entry->sum   = read_integer(book->file,2);
+
+   return TRUE;
+}
+
+// write_entry()
+
+static void write_entry(book_t * book, const entry_t * entry) {
+
+   ASSERT(book!=NULL);
+   ASSERT(entry!=NULL);
+
+   write_integer(book->file,8,entry->key);
+   write_integer(book->file,2,entry->move);
+   write_integer(book->file,2,entry->count);
+   write_integer(book->file,2,entry->n);
+   write_integer(book->file,2,entry->sum);
+}
+
+// read_integer()
+
+static uint64_t read_integer(FILE * file, int size) {
+
+   uint64_t n;
+   int i;
+   int b;
+
+   ASSERT(file!=NULL);
+   ASSERT(size>0&&size<=8);
+
+   n = 0;
+
+   for (i = 0; i < size; i++) {
+
+      b = fgetc(file);
+
+      if (b == EOF) {
+         if (feof(file)) {
+            my_fatal("read_integer(): fgetc(): EOF reached\n");
+         } else { // error
+            my_fatal("read_integer(): fgetc(): %s\n",strerror(errno));
+         }
+      }
+
+      ASSERT(b>=0&&b<256);
+      n = (n << 8) | b;
+   }
+
+   return n;
+}
+
+// write_integer()
+
+static void write_integer(FILE * file, int size, uint64_t n) {
+
+   int i;
+   int b;
+
+   ASSERT(file!=NULL);
+   ASSERT(size>0&&size<=8);
+   ASSERT(size==8||n>>(size*8)==0);
+
+   for (i = size-1; i >= 0; i--) {
+
+      b = (n >> (i*8)) & 0xFF;
+      ASSERT(b>=0&&b<256);
+
+      if (fputc(b,file) == EOF) {
+         my_fatal("write_integer(): fputc(): %s\n",strerror(errno));
+      }
    }
 }
 

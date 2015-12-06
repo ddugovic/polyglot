@@ -41,7 +41,7 @@ typedef struct {
 
    int move_line;
    int move_column;
-   size_t game_nb;
+   int game_nb;
 } pgn_t;
 
 // functions
