@@ -130,6 +130,12 @@ static void send_book_move(int move){
     char move_string[256];
     my_log("POLYGLOT *BOOK MOVE*\n");
     move_to_can(move,UCIboard,move_string,256);
+    if(move_is_castle(move,UCIboard) && UCIboard->variant != FISCHER){
+        switch(move_string[2]){
+        case 'a': move_string[2]='c'; break; //e1c1 or e8c8
+        case 'h': move_string[2]='g'; break; //e1g1 or e8g8
+        }
+    }
         // bogus info lines
     gui_send(GUI,"info depth 1 time 0 nodes 0 nps 0 cpuload 0");
     gui_send(GUI,"bestmove %s",move_string);

@@ -37,6 +37,7 @@ const char * pgheader_magic="@PG@";
 
 const char * pgheader_known_variants[]={
     "normal",
+    "fischerandom",
     "bughouse",
     "crazyhouse",
     "losers",
