@@ -414,6 +414,8 @@ bool board_can_play(const board_t * board) {
 
    ASSERT(board_is_ok(board));
 
+   if (board->variant == ATOMIC && board->list_size[board->turn]==0) return FALSE;
+
    gen_moves(list,board);
 
    for (i = 0; i < list_size(list); i++) {
@@ -474,10 +476,22 @@ bool board_is_stalemate(const board_t * board) {
 
 int king_pos(const board_t * board, int colour) {
 
+   int sq;
+
    ASSERT(board_is_ok(board));
    ASSERT(colour_is_ok(colour));
 
-   if (board->variant==DUNSANY&&colour_is_white(colour)) return SquareNone;
+   switch (board->variant) {
+   case DUNSANY:
+       if (colour_is_white(colour)) return SquareNone;
+       break;
+   case ATOMIC:
+       if (board->list_size[colour]==0) return SquareNone;
+       sq = board->list[colour][0];
+       if (!piece_is_king(board->square[sq])) return SquareNone;
+       break;
+   }
+
    return board->list[colour][0];
 }
 

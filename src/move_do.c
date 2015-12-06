@@ -274,7 +274,8 @@ static void square_clear(board_t * board, int square, int piece) {
 
    // piece list
 
-   ASSERT(board->variant==DUNSANY?board->list_size[colour]>=1:board->list_size[colour]>=2);
+   ASSERT(board->variant==DUNSANY?board->list_size[colour]>=1:
+          board->list_size[colour]>=(board->variant==ATOMIC?1:2));
    size = --board->list_size[colour];
    ASSERT(pos<=size);
 

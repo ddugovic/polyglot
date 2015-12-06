@@ -292,7 +292,9 @@ ASSERT(board->key==hash_key(board));
             move = move_from_san(string,board);
 
             if (move == MoveNone || !move_is_legal(move,board)) {
-               my_fatal("book_insert(): illegal move \"%s\" at line %d, column %d,game %d\n",string,pgn->move_line,pgn->move_column,pgn->game_nb);
+               char fen[StringSize];
+               board_to_fen(board,fen,StringSize);
+               my_fatal("book_insert(): illegal move \"%s\" at line %d, column %d, game %d, variant \"%s\", FEN \"%s\"\n",string,pgn->move_line,pgn->move_column,pgn->game_nb,pgheader_known_variants[pgn->variant],fen);
             }
 
             pos = find_entry(board,move);

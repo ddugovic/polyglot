@@ -489,7 +489,7 @@ static int move_from_lan(const char string[], const board_t * board) {
             if (TRUE
              && (string[1] == '?' || file_to_char(square_file(from)) == string[1])
              && (string[2] == '?' || rank_to_char(square_rank(from)) == string[2])) {
-               if (!is_pinned(board,from,to,colour)) {
+               if (piece_is_king(board->square[from]) || !is_pinned(board,from,to,colour)) {
                   move = move_make(from,to) | promote;
                   n++;
                }

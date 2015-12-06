@@ -130,10 +130,18 @@ static bool inc_is_ok(int inc) {
 
 bool is_in_check(const board_t * board, int colour) {
 
+   int from, to;
+
    ASSERT(board_is_ok(board));
    ASSERT(colour_is_ok(colour));
 
    if (board->variant==DUNSANY && king_pos(board,colour)==SquareNone) return FALSE;
+   if (board->variant==ATOMIC) {
+
+      if ((to = king_pos(board,colour)) == SquareNone) return TRUE;
+      if ((from = king_pos(board,colour_opp(colour))) == SquareNone) return FALSE;
+      if (piece_attack(board,board->square[board->list[colour][0]],from,to)) return FALSE;
+   }
    return is_attacked(board,king_pos(board,colour),colour_opp(colour));
 }
 
@@ -193,7 +201,7 @@ bool piece_attack(const board_t * board, int piece, int from, int to) {
 
 bool is_pinned(const board_t * board, int from, int to, int colour) {
 
-   int king;
+   int king, king_opp;
    int inc;
    int sq, piece;
 
@@ -203,6 +211,15 @@ bool is_pinned(const board_t * board, int from, int to, int colour) {
    ASSERT(colour_is_ok(colour));
 
    king = king_pos(board,colour);
+
+   if (board->variant == ATOMIC) {
+
+      king_opp = king_pos(board,colour_opp(colour));
+      if (piece_attack(board,board->square[board->list[colour][0]],king,king_opp)) return FALSE;
+      // TODO: Some explosions take precedence over pins and checks
+      if (board->square[to] != Empty &&
+         piece_attack(board,board->square[board->list[colour][0]],to,king_opp)) return FALSE;
+   }
 
    inc = DELTA_INC(king-from);
    if (inc == IncNone) return FALSE; // not a line

@@ -39,17 +39,20 @@ bool move_is_pseudo(int move, const board_t * board) {
 
 bool pseudo_is_legal(int move, const board_t * board) {
 
-   board_t new_board[1];
+   board_t new_board;
 
    ASSERT(move_is_ok(move));
    ASSERT(board_is_ok(board));
 
    ASSERT(move_is_pseudo(move,board));
 
-   board_copy(new_board,board);
-   move_do(new_board,move);
+   if (board->variant == ATOMIC &&
+       move_to(move) == king_pos(board,colour_opp(board->turn))) return FALSE;
 
-   return !is_in_check(new_board,colour_opp(new_board->turn));
+   board_copy(&new_board,board);
+   move_do(&new_board,move);
+
+   return !is_in_check(&new_board,colour_opp(new_board.turn));
 }
 
 // move_is_legal()
