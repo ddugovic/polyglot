@@ -130,7 +130,7 @@ static bool inc_is_ok(int inc) {
 
 bool is_in_check(const board_t * board, int colour) {
 
-   int from, to;
+   int king, king_opp;
 
    ASSERT(board_is_ok(board));
    ASSERT(colour_is_ok(colour));
@@ -138,9 +138,9 @@ bool is_in_check(const board_t * board, int colour) {
    if (board->variant==DUNSANY && king_pos(board,colour)==SquareNone) return FALSE;
    if (board->variant==ATOMIC) {
 
-      if ((to = king_pos(board,colour)) == SquareNone) return TRUE;
-      if ((from = king_pos(board,colour_opp(colour))) == SquareNone) return FALSE;
-      if (piece_attack(board,board->square[board->list[colour][0]],from,to)) return FALSE;
+      if ((king = king_pos(board,colour)) == SquareNone) return TRUE;
+      if ((king_opp = king_pos(board,colour_opp(colour))) == SquareNone) return FALSE;
+      if (piece_attack(board,board->square[board->list[colour][0]],king,king_opp)) return FALSE;
    }
    return is_attacked(board,king_pos(board,colour),colour_opp(colour));
 }
@@ -203,7 +203,7 @@ bool is_pinned(const board_t * board, int from, int to, int colour) {
 
    int king, king_opp;
    int inc;
-   int sq, piece;
+   int sq, piece, capture;
 
    ASSERT(board!=NULL);
    ASSERT(square_is_ok(from));
@@ -216,9 +216,9 @@ bool is_pinned(const board_t * board, int from, int to, int colour) {
 
       king_opp = king_pos(board,colour_opp(colour));
       if (piece_attack(board,board->square[board->list[colour][0]],king,king_opp)) return FALSE;
-      // TODO: Some explosions take precedence over pins and checks
-      if (board->square[to] != Empty &&
-         piece_attack(board,board->square[board->list[colour][0]],to,king_opp)) return FALSE;
+
+      capture = board->square[to] != Empty || (to == board->ep_square && piece_is_pawn(board->square[from]));
+      if (capture && piece_attack(board,board->square[board->list[colour][0]],to,king_opp)) return FALSE;
    }
 
    inc = DELTA_INC(king-from);
@@ -231,6 +231,9 @@ bool is_pinned(const board_t * board, int from, int to, int colour) {
 
    sq = from;
    do sq -= inc; while ((piece=board->square[sq]) == Empty);
+
+   if (board->variant == ATOMIC && square_is_ok(sq) && capture
+       && piece_attack(board,board->square[board->list[colour][0]],to,sq)) return FALSE;
 
    return square_is_ok(sq)
        && (piece & DELTA_MASK(king-sq)) != 0

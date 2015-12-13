@@ -358,7 +358,7 @@ static bool san_to_lan(const char san[], const board_t * board, char string[], i
 static int move_from_lan(const char string[], const board_t * board) {
 
    int len;
-   int move;
+   int m, move;
    int promote;
    char s[256];
    int from, to;
@@ -483,17 +483,19 @@ static int move_from_lan(const char string[], const board_t * board) {
    for (ptr = board->list[colour]; (from=*ptr) != SquareNone; ptr++) {
 
       piece = board->square[from];
-
       if (toupper(piece_to_char(piece)) == piece_char) {
-         if (piece_attack(board,piece,from,to)) {
-            if (TRUE
+         if (piece_attack(board,piece,from,to)
              && (string[1] == '?' || file_to_char(square_file(from)) == string[1])
              && (string[2] == '?' || rank_to_char(square_rank(from)) == string[2])) {
-               if (piece_is_king(board->square[from]) || !is_pinned(board,from,to,colour)) {
-                  move = move_make(from,to) | promote;
-                  n++;
-               }
-            }
+             if (piece_is_king(board->square[from]) || !is_pinned(board,from,to,colour)) {
+                m = move_make(from,to) | promote;
+                if (n > 0) {
+                   if (!move_is_legal(m,board)) continue;
+                   if (!move_is_legal(move,board)) n--;
+                }
+                move = m;
+                n++;
+             }
          }
       }
    }
