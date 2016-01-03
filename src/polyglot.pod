@@ -207,8 +207,7 @@ equal probability.
 
 =back
 
-When invoked
-as
+When invoked as
 
 =head2 polyglot merge-book
 
@@ -258,8 +257,7 @@ The name of the output file.
 
 =back
 
-When invoked
-as
+When invoked as
 
 =head2 polyglot info-book
 
@@ -526,7 +524,7 @@ or the updating of the learn info will not work!
 
 Stop using the book after this number of moves. 
 
-=item B<BookTreshold> (default: 5)
+=item B<BookThreshold> (default: 5)
 
 Do not play moves with a weight (probability) lower than this (in per mil). 
 
@@ -563,17 +561,17 @@ are potentially useful for WinBoard.
 
 =back
 
-=head2 Work arounds 
+=head2 Workarounds 
 
-Work arounds are identical to options except that they should be used
+Workarounds are identical to options except that they should be used
 only when necessary.  Their purpose is to try to hide problems with
 various software (not just engines).  
 
-IMPORTANT: Any of these work arounds might be removed in future
+IMPORTANT: Any of these workarounds might be removed in future
 versions of PolyGlot.  You are strongly recommended to contact the
 author of faulty software and truly fix the problem.
 
-PolyGlot supports the following work arounds:
+PolyGlot supports the following workarounds:
 
 =over 4
 

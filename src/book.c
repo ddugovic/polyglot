@@ -232,7 +232,7 @@ void book_disp(const board_t * board) {
    char move_string[256];
    list_t list[1];
    int i;
-   int treshold=option_get_int(Option,"BookThreshold");
+   int threshold=option_get_int(Option,"BookThreshold");
 
    ASSERT(board!=NULL);
 
@@ -242,11 +242,11 @@ void book_disp(const board_t * board) {
 
    for(i=0; i<list_size(list); i++){
        move_to_san(list->move[i],board,move_string,256);
-       if(list->value[i]>10*treshold){
+       if(list->value[i]>10*threshold){
            printf(" %6s %5.2f%%\n",move_string,list->value[i]/100.0);
        }else{
-           printf(" %6s %5.2f%% (below treshold %4.2f%%)\n",
-                  move_string,list->value[i]/100.0,treshold/10.0);
+           printf(" %6s %5.2f%% (below threshold %4.2f%%)\n",
+                  move_string,list->value[i]/100.0,threshold/10.0);
        }
    }
    // this is necessary by the xboard protocol

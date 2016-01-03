@@ -428,7 +428,7 @@ CONFIG FILE FORMAT
        BookDepth (default: 256)
            Stop using the book after this number of moves.
 
-       BookTreshold (default: 5)
+       BookThreshold (default: 5)
            Do not play moves with a weight (probability) lower than this (in
            per mil).
 
@@ -458,16 +458,16 @@ CONFIG FILE FORMAT
            If true then PolyGlot restricts the options it sends to those that
            are potentially useful for WinBoard.
 
-   Work arounds
-       Work arounds are identical to options except that they should be used
+   Workarounds
+       Workarounds are identical to options except that they should be used
        only when necessary.  Their purpose is to try to hide problems with
        various software (not just engines).
 
-       IMPORTANT: Any of these work arounds might be removed in future
-       versions of PolyGlot.  You are strongly recommended to contact the
-       author of faulty software and truly fix the problem.
+       IMPORTANT: Any of these workarounds might be removed in future versions
+       of PolyGlot.  You are strongly recommended to contact the author of
+       faulty software and truly fix the problem.
 
-       PolyGlot supports the following work arounds:
+       PolyGlot supports the following workarounds:
 
        UCIVersion (default: 2)
            The default value of 2 corresponds to UCI+.  Use 1 to select plain
@@ -584,4 +584,4 @@ SEE ALSO
 
 
 
-                                  2015-08-30                       POLYGLOT(6)
+                                  2016-01-03                       POLYGLOT(6)

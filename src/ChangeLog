@@ -75,7 +75,7 @@
 - PG can now also be comfortably configured through command line options (i.e. without using a config file). 
 - Allow quotes in configfile (as in Fonzy Bleumer's PG). 
 =========1.4.37b================
-- Two new options: BookDepth and BookTreshold. BookDepth limits the number of moves the book is used and BookTreshold sets the minimum weight a book move should have.
+- Two new options: BookDepth and BookThreshold. BookDepth limits the number of moves the book is used and BookThreshold sets the minimum weight a book move should have.
 =========1.4.36b================
 - Bugfix: option = 0/1 was translated incorrectly.
 - Default node count is 1.
