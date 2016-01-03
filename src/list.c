@@ -199,11 +199,11 @@ void list_sort(list_t * list) {
       }
    }
 
-   if (DEBUG) {
-      for (i = 0; i < list->size-1; i++) {
-         ASSERT(list->value[i]>=list->value[i+1]);
-      }
+#ifndef NDEBUG
+   for (i = 0; i < list->size-1; i++) {
+      ASSERT(list->value[i]>=list->value[i+1]);
    }
+#endif
 }
 
 // list_contain()

@@ -231,15 +231,11 @@ static void write_ini(const char *filename,
 // welcome_message()
 
 void welcome_message(char *buf){
-    if(!DEBUG){
-        sprintf(buf,
-                "PolyGlot %s by Fabien Letouzey.\n",
-                Version);
-    }else{
-        sprintf(buf,
-                "PolyGlot %s by Fabien Letouzey (debug build).\n",
-                Version);
-    }
+#ifdef NDEBUG
+    sprintf(buf,"PolyGlot %s by Fabien Letouzey.\n",Version);
+#else
+    sprintf(buf,"PolyGlot %s by Fabien Letouzey (debug build).\n",Version);
+#endif
 }
 
 int wb_select(){

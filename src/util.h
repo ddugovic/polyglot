@@ -6,6 +6,7 @@
 
 // includes
 
+#include "config.h" // define NDEBUG before including <assert.h>
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -13,7 +14,6 @@
 #include <sys/types.h>
 #include <sys/timeb.h>
 #include <sys/stat.h>
-#include "config.h"
 
 // defines
 
@@ -36,13 +36,6 @@
 #undef TRUE
 #define TRUE 1
 
-#ifdef DEBUG
-#  undef DEBUG
-#  define DEBUG TRUE
-#else
-#  define DEBUG FALSE
-#endif
-
 #define S64_FORMAT "%"PRId64
 #define U64_FORMAT "%"PRIu64
 
@@ -60,7 +53,7 @@
 #ifdef assert
 #  define ASSERT(a) assert(a)
 #else
-#ifdef DEBUG
+#ifndef NDEBUG
 #  define ASSERT(a) { if (!(a)) my_fatal("file \"%s\", line %d, assertion \"" #a "\" failed\n",__FILE__,__LINE__); }
 #else
 #  define ASSERT(a)
