@@ -49,6 +49,7 @@ const char * pgheader_known_variants[]={
     "atomic",
     "3check",
     "kingofthehill",
+    "racingkings",
     "xiangqi",
     "shogi",
     "capablanca",

@@ -375,6 +375,7 @@ void xboard2uci_gui_step(char string[]) {
 			option_set(Option,"Chess960","false");
 			option_set(Option,"Horde","false");
 			option_set(Option,"KingOfTheHill","false");
+			option_set(Option,"RacingKings","false");
 
 			game_clear(Game);
 
@@ -744,6 +745,12 @@ void xboard2uci_gui_step(char string[]) {
 			} else {
 				option_set(Option,"KingOfTheHill","false");
 			}
+			if (my_string_equal(Star[0],"racingkings")) {
+				board->variant = RACINGKINGS;
+				option_set(Option,"RacingKings","true");
+			} else {
+				option_set(Option,"RacingKings","false");
+			}
 
 		} else if (match(string,"white")) {
 
@@ -1052,6 +1059,9 @@ static void send_xboard_options(){
     if (option_find(Uci->option,"UCI_KingOfTheHill")) {
         strncat(variants,",kingofthehill",StringSize-strlen(variants));
     }
+    if (option_find(Uci->option,"UCI_Race")) {
+        strncat(variants,",racingkings",StringSize-strlen(variants));
+    }
     strncat(variants,"\"",StringSize-strlen(variants));
     variants[StringSize-1]='\0';
     gui_send(GUI,variants);
@@ -1073,6 +1083,7 @@ void xboard2uci_send_options(){
     if(my_string_case_equal(opt->name,"UCI_Chess960")) continue;
     if(my_string_case_equal(opt->name,"UCI_Horde")) continue;
     if(my_string_case_equal(opt->name,"UCI_KingOfTheHill")) continue;
+    if(my_string_case_equal(opt->name,"UCI_RacingKings")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShowCurrLine")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShowRefutations")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShredderbasesPath")) continue;
@@ -1474,6 +1485,8 @@ static void search_update() {
                       option_get_bool(Option,"Horde")?"true":"false");
       uci_send_option(Uci,"UCI_KingOfTheHill","%s",
                       option_get_bool(Option,"KingOfTheHill")?"true":"false");
+      uci_send_option(Uci,"UCI_Race","%s",
+                      option_get_bool(Option,"RacingKings")?"true":"false");
 
       if (option_get_int(Option,"UCIVersion") >= 2) {
          uci_send_option(Uci,"UCI_Opponent","none none %s %s",(XB->computer)?"computer":"human",XB->name);

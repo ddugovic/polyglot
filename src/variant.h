@@ -16,6 +16,7 @@ typedef enum {
     ATOMIC,
     THREECHECK,
     KINGOFTHEHILL,
+    RACINGKINGS,
     XIANGQI,
     SHOGI,
     CAPABLANCA, // Transposes with Capablanca Random

@@ -231,6 +231,9 @@ static void parse_setoption(const char string[]) {
             if(!strcmp(name,"UCI_KingOfTheHill") && !strcmp(value,"true")){
                 UCIboard->variant = KINGOFTHEHILL;
             }
+            if(!strcmp(name,"UCI_Race") && !strcmp(value,"true")){
+                UCIboard->variant = RACINGKINGS;
+            }
             if(!strcmp(name,"UCI_Standard") && !strcmp(value,"true")){
                 UCIboard->variant = NORMAL;
             }

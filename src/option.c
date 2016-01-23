@@ -90,6 +90,7 @@ option_t DefaultOptions[] = {
     { "Chess960",         "check","0","0",      "false"     , NULL,0,NNB,  PG},
     { "Horde",            "check","0","0",      "false"     , NULL,0,NNB,  PG},
     { "KingOfTheHill",    "check","0","0",      "false"     , NULL,0,NNB,  PG},
+    { "RacingKings",      "check","0","0",      "false"     , NULL,0,NNB,  PG},
     { "Standard",         "check","0","0",      "true"      , NULL,0,NNB,  PG},
 
    // These options flag various hacks in the source to work around
