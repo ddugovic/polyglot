@@ -1005,6 +1005,7 @@ bool board_from_fen(board_t * board, const char string[]) {
    int i, len;
    int piece;
    int king_pos[ColourNb];
+   sint8 pocket[ColourNb * PieceNb];
 
    ASSERT(board!=NULL);
    ASSERT(string!=NULL);
@@ -1052,7 +1053,17 @@ bool board_from_fen(board_t * board, const char string[]) {
       if (rank > 0) {
          if (c != '/') my_fatal("board_from_fen(): bad FEN (pos=%d)\n",pos);
          c = string[++pos];
-     }
+      }
+   }
+
+   if (board->variant == CRAZYHOUSE && c == '/') {
+
+      while (char_is_piece(c = string[++pos])) {
+
+        piece = piece_from_char(c);
+        pocket[piece_to_12(piece)]++;
+      }
+      --pos;
    }
 
    // active colour
@@ -1229,6 +1240,13 @@ bool board_from_fen(board_t * board, const char string[]) {
 
 update:
    board_init_list(board);
+   if (board->variant == CRAZYHOUSE) {
+
+      for (len = 0; len < ColourNb * PieceNb; len++) {
+
+         board->number[len] += pocket[len];
+      }
+   }
 
    return TRUE;
 }
@@ -1243,6 +1261,7 @@ bool board_to_fen(const board_t * board, char string[], int size) {
    int c;
    int len;
    int old_pos;
+   sint8 pocket[ColourNb * PieceNb];
 
    ASSERT(board_is_ok(board));
    ASSERT(string!=NULL);
@@ -1252,6 +1271,7 @@ bool board_to_fen(const board_t * board, char string[], int size) {
 
    if (size < 92) return FALSE;
 
+   memcpy(pocket, board->number, sizeof(pocket));
    pos = 0;
 
    // piece placement
@@ -1276,6 +1296,7 @@ bool board_to_fen(const board_t * board, char string[], int size) {
 
          } else {
 
+            pocket[piece_to_12(piece)]--;
             c = piece_to_char(piece);
             file++;
          }
@@ -1283,6 +1304,19 @@ bool board_to_fen(const board_t * board, char string[], int size) {
          string[pos++] = c;
       }
 
+      string[pos++] = '/';
+   }
+
+   if (board->variant == CRAZYHOUSE) {
+
+      for (len = 0; len < ColourNb * PieceNb; len++) {
+
+         while (pocket[len]-- > 0) {
+
+            c = piece_to_char(len);
+            string[pos++] = c;
+         }
+      }
       string[pos++] = '/';
    }
 

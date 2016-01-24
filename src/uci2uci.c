@@ -228,6 +228,9 @@ static void parse_setoption(const char string[]) {
             if(!strcmp(name,"UCI_Horde") && !strcmp(value,"true")){
                 UCIboard->variant = DUNSANY;
             }
+            if(!strcmp(name,"UCI_House") && !strcmp(value,"true")){
+                UCIboard->variant = CRAZYHOUSE;
+            }
             if(!strcmp(name,"UCI_KingOfTheHill") && !strcmp(value,"true")){
                 UCIboard->variant = KINGOFTHEHILL;
             }

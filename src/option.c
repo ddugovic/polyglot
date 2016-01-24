@@ -88,6 +88,7 @@ option_t DefaultOptions[] = {
     { "3Check",           "check","0","0",      "false"     , NULL,0,NNB,  PG},
     { "Atomic",           "check","0","0",      "false"     , NULL,0,NNB,  PG},
     { "Chess960",         "check","0","0",      "false"     , NULL,0,NNB,  PG},
+    { "Crazyhouse",       "check","0","0",      "false"     , NULL,0,NNB,  PG},
     { "Horde",            "check","0","0",      "false"     , NULL,0,NNB,  PG},
     { "KingOfTheHill",    "check","0","0",      "false"     , NULL,0,NNB,  PG},
     { "RacingKings",      "check","0","0",      "false"     , NULL,0,NNB,  PG},

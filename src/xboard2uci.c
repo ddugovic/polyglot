@@ -373,6 +373,7 @@ void xboard2uci_gui_step(char string[]) {
 			option_set(Option,"3Check","false");
 			option_set(Option,"Atomic","false");
 			option_set(Option,"Chess960","false");
+			option_set(Option,"Crazyhouse","false");
 			option_set(Option,"Horde","false");
 			option_set(Option,"KingOfTheHill","false");
 			option_set(Option,"RacingKings","false");
@@ -733,6 +734,12 @@ void xboard2uci_gui_step(char string[]) {
 			} else {
 				option_set(Option,"Chess960","false");
 			}
+			if (my_string_equal(Star[0],"crazyhouse")) {
+				board->variant = CRAZYHOUSE;
+				option_set(Option,"Crazyhouse","true");
+			} else {
+				option_set(Option,"Crazyhouse","false");
+			}
 			if (my_string_equal(Star[0],"horde")) {
 				board->variant = DUNSANY;
 				option_set(Option,"Horde","true");
@@ -1056,6 +1063,9 @@ static void send_xboard_options(){
     if (option_find(Uci->option,"UCI_Horde")) {
         strncat(variants,",horde",StringSize-strlen(variants));
     }
+    if (option_find(Uci->option,"UCI_House")) {
+        strncat(variants,",crazyhouse",StringSize-strlen(variants));
+    }
     if (option_find(Uci->option,"UCI_KingOfTheHill")) {
         strncat(variants,",kingofthehill",StringSize-strlen(variants));
     }
@@ -1082,8 +1092,9 @@ void xboard2uci_send_options(){
     if(my_string_case_equal(opt->name,"UCI_Atomic")) continue;
     if(my_string_case_equal(opt->name,"UCI_Chess960")) continue;
     if(my_string_case_equal(opt->name,"UCI_Horde")) continue;
+    if(my_string_case_equal(opt->name,"UCI_House")) continue;
     if(my_string_case_equal(opt->name,"UCI_KingOfTheHill")) continue;
-    if(my_string_case_equal(opt->name,"UCI_RacingKings")) continue;
+    if(my_string_case_equal(opt->name,"UCI_Race")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShowCurrLine")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShowRefutations")) continue;
     if(my_string_case_equal(opt->name,"UCI_ShredderbasesPath")) continue;
@@ -1483,6 +1494,8 @@ static void search_update() {
                       option_get_bool(Option,"Chess960")?"true":"false");
       uci_send_option(Uci,"UCI_Horde","%s",
                       option_get_bool(Option,"Horde")?"true":"false");
+      uci_send_option(Uci,"UCI_House","%s",
+                      option_get_bool(Option,"Crazyhouse")?"true":"false");
       uci_send_option(Uci,"UCI_KingOfTheHill","%s",
                       option_get_bool(Option,"KingOfTheHill")?"true":"false");
       uci_send_option(Uci,"UCI_Race","%s",

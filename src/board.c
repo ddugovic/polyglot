@@ -70,6 +70,7 @@ bool board_is_ok(const board_t * board) {
 
    for (pos++; pos < board->list_size[colour]; pos++) {
       sq = board->list[colour][pos];
+      if (board->variant == CRAZYHOUSE && sq == SquareNb) continue;
       if (sq == SquareNone) return FALSE;
       if (board->pos[sq] != pos) return FALSE;
       if (!colour_equal(board->square[sq],colour)) return FALSE;
@@ -93,6 +94,7 @@ bool board_is_ok(const board_t * board) {
 
    for (pos++; pos < board->list_size[colour]; pos++) {
       sq = board->list[colour][pos];
+      if (board->variant == CRAZYHOUSE && sq == SquareNb) continue;
       if (sq == SquareNone) return FALSE;
       if (board->pos[sq] != pos) return FALSE;
       if (!colour_equal(board->square[sq],colour)) return FALSE;
