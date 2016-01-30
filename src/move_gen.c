@@ -241,8 +241,6 @@ static void add_castle_moves(list_t * list, const board_t * board) {
          for (sq = king_from+inc; TRUE; sq += inc) {
 
             if (sq != rook_from && board->square[sq] != Empty) legal = FALSE;
-            // TODO: Castling is legal if kings are adjacent
-            if (board->variant == ATOMIC); else
             if (is_attacked(board,sq,opp)) legal = FALSE;
 
             if (sq == king_to) break;
@@ -286,8 +284,6 @@ static void add_castle_moves(list_t * list, const board_t * board) {
          for (sq = king_from+inc; TRUE; sq += inc) {
 
             if (sq != rook_from && board->square[sq] != Empty) legal = FALSE;
-            // TODO: Castling is legal if kings are adjacent
-            if (board->variant == ATOMIC); else
             if (is_attacked(board,sq,opp)) legal = FALSE;
 
             if (sq == king_to) break;

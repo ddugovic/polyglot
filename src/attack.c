@@ -130,18 +130,10 @@ static bool inc_is_ok(int inc) {
 
 bool is_in_check(const board_t * board, int colour) {
 
-   int king, king_opp;
-
    ASSERT(board_is_ok(board));
    ASSERT(colour_is_ok(colour));
 
    if (board->variant==DUNSANY && king_pos(board,colour)==SquareNone) return FALSE;
-   if (board->variant==ATOMIC) {
-
-      if ((king = king_pos(board,colour)) == SquareNone) return TRUE;
-      if ((king_opp = king_pos(board,colour_opp(colour))) == SquareNone) return FALSE;
-      if (piece_attack(board,board->square[board->list[colour][0]],king,king_opp)) return FALSE;
-   }
    return is_attacked(board,king_pos(board,colour),colour_opp(colour));
 }
 
@@ -156,12 +148,21 @@ bool is_attacked(const board_t * board, int to, int colour) {
    ASSERT(square_is_ok(to));
    ASSERT(colour_is_ok(colour));
 
+   if (board->variant==ATOMIC) {
+
+      if (king_pos(board,colour_opp(colour)) == SquareNone) return TRUE;
+      if (king_pos(board,colour) == SquareNone) return FALSE;
+   }
    for (ptr = board->list[colour]; (from=*ptr) != SquareNone; ptr++) {
 
       piece = board->square[from];
       ASSERT(colour_equal(piece,colour));
 
-      if (piece_attack(board,piece,from,to)) return TRUE;
+      if (piece_attack(board,piece,from,to)) {
+
+         if (board->variant==ATOMIC && ptr==board->list[colour]) return FALSE;
+         return TRUE;
+      }
    }
 
    return FALSE;
