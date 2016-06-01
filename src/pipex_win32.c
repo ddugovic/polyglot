@@ -383,8 +383,8 @@ bool pipex_readln_nb(pipex_t *pipex, char *szLineStr) {
         if (c != '\r' && c != '\n') szLineStr[dst++] = c;
     }
     szLineStr[dst] = '\0';
-    ASSERT(strchr(szLineStr,'\n')==NULL)
-    ASSERT(strchr(szLineStr,'\r')==NULL)
+    ASSERT(strchr(szLineStr,'\n')==NULL);
+    ASSERT(strchr(szLineStr,'\r')==NULL);
 
     nFeedEnd ++;
     pipex->nReadEnd -= nFeedEnd;
